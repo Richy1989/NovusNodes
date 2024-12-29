@@ -37,7 +37,7 @@ namespace NovusNodoCore.Managers
 
                             IPluginBase plugin = (IPluginBase)instance;
 
-                            executionManager.AvailablePlugins.Add(plugin.ID, type);
+                            executionManager.AvailablePlugins.Add(plugin.ID, plugin);
                         }
                     }
                 }

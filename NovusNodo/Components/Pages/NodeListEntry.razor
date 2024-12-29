@@ -1,0 +1,27 @@
+﻿@using NovusNodoPluginLibrary
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.Components
+
+
+    <div class="node-component">
+        <div class="node-header">
+            <h3>@Node.Name</h3>
+        </div>
+        <div class="node-body">
+            <label for="parentNode">Parent Node:</label>
+        
+            <div>
+                <input type="checkbox" id="isEnabled" @bind="Node.IsEnabled" />
+                <label for="isEnabled">Enabled</label>
+            </div>
+        </div>
+    </div>
+
+@code {
+
+    [Parameter]
+    public INodeBase Node { get; set; }
+
+    //[Parameter]
+    //public List<INodeBase> ParentNodes { get; set; }
+}

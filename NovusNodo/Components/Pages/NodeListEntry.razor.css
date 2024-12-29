@@ -1,0 +1,19 @@
+﻿.node-component {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 5px;
+    width: 200px;
+    background-color: #f9f9f9;
+}
+
+.node-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.node-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}

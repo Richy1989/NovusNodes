@@ -1,25 +1,16 @@
-﻿namespace NovusNodoPluginLibrary
+﻿using System.Drawing;
+
+namespace NovusNodoPluginLibrary
 {
+    /// <summary>
+    /// Represents the base interface for all plugins.
+    /// </summary>
     public interface IPluginBase
     {
         /// <summary>
         /// Gets or sets the JSON configuration.
         /// </summary>
         string JsonConfig { get; set; }
-        
-        /*
-        /// <summary>
-        /// Gets the configuration object.
-        /// </summary>
-        /// <returns>The configuration object of type <typeparamref name="ConfigType"/>.</returns>
-        ConfigType GetConfig();
-
-        /// <summary>
-        /// Sets the configuration object.
-        /// </summary>
-        /// <param name="config">The configuration object of type <typeparamref name="ConfigType"/>.</param>
-        void SetConfig(ConfigType config);
-        */
 
         /// <summary>
         /// Gets or sets the parent node.
@@ -30,6 +21,16 @@
         /// Gets the unique identifier for the plugin.
         /// </summary>
         string ID { get; }
+
+        /// <summary>
+        /// Gets the name of the plugin.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        /// Gets the background color of the plugin.
+        /// </summary>
+        Color Background { get; }
 
         /// <summary>
         /// Gets the type of the node.
@@ -45,7 +46,8 @@
         /// <summary>
         /// Defines the workload to be executed by the node.
         /// </summary>
-        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <param name="jsonData">The JSON data to be processed by the workload.</param>
+        /// <returns>A function that represents the asynchronous operation and returns a string result.</returns>
         Func<Task<string>> Workload(string jsonData);
     }
 }

@@ -3,12 +3,33 @@ using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.Managers
 {
+    /// <summary>
+    /// Manages the execution of nodes and plugins.
+    /// </summary>
     public class ExecutionManager
     {
         private readonly CancellationTokenSource cts;
         private readonly CancellationToken token;
         private readonly PluginLoader pluginLoader;
 
+        /// <summary>
+        /// Event fired when AvailableNodes is updated.
+        /// </summary>
+        public event Action<INodeBase>? AvailableNodesUpdated;
+
+        /// <summary>
+        /// Gets or sets the available plugins.
+        /// </summary>
+        public IDictionary<string, IPluginBase> AvailablePlugins { get; set; } = new Dictionary<string, IPluginBase>();
+
+        /// <summary>
+        /// Gets or sets the available nodes.
+        /// </summary>
+        public IDictionary<string, INodeBase> AvailableNodes { get; set; } = new Dictionary<string, INodeBase>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
+        /// </summary>
         public ExecutionManager()
         {
             cts = new CancellationTokenSource();
@@ -16,21 +37,46 @@ namespace NovusNodoCore.Managers
             pluginLoader = new PluginLoader(this);
         }
 
+        /// <summary>
+        /// Initializes the execution manager by loading plugins and creating test nodes.
+        /// </summary>
         public void Initialize()
         {
             pluginLoader.LoadPlugins();
-            CreateTestNodes();
         }
 
-        public IDictionary<string, Type> AvailablePlugins { get; set; } = new Dictionary<string, Type>();
+        public void CreateNode(IPluginBase pluginBase)
+        {
+            var instance = Activator.CreateInstance(pluginBase.GetType());
 
-        public IDictionary<string, INodeBase> AvailableNodes { get; set; } = new Dictionary<string, INodeBase> ();
+            if (instance == null)
+            {
+                return;
+            }
 
+            var plugin = (IPluginBase)instance;
+
+            if (plugin != null)
+            {
+                INodeBase node = new NodeBase(plugin, token);
+                AvailableNodes.Add(node.ID, node);
+                OnAvailableNodesUpdated(node);
+            }
+        }
+
+        private void OnAvailableNodesUpdated(INodeBase nodeBase)
+        {
+            AvailableNodesUpdated?.Invoke(nodeBase);
+        }
+
+        /// <summary>
+        /// Creates test nodes from the available plugins.
+        /// </summary>
         public void CreateTestNodes()
         {
             foreach (var item in AvailablePlugins)
             {
-                var instance = Activator.CreateInstance(item.Value);
+                var instance = Activator.CreateInstance(item.Value.GetType());
 
                 if (instance == null)
                 {
@@ -62,8 +108,6 @@ namespace NovusNodoCore.Managers
                     starter.NextNodes.Add(node.Value.ID, node.Value);
                 }
             }
-
-
         }
     }
 }

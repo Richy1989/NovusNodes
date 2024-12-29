@@ -1,0 +1,56 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+@using Microsoft.JSInterop
+@using NovusNodoPluginLibrary
+@using System.Linq;
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.Components
+@inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
+@inject IJSRuntime JS;
+
+<PageTitle>Home</PageTitle>
+
+<div class="main">
+    @foreach (var node in items.Values)
+    {
+        <Node NodeBase="node" />
+    }
+</div>
+
+@code {
+
+    /// <summary>
+    /// Dictionary to hold the available nodes.
+    /// </summary>
+    private IDictionary<string, INodeBase> items = new Dictionary<string, INodeBase>();
+    
+    /// <summary>
+    /// Method called when the component is initialized.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        items = ExecutionManager.AvailableNodes;
+        ExecutionManager.AvailableNodesUpdated += NodesAdded;  
+    }
+
+    /// <summary>
+    /// Event handler for when nodes are added.
+    /// </summary>
+    /// <param name="node">The node that was added.</param>
+    private void NodesAdded(INodeBase node)
+    {
+        items = ExecutionManager.AvailableNodes;
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Method called after the component has rendered.
+    /// </summary>
+    /// <param name="firstRender">Indicates if this is the first render.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("dragAndDrop", ".draggable");
+    }
+}

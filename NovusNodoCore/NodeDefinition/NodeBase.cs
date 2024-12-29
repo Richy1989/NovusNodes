@@ -1,4 +1,5 @@
-﻿using NovusNodoPluginLibrary;
+﻿using System.Drawing;
+using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.NodeDefinition
 {
@@ -127,6 +128,16 @@ namespace NovusNodoCore.NodeDefinition
         /// Gets or sets the JSON configuration for the node.
         /// </summary>
         public string JsonConfig { get => basedPlugin.JsonConfig; set => basedPlugin.JsonConfig = value; }
+
+        /// <summary>
+        /// Gets the name of the node.
+        /// </summary>
+        public string Name => basedPlugin.Name;
+
+        /// <summary>
+        /// Gets the background color of the node.
+        /// </summary>
+        public Color Background => basedPlugin.Background;
 
         /// <summary>
         /// Defines the workload to be executed by the node.

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Drawing;
+using System.Text.Json;
 
 namespace NovusNodoPluginLibrary
 {
@@ -21,6 +22,11 @@ namespace NovusNodoPluginLibrary
         /// Gets the name of the plugin.
         /// </summary>
         public virtual string Name { get; }
+
+        /// <summary>
+        /// Gets the background color of the plugin.
+        /// </summary>
+        public virtual Color Background { get; }
 
         /// <summary>
         /// Gets the type of the node.

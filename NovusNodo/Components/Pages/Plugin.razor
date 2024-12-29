@@ -1,0 +1,71 @@
+﻿@using NovusNodoPluginLibrary
+@inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
+
+<div class="plugin" style="background-color:@BackgroundColorCss" @onclick="AddItem">
+    <div class="plugin-header">@Name</div>
+    <div class="plugin-body">@ChildContent</div>
+</div>
+
+@code
+{
+    /// <summary>
+    /// Gets or sets the plugin base.
+    /// </summary>
+    [Parameter] public IPluginBase? PluginBase { get; set; }
+
+    /// <summary>
+    /// Gets or sets the child content to be rendered inside the plugin.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; } // For additional content
+
+    /// <summary>
+    /// Gets or sets the background color CSS string.
+    /// </summary>
+    private string BackgroundColorCss { get; set; } = ConvertColorToCSSColor(System.Drawing.Color.Violet);
+
+    /// <summary>
+    /// Gets or sets the name of the plugin.
+    /// </summary>
+    private string Name = "Not Defined";
+
+    /// <summary>
+    /// Method invoked after the component has rendered.
+    /// </summary>
+    /// <param name="firstRender">Set to true if this is the first time OnAfterRenderAsync(Boolean) has been invoked on this component instance; otherwise false.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    /// <summary>
+    /// Method invoked when the component is initialized.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (PluginBase != null)
+        {
+            BackgroundColorCss = ConvertColorToCSSColor(PluginBase.Background);
+            Name = PluginBase.Name;
+        }
+    }
+
+    /// <summary>
+    /// Converts a System.Drawing.Color to a CSS color string.
+    /// </summary>
+    /// <param name="color">The color to convert.</param>
+    /// <returns>The CSS color string.</returns>
+    public static string ConvertColorToCSSColor(System.Drawing.Color color)
+    {
+        return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+    }
+
+    /// <summary>
+    /// Adds a new item by invoking the ExecutionManager's CreateNode method.
+    /// </summary>
+    private void AddItem()
+    {
+        if (PluginBase != null)
+            ExecutionManager.CreateNode(PluginBase);
+    }
+}

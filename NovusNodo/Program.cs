@@ -7,10 +7,9 @@ namespace NovusNodo
     {
         public static void Main(string[] args)
         {
-            ExecutionManager executionManager = new ();
-            Task.Run(() => executionManager.Initialize());
-
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddSingleton<ExecutionManager>();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
@@ -19,6 +18,9 @@ namespace NovusNodo
             builder.Services.AddBlazorBootstrap();
 
             var app = builder.Build();
+
+            ExecutionManager executionManager = app.Services.GetRequiredService<ExecutionManager>();
+            Task.Run(() => executionManager.Initialize());
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -37,8 +39,6 @@ namespace NovusNodo
                 .AddInteractiveServerRenderMode();
 
             app.Run();
-
-            
         }
     }
 }

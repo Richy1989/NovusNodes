@@ -1,0 +1,22 @@
+﻿.draggable {
+    display: inline-block; /* Ensures the container shrinks to fit its content */
+    min-width: 140px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    margin: 10px;
+}
+
+.node-header {
+    padding: 0px;
+    font-weight: bold;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #ccc;
+}
+
+.node-body {
+    padding: 10px;
+    font-size: 0.9em;
+}

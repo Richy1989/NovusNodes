@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Drawing;
+using System.Text;
 using System.Text.Json.Nodes;
 using NovusNodoPluginLibrary;
 using NovusNodoPluginLibrary.Helper;
@@ -29,6 +30,11 @@ namespace NovusNodoPlugins
         public override string Name { get; } = "Debug";
 
         /// <summary>
+        /// Gets the background color of the plugin.
+        /// </summary>
+        public override Color Background { get; } = Color.FromArgb(173, 216, 230);
+
+        /// <summary>
         /// Gets the type of the node.
         /// </summary>
         public override NodeType NodeType { get; } = NodeType.Finisher;
@@ -36,6 +42,7 @@ namespace NovusNodoPlugins
         /// <summary>
         /// Defines the workload to be executed by the node.
         /// </summary>
+        /// <param name="jsonData">The JSON data to be processed by the workload.</param>
         /// <returns>A function representing the asynchronous workload.</returns>
         public override Func<Task<string>> Workload(string jsonData)
         {

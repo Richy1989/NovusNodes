@@ -1,4 +1,5 @@
-﻿using NovusNodoPluginLibrary;
+﻿using System.Drawing;
+using NovusNodoPluginLibrary;
 using NovusNodoPluginLibrary.Helper;
 
 namespace NovusNodoPlugins
@@ -27,6 +28,11 @@ namespace NovusNodoPlugins
         /// Gets the name of the plugin.
         /// </summary>
         public override string Name { get; } = "Injector";
+
+        /// <summary>
+        /// Gets the background color of the plugin.
+        /// </summary>
+        public override Color Background { get; } = Color.FromArgb(211, 211, 211);
 
         /// <summary>
         /// Gets the type of the node.
