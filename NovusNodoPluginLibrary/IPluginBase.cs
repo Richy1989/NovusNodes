@@ -15,7 +15,7 @@ namespace NovusNodoPluginLibrary
         /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
-        INodeBase ParentNode { get; set; }
+        IPluginBase ParentNode { get; set; }
 
         /// <summary>
         /// Gets the unique identifier for the plugin.

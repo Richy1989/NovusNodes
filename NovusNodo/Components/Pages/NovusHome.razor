@@ -1,37 +1,74 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 
-@using Microsoft.JSInterop
-@using NovusNodoPluginLibrary
-@using System.Linq;
 @using System.Collections.Generic
+@using System.Linq;
 @using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@using NovusNodoCore.NodeDefinition
+@using NovusNodoPluginLibrary
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 @inject IJSRuntime JS;
 
 <PageTitle>Home</PageTitle>
 
 <div class="main">
+    <canvas id="canvas"></canvas>
     @foreach (var node in items.Values)
     {
         <Node NodeBase="node" />
     }
 </div>
-
+<button @onclick="DrawLine">Move Element</button>
 @code {
+
+    private async Task DrawLine()
+    {
+        if (items.Count >= 2)
+        {
+            var nodes = items.Values.ToList();
+            await JS.InvokeVoidAsync("DrawLine", [$"{nodes[0].ID}", $"{nodes[1].ID}"]);
+        }       
+    }
 
     /// <summary>
     /// Dictionary to hold the available nodes.
     /// </summary>
-    private IDictionary<string, INodeBase> items = new Dictionary<string, INodeBase>();
-    
+    private static IDictionary<string, INodeBase> items = new Dictionary<string, INodeBase>();
+
     /// <summary>
     /// Method called when the component is initialized.
     /// </summary>
     protected override void OnInitialized()
     {
         items = ExecutionManager.AvailableNodes;
-        ExecutionManager.AvailableNodesUpdated += NodesAdded;  
+        ExecutionManager.AvailableNodesUpdated += NodesAdded;
+    }
+
+    /// <summary>
+    /// Invokable method to handle the movement of an element.
+    /// </summary>
+    /// <param name="id">The identifier of the element.</param>
+    /// <param name="x">The new x-coordinate of the element.</param>
+    /// <param name="y">The new y-coordinate of the element.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    [JSInvokable]
+    public static async Task ElementMoved(string id, double x, double y)
+    {
+        items[id].UIConfig.X = x;
+        items[id].UIConfig.Y = y;
+        await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Connects two nodes by drawing a line between them.
+    /// </summary>
+    /// <param name="id1">The identifier of the first node.</param>
+    /// <param name="id2">The identifier of the second node.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public async Task Connect(string id1, string id2)
+    {
+        await JS.InvokeVoidAsync("DrawLine", [$"{id1}",$"{id2}"]);
     }
 
     /// <summary>
@@ -51,6 +88,18 @@
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JS.InvokeVoidAsync("dragAndDrop", ".draggable");
+        if (firstRender)
+        {
+            foreach (var node in items.Values)
+            {
+                //await JS.InvokeVoidAsync("SetElementPosition", [$"{node.ID}", "100", "200"]);
+                if (node.UIConfig.X != 0 && node.UIConfig.Y != 0)
+                {
+                   await JS.InvokeVoidAsync("SetElementPosition", [$"{node.ID}", $"{node.UIConfig.X}", $"{node.UIConfig.Y}"]);
+                }
+            }
+
+            await JS.InvokeVoidAsync("dragAndDrop", ".draggable");
+        }
     }
 }

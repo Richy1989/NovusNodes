@@ -1,6 +1,8 @@
-﻿@using NovusNodoPluginLibrary
+﻿@using NovusNodoCore.NodeDefinition
+@using NovusNodoPluginLibrary
+@inject IJSRuntime JS;
 
-<div class="draggable" style="background-color:@BackgroundColorCss">
+<div class="draggable" id="@ID" style="background-color:@BackgroundColorCss">
     <div class="node-header">@Name</div>
     <div class="node-body">@ChildContent</div>
 </div>
@@ -12,16 +14,30 @@
 
     private string BackgroundColorCss { get; set; } = ConvertColorToCSSColor(System.Drawing.Color.Violet);
     private string Name = "Not Defined";
+    private string ID = "Default";
+
 
     protected override void OnInitialized()
     {
         if (NodeBase == null) return;
         BackgroundColorCss = ConvertColorToCSSColor(NodeBase.Background);
         Name = NodeBase.Name;
+        ID = NodeBase.ID;
     }
 
     public static string ConvertColorToCSSColor(System.Drawing.Color color)
     {
         return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+    }
+
+    /// <summary>
+    /// Method called after the component has rendered.
+    /// </summary>
+    /// <param name="firstRender">Indicates if this is the first render.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // if (NodeBase == null) return;
+        await Task.CompletedTask;
     }
 }

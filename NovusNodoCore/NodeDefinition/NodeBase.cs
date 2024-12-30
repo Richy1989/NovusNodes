@@ -112,7 +112,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
-        public INodeBase ParentNode { get => basedPlugin.ParentNode; set => basedPlugin.ParentNode = value; }
+        public IPluginBase ParentNode { get => basedPlugin.ParentNode; set => basedPlugin.ParentNode = value; }
 
         /// <summary>
         /// Gets the type of the node.
@@ -138,6 +138,8 @@ namespace NovusNodoCore.NodeDefinition
         /// Gets the background color of the node.
         /// </summary>
         public Color Background => basedPlugin.Background;
+
+        public NodeUIConfig UIConfig { get; set; } = new NodeUIConfig();
 
         /// <summary>
         /// Defines the workload to be executed by the node.

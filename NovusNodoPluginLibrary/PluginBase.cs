@@ -41,7 +41,7 @@ namespace NovusNodoPluginLibrary
         /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
-        public required INodeBase ParentNode { get; set; }
+        public required IPluginBase ParentNode { get; set; }
 
         /// <summary>
         /// Prepares the workload asynchronously.

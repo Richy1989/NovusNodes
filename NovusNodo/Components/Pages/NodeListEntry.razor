@@ -1,6 +1,7 @@
-﻿@using NovusNodoPluginLibrary
-@using System.Collections.Generic
+﻿@using System.Collections.Generic
 @using Microsoft.AspNetCore.Components
+@using NovusNodoCore.NodeDefinition
+@using NovusNodoPluginLibrary
 
 
     <div class="node-component">
@@ -21,6 +22,8 @@
 
     [Parameter]
     public INodeBase Node { get; set; }
+
+    //SetElementPosition
 
     //[Parameter]
     //public List<INodeBase> ParentNodes { get; set; }

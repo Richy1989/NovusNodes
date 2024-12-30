@@ -1,10 +1,13 @@
-﻿namespace NovusNodoPluginLibrary
+﻿using NovusNodoPluginLibrary;
+
+namespace NovusNodoCore.NodeDefinition
 {
     /// <summary>
     /// Represents the base interface for all nodes.
     /// </summary>
     public interface INodeBase : IPluginBase
     {
+        NodeUIConfig UIConfig { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the node is enabled.
