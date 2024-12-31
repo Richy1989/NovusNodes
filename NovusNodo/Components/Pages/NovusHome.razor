@@ -1,6 +1,7 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 
+@implements IDisposable
 @using System.Collections.Generic
 @using System.Linq;
 @using Microsoft.AspNetCore.Components
@@ -8,27 +9,96 @@
 @using NovusNodoCore.NodeDefinition
 @using NovusNodoPluginLibrary
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
-@inject IJSRuntime JS;
+@inject IJSRuntime JS
 
 <PageTitle>Home</PageTitle>
 
-<div class="main">
+<div class="main" @onmousemove="MainMouseMove" @onmouseup="MouseUp">
     <canvas id="canvas"></canvas>
     @foreach (var node in items.Values)
     {
-        <Node NodeBase="node" />
+        <Node NodeBase="node" ConnectorClicked="ConnectorClicked" />
     }
 </div>
-<button @onclick="DrawLine">Move Element</button>
-@code {
 
+@code {
+    /// <summary>
+    /// Indicates if the right connector was clicked.
+    /// </summary>
+    private static bool RightConnectorClicked = false;
+
+    /// <summary>
+    /// Stores the X coordinate of the clicked element.
+    /// </summary>
+    private static double ClickedElementX = 0;
+
+    /// <summary>
+    /// Stores the Y coordinate of the clicked element.
+    /// </summary>
+    private static double ClickedElementY = 0;
+
+    /// <summary>
+    /// Handles the mouse move event on the main div.
+    /// </summary>
+    /// <param name="e">The mouse event arguments.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public async Task MainMouseMove(MouseEventArgs e)
+    {
+        if (RightConnectorClicked)
+        {
+            await JS.InvokeVoidAsync("DrawLineCoordinate", new object[] { $"{ClickedElementX}", $"{ClickedElementY}", $"{e.ClientX}", $"{e.ClientY}" });
+        }
+    }
+
+    /// <summary>
+    /// Handles the connector clicked event.
+    /// </summary>
+    private Func<MouseEventArgs, string, Task> ConnectorClicked = async (e, id) =>
+    {
+        ClickedElementX = items[id].UIConfig.X;
+        ClickedElementY = items[id].UIConfig.Y;
+        RightConnectorClicked = true;
+        await Task.CompletedTask;
+    };
+
+    /// <summary>
+    /// Handles the mouse up event on the main div.
+    /// </summary>
+    /// <param name="e">The mouse event arguments.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public async Task MouseUp(MouseEventArgs e)
+    {
+        RightConnectorClicked = false;
+        await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Delegate for the redraw connections action.
+    /// </summary>
+    private static Func<Task>? RedrawConnectionsActionAsync;
+
+    /// <summary>
+    /// Redraws the connections asynchronously.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task LocalRedrawConnectionsAsync()
+    {
+        await DrawLine();
+    }
+
+    /// <summary>
+    /// Draws lines between connected nodes.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task DrawLine()
     {
-        if (items.Count >= 2)
+        foreach (var node in items.Values)
         {
-            var nodes = items.Values.ToList();
-            await JS.InvokeVoidAsync("DrawLine", [$"{nodes[0].ID}", $"{nodes[1].ID}"]);
-        }       
+            foreach (var next in node.NextNodes.Values)
+            {
+                await JS.InvokeVoidAsync("DrawLine", new object[] { $"{node.ID}", $"{next.ID}" });
+            }
+        }    
     }
 
     /// <summary>
@@ -41,6 +111,8 @@
     /// </summary>
     protected override void OnInitialized()
     {
+        base.OnInitialized();
+        RedrawConnectionsActionAsync = LocalRedrawConnectionsAsync;
         items = ExecutionManager.AvailableNodes;
         ExecutionManager.AvailableNodesUpdated += NodesAdded;
     }
@@ -57,18 +129,12 @@
     {
         items[id].UIConfig.X = x;
         items[id].UIConfig.Y = y;
-        await Task.CompletedTask;
-    }
 
-    /// <summary>
-    /// Connects two nodes by drawing a line between them.
-    /// </summary>
-    /// <param name="id1">The identifier of the first node.</param>
-    /// <param name="id2">The identifier of the second node.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task Connect(string id1, string id2)
-    {
-        await JS.InvokeVoidAsync("DrawLine", [$"{id1}",$"{id2}"]);
+        // Redraw connections
+        if (RedrawConnectionsActionAsync is { } actionAsync)
+        {
+            await actionAsync();
+        }
     }
 
     /// <summary>
@@ -92,14 +158,21 @@
         {
             foreach (var node in items.Values)
             {
-                //await JS.InvokeVoidAsync("SetElementPosition", [$"{node.ID}", "100", "200"]);
                 if (node.UIConfig.X != 0 && node.UIConfig.Y != 0)
                 {
-                   await JS.InvokeVoidAsync("SetElementPosition", [$"{node.ID}", $"{node.UIConfig.X}", $"{node.UIConfig.Y}"]);
+                    await JS.InvokeVoidAsync("SetElementPosition", new object[] { $"{node.ID}", $"{node.UIConfig.X}", $"{node.UIConfig.Y}" });
                 }
             }
 
             await JS.InvokeVoidAsync("dragAndDrop", ".draggable");
         }
+    }
+
+    /// <summary>
+    /// Method called when the component is disposed.
+    /// </summary>
+    public void Dispose()
+    {
+        RedrawConnectionsActionAsync = null;
     }
 }

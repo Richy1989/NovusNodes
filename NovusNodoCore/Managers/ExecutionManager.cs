@@ -43,6 +43,7 @@ namespace NovusNodoCore.Managers
         public void Initialize()
         {
             pluginLoader.LoadPlugins();
+            CreateTestNodes();
         }
 
         public void CreateNode(IPluginBase pluginBase)
