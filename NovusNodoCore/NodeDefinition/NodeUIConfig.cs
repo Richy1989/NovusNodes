@@ -8,7 +8,7 @@ namespace NovusNodoCore.NodeDefinition
 {
     public class NodeUIConfig
     {
-        public double X { get; set; }
-        public double Y { get; set; }
+        public double X { get; set; } = -1;
+        public double Y { get; set; } = -1;
     }
 }

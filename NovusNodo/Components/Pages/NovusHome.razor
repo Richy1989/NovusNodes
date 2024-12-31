@@ -13,65 +13,9 @@
 
 <PageTitle>Home</PageTitle>
 
-<div class="main" @onmousemove="MainMouseMove" @onmouseup="MouseUp">
-    <canvas id="canvas"></canvas>
-    @foreach (var node in items.Values)
-    {
-        <Node NodeBase="node" ConnectorClicked="ConnectorClicked" />
-    }
+<div class="main" id="main">
 </div>
-
 @code {
-    /// <summary>
-    /// Indicates if the right connector was clicked.
-    /// </summary>
-    private static bool RightConnectorClicked = false;
-
-    /// <summary>
-    /// Stores the X coordinate of the clicked element.
-    /// </summary>
-    private static double ClickedElementX = 0;
-
-    /// <summary>
-    /// Stores the Y coordinate of the clicked element.
-    /// </summary>
-    private static double ClickedElementY = 0;
-
-    /// <summary>
-    /// Handles the mouse move event on the main div.
-    /// </summary>
-    /// <param name="e">The mouse event arguments.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task MainMouseMove(MouseEventArgs e)
-    {
-        if (RightConnectorClicked)
-        {
-            await JS.InvokeVoidAsync("DrawLineCoordinate", new object[] { $"{ClickedElementX}", $"{ClickedElementY}", $"{e.ClientX}", $"{e.ClientY}" });
-        }
-    }
-
-    /// <summary>
-    /// Handles the connector clicked event.
-    /// </summary>
-    private Func<MouseEventArgs, string, Task> ConnectorClicked = async (e, id) =>
-    {
-        ClickedElementX = items[id].UIConfig.X;
-        ClickedElementY = items[id].UIConfig.Y;
-        RightConnectorClicked = true;
-        await Task.CompletedTask;
-    };
-
-    /// <summary>
-    /// Handles the mouse up event on the main div.
-    /// </summary>
-    /// <param name="e">The mouse event arguments.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task MouseUp(MouseEventArgs e)
-    {
-        RightConnectorClicked = false;
-        await Task.CompletedTask;
-    }
-
     /// <summary>
     /// Delegate for the redraw connections action.
     /// </summary>
@@ -129,22 +73,18 @@
     {
         items[id].UIConfig.X = x;
         items[id].UIConfig.Y = y;
-
-        // Redraw connections
-        if (RedrawConnectionsActionAsync is { } actionAsync)
-        {
-            await actionAsync();
-        }
+        await Task.CompletedTask;
     }
 
     /// <summary>
     /// Event handler for when nodes are added.
     /// </summary>
     /// <param name="node">The node that was added.</param>
-    private void NodesAdded(INodeBase node)
+    private async Task NodesAdded(INodeBase node)
     {
         items = ExecutionManager.AvailableNodes;
-        InvokeAsync(StateHasChanged);
+        await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}"]);
+        await JS.InvokeVoidAsync("JJSAddPorts", [$"{node.ID}", $"{node.NodeType}"]);
     }
 
     /// <summary>
@@ -156,16 +96,32 @@
     {
         if (firstRender)
         {
+            await JS.InvokeVoidAsync("JJSCreatePaper", "main");
+
             foreach (var node in items.Values)
             {
-                if (node.UIConfig.X != 0 && node.UIConfig.Y != 0)
+                if (node.UIConfig.X > 0 && node.UIConfig.Y > 0)
                 {
-                    await JS.InvokeVoidAsync("SetElementPosition", new object[] { $"{node.ID}", $"{node.UIConfig.X}", $"{node.UIConfig.Y}" });
+                    await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}", $"{node.UIConfig.X}", $"{node.UIConfig.Y}"]);
                 }
-            }
+                else
+                {
+                    await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}"]);
+                }
 
-            await JS.InvokeVoidAsync("dragAndDrop", ".draggable");
+                await JS.InvokeVoidAsync("JJSAddPorts", [$"{node.ID}", $"{node.NodeType}"]);
+            }
         }
+    }
+
+    /// <summary>
+    /// Converts a System.Drawing.Color to a CSS color string.
+    /// </summary>
+    /// <param name="color">The color to convert.</param>
+    /// <returns>The CSS color string.</returns>
+    public static string ConvertColorToCSSColor(System.Drawing.Color color)
+    {
+        return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
     }
 
     /// <summary>

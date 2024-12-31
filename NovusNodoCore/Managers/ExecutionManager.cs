@@ -15,7 +15,7 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Event fired when AvailableNodes is updated.
         /// </summary>
-        public event Action<INodeBase>? AvailableNodesUpdated;
+        public event Func<INodeBase, Task>? AvailableNodesUpdated;
 
         /// <summary>
         /// Gets or sets the available plugins.
@@ -46,7 +46,7 @@ namespace NovusNodoCore.Managers
             CreateTestNodes();
         }
 
-        public void CreateNode(IPluginBase pluginBase)
+        public async Task CreateNode(IPluginBase pluginBase)
         {
             var instance = Activator.CreateInstance(pluginBase.GetType());
 
@@ -61,13 +61,17 @@ namespace NovusNodoCore.Managers
             {
                 INodeBase node = new NodeBase(plugin, token);
                 AvailableNodes.Add(node.ID, node);
-                OnAvailableNodesUpdated(node);
+                await OnAvailableNodesUpdated(node).ConfigureAwait(false);
             }
         }
 
-        private void OnAvailableNodesUpdated(INodeBase nodeBase)
+        private async Task OnAvailableNodesUpdated(INodeBase nodeBase)
         {
-            AvailableNodesUpdated?.Invoke(nodeBase);
+            if (AvailableNodesUpdated == null)
+            {
+                return;
+            }
+            await AvailableNodesUpdated.Invoke(nodeBase).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -88,7 +92,7 @@ namespace NovusNodoCore.Managers
 
                 if (plugin != null)
                 {
-                    INodeBase node = new NodeBase(plugin, token);
+                    NodeBase node = new (plugin, token);
                     AvailableNodes.Add(node.ID, node);
                 }
             }

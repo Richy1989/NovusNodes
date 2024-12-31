@@ -2,8 +2,8 @@
 {
     public enum NodeType
     {
-        Starter,
-        Finisher,
-        Worker
+        Starter = 1,
+        Finisher = 2,
+        Worker = 3
     }
 }

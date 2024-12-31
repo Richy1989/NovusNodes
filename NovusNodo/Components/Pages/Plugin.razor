@@ -33,9 +33,9 @@
     /// </summary>
     /// <param name="firstRender">Set to true if this is the first time OnAfterRenderAsync(Boolean) has been invoked on this component instance; otherwise false.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        return base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -63,9 +63,9 @@
     /// <summary>
     /// Adds a new item by invoking the ExecutionManager's CreateNode method.
     /// </summary>
-    private void AddItem()
+    private async Task AddItem()
     {
         if (PluginBase != null)
-            ExecutionManager.CreateNode(PluginBase);
+            await ExecutionManager.CreateNode(PluginBase).ConfigureAwait(false);
     }
 }
