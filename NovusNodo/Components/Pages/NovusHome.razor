@@ -19,15 +19,15 @@
     /// <summary>
     /// Delegate for the redraw connections action.
     /// </summary>
-    private static Func<Task>? RedrawConnectionsActionAsync;
+    private static Func<string, string, Task>? FunctionAddNewConnectionAsync;
 
     /// <summary>
     /// Redraws the connections asynchronously.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    private async Task LocalRedrawConnectionsAsync()
+    private async Task LocalFunctionAddNewConnectionAsync(string sourceId, string targetId)
     {
-        await DrawLine();
+        ExecutionManager.NewConnection(sourceId, targetId);
     }
 
     /// <summary>
@@ -56,7 +56,7 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        RedrawConnectionsActionAsync = LocalRedrawConnectionsAsync;
+        FunctionAddNewConnectionAsync = LocalFunctionAddNewConnectionAsync;
         items = ExecutionManager.AvailableNodes;
         ExecutionManager.AvailableNodesUpdated += NodesAdded;
     }
@@ -76,6 +76,13 @@
         await Task.CompletedTask;
     }
 
+    [JSInvokable]
+    public static async Task LinkAdded(string sourceID, string targetId)
+    {
+        FunctionAddNewConnectionAsync?.Invoke(sourceID, targetId);
+        await Task.CompletedTask;
+    }
+
     /// <summary>
     /// Event handler for when nodes are added.
     /// </summary>
@@ -84,7 +91,7 @@
     {
         items = ExecutionManager.AvailableNodes;
         await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}"]);
-        await JS.InvokeVoidAsync("JJSAddPorts", [$"{node.ID}", $"{node.NodeType}"]);
+        await AddPorts(node).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -109,7 +116,7 @@
                     await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}"]);
                 }
 
-                await JS.InvokeVoidAsync("JJSAddPorts", [$"{node.ID}", $"{node.NodeType}"]);
+                await AddPorts(node).ConfigureAwait(false);
             }
         }
     }
@@ -129,6 +136,14 @@
     /// </summary>
     public void Dispose()
     {
-        RedrawConnectionsActionAsync = null;
+        FunctionAddNewConnectionAsync = null;
+    }
+
+    private async Task AddPorts(INodeBase node)
+    {
+        if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Finisher)
+            await JS.InvokeVoidAsync("JJSAddInputPorts", [$"{node.ID}", $"{node.NodeType}"]);
+        if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Starter)
+            await JS.InvokeVoidAsync("JJSAddOutputPorts", [$"{node.ID}", $"{node.NodeType}"]);
     }
 }

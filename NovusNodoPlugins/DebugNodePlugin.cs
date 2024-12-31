@@ -1,6 +1,4 @@
 ﻿using System.Drawing;
-using System.Text;
-using System.Text.Json.Nodes;
 using NovusNodoPluginLibrary;
 using NovusNodoPluginLibrary.Helper;
 

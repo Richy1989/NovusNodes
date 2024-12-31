@@ -19,6 +19,8 @@ namespace NovusNodoCore.NodeDefinition
         private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
         private bool isInitialized = false;
 
+        public List<NodePort> nodePorts = [];
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NodeBase"/> class.
         /// </summary>
@@ -105,8 +107,9 @@ namespace NovusNodoCore.NodeDefinition
             foreach (var nextNode in NextNodes)
             {
                 nextNode.Value.ParentNode = this;
-                await nextNode.Value.ExecuteNode(jsonData).ConfigureAwait(false);
+                Task task = nextNode.Value.ExecuteNode(jsonData);
             }
+            await Task.CompletedTask;
         }
 
         /// <summary>

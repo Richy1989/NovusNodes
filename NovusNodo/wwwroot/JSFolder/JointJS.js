@@ -57,6 +57,8 @@ function JJSCreatePaper(paperContainerName) {
 
     // Notify the .NET code when a link is connected
     paper.on('link:connect', (linkView, evt, elementViewConnected) => {
+        DotNet.invokeMethodAsync('NovusNodo', 'LinkAdded', linkView.model.attributes.source.id, linkView.model.attributes.target.id);
+
         console.log('A link was connected to an element or port:', linkView.model);
     });
 }
@@ -199,17 +201,10 @@ function JJSCreateNodeElement(id, color, text, x, y) {
         }
     });
 
-
-   /* public enum NodeType {
-        Starter = 1,
-        Finisher = 2,
-        Worker = 3
-    }*/
-
     graph.addCell(node);
 }
 
-function JJSAddPorts(id, type)
+function JJSAddInputPorts(id, type)
 {
     var node = graph.getCell(id);
 
@@ -217,7 +212,14 @@ function JJSAddPorts(id, type)
         {
             group: 'in',
             attrs: { label: { text: '' } }
-        },
+        }
+    ]);
+}
+
+function JJSAddOutputPorts(id, type) {
+    var node = graph.getCell(id);
+
+    node.addPorts([
         {
             group: 'out',
             attrs: { label: { text: '' } }

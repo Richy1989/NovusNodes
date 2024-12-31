@@ -43,9 +43,13 @@ namespace NovusNodoCore.Managers
         public void Initialize()
         {
             pluginLoader.LoadPlugins();
-            CreateTestNodes();
         }
 
+        /// <summary>
+        /// Creates a new node from the specified plugin.
+        /// </summary>
+        /// <param name="pluginBase">The plugin base to create the node from.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task CreateNode(IPluginBase pluginBase)
         {
             var instance = Activator.CreateInstance(pluginBase.GetType());
@@ -59,12 +63,30 @@ namespace NovusNodoCore.Managers
 
             if (plugin != null)
             {
-                INodeBase node = new NodeBase(plugin, token);
+                NodeBase node = new(plugin, token);
                 AvailableNodes.Add(node.ID, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
             }
         }
 
+        /// <summary>
+        /// Creates a new connection between two nodes.
+        /// </summary>
+        /// <param name="sourceId">The ID of the source node.</param>
+        /// <param name="targetId">The ID of the target node.</param>
+        public void NewConnection(string sourceId, string targetId)
+        {
+            if (AvailableNodes.TryGetValue(sourceId, out var sourceNode) && AvailableNodes.TryGetValue(targetId, out var targetNode))
+            {
+                sourceNode.NextNodes.Add(targetNode.ID, targetNode);
+            }
+        }
+
+        /// <summary>
+        /// Invokes the AvailableNodesUpdated event.
+        /// </summary>
+        /// <param name="nodeBase">The node that was updated.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         private async Task OnAvailableNodesUpdated(INodeBase nodeBase)
         {
             if (AvailableNodesUpdated == null)
@@ -92,7 +114,7 @@ namespace NovusNodoCore.Managers
 
                 if (plugin != null)
                 {
-                    NodeBase node = new (plugin, token);
+                    NodeBase node = new(plugin, token);
                     AvailableNodes.Add(node.ID, node);
                 }
             }
