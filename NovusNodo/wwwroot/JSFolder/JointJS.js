@@ -78,12 +78,12 @@ function JJSCreatePaper(paperContainerName) {
 
     paper.on('blank:pointerclick', function ()
     {
-        resetAll();
+        ResetAll();
     });
 
     paper.on('link:pointerclick', function (linkView)
     {
-        resetAll();
+        ResetAll();
 
         var currentLink = linkView.model;
         currentLink.attr('line/stroke', 'orange');
@@ -102,7 +102,7 @@ function JJSCreatePaper(paperContainerName) {
     // Highlight the selected cell
     paper.on('element:pointerclick', (cellView) =>
     {
-        resetAll();
+        ResetAll();
         
         selectedCell = cellView;
         cellView.highlight(); // Highlight the new selection
@@ -128,32 +128,14 @@ document.addEventListener('keydown', (event) => {
         if (selectedCell) {
             const cell = selectedCell.model;
             cell.remove(); // Remove the selected cell from the graph
-
-
+            ElementDeleted(cell.id); // Notify the .NET code
             selectedCell = undefined; // Clear the selection
 
         }
     }
 });
 
-/**
- * Logs the deletion of an element.
- * @param {string} elementId - The ID of the deleted element.
- */
-function ElementDeleted(elementId) {
-    console.log('Element deleted:', elementId);
-}
-
-/**
- * Deletes an element from the graph by its ID.
- * @param {string} elementId - The ID of the element to delete.
- */
-function DeleteElement(elementId) {
-    var element = graph.getCell(elementId);
-    element.remove();
-}
-
-function resetAll() {
+function ResetAll() {
 
     if (selectedCell) {
         selectedCell.unhighlight(); // Unhighlight the previous selection
@@ -186,6 +168,16 @@ function resetAll() {
             }
         });
     }
+}
+
+/**
+ * Logs the deletion of an element.
+ * @param {string} elementId - The ID of the deleted element.
+ */
+function ElementDeleted(elementId) {
+    console.log('Element deleted:', elementId);
+
+    DotNet.invokeMethodAsync('NovusNodo', 'ElementRemoved', elementId);
 }
 
 /**

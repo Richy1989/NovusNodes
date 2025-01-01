@@ -20,6 +20,7 @@ namespace NovusNodo.Components.Pages
         /// </summary>
         private static Func<string, string, string, string, Task> FunctionAddNewConnectionAsync;
         private static Func<string, string, string, string, Task> FunctionRemovedConnectionAsync;
+        private static Func<string, Task> FunctionElementRemovedAsync;
 
         /// <summary>
         /// Redraws the connections asynchronously.
@@ -50,6 +51,17 @@ namespace NovusNodo.Components.Pages
         }
 
         /// <summary>
+        /// Handles the removal of an element asynchronously.
+        /// </summary>
+        /// <param name="elementId">The identifier of the element to be removed.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        private async Task LocalFunctionElementRemovedAsync(string elementId)
+        {
+            ExecutionManager.ElementRemoved(elementId);
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Dictionary to hold the available nodes.
         /// </summary>
         private static IDictionary<string, INodeBase> items = new Dictionary<string, INodeBase>();
@@ -62,6 +74,7 @@ namespace NovusNodo.Components.Pages
             base.OnInitialized();
             FunctionAddNewConnectionAsync = LocalFunctionAddNewConnectionAsync;
             FunctionRemovedConnectionAsync = LocalFunctionRemovedConnectionAsync;
+            FunctionElementRemovedAsync = LocalFunctionElementRemovedAsync;
             items = ExecutionManager.AvailableNodes;
             ExecutionManager.AvailableNodesUpdated += NodesAdded;
         }
@@ -99,13 +112,26 @@ namespace NovusNodo.Components.Pages
         /// <summary>
         /// Invokable method to handle the removal of a link.
         /// </summary>
-        /// <param name="jsonSource">The JSON representation of the source link.</param>
-        /// <param name="jsonTarget">The JSON representation of the target link.</param>
+        /// <param name="sourceId">The source node identifier.</param>
+        /// <param name="sourcePortId">The source port identifier.</param>
+        /// <param name="targetId">The target node identifier.</param>
+        /// <param name="targetPortId">The target port identifier.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         [JSInvokable]
-        public static async Task LinkRemoved(string sourceID, string sourcePortId, string targetId, string targetPortId)
+        public static async Task LinkRemoved(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
-            await FunctionRemovedConnectionAsync(sourceID, sourcePortId, targetId, targetPortId).ConfigureAwait(false);
+            await FunctionRemovedConnectionAsync(sourceId, sourcePortId, targetId, targetPortId).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Invokable method to handle the deletion of an element.
+        /// </summary>
+        /// <param name="elementId">The identifier of the element to be deleted.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        [JSInvokable]
+        public static async Task ElementRemoved(string elementId)
+        {
+            await FunctionElementRemovedAsync(elementId).ConfigureAwait(false);
         }
 
         /// <summary>

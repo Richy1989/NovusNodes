@@ -164,8 +164,14 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public Color Background => basedPlugin.Background;
 
+        /// <summary>
+        /// Gets or sets the UI configuration for the node.
+        /// </summary>
         public NodeUIConfig UIConfig { get; set; } = new NodeUIConfig();
 
+        /// <summary>
+        /// Gets the dictionary of work tasks associated with the node.
+        /// </summary>
         public IDictionary<string, Func<string, Task<string>>> WorkTasks => basedPlugin.WorkTasks;
 
         /// <summary>

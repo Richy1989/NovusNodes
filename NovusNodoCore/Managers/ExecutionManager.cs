@@ -12,8 +12,19 @@ namespace NovusNodoCore.Managers
     /// </summary>
     public class ExecutionManager
     {
+        /// <summary>
+        /// The cancellation token source used to cancel operations.
+        /// </summary>
         private readonly CancellationTokenSource cts;
+
+        /// <summary>
+        /// The cancellation token used to observe cancellation requests.
+        /// </summary>
         private readonly CancellationToken token;
+
+        /// <summary>
+        /// The plugin loader responsible for loading plugins.
+        /// </summary>
         private readonly PluginLoader pluginLoader;
 
         /// <summary>
@@ -77,7 +88,9 @@ namespace NovusNodoCore.Managers
         /// Creates a new connection between two nodes.
         /// </summary>
         /// <param name="sourceId">The ID of the source node.</param>
+        /// <param name="sourcePortId">The ID of the source port.</param>
         /// <param name="targetId">The ID of the target node.</param>
+        /// <param name="targetPortId">The ID of the target port.</param>
         public void NewConnection(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
             if (AvailableNodes.TryGetValue(sourceId, out var sourceNode) && AvailableNodes.TryGetValue(targetId, out var targetNode))
@@ -95,7 +108,7 @@ namespace NovusNodoCore.Managers
         /// <param name="targetPortId">The ID of the target port.</param>
         public void RemoveConnection(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
-            if (AvailableNodes.TryGetValue(sourceId, out var sourceNode) && AvailableNodes.TryGetValue(targetId, out var targetNode))
+            if (AvailableNodes.TryGetValue(sourceId, out var sourceNode))
             {
                 sourceNode.OutputPorts[sourcePortId].RemoveConnection(targetPortId);
             }
@@ -135,46 +148,5 @@ namespace NovusNodoCore.Managers
             }
             await AvailableNodesUpdated.Invoke(nodeBase).ConfigureAwait(false);
         }
-
-        /// <summary>
-        /// Creates test nodes from the available plugins.
-        /// </summary>
-        //public void CreateTestNodes()
-        //{
-        //    foreach (var item in AvailablePlugins)
-        //    {
-        //        var instance = Activator.CreateInstance(item.Value.GetType());
-
-        //        if (instance == null)
-        //        {
-        //            continue;
-        //        }
-
-        //        var plugin = (IPluginBase)instance;
-
-        //        if (plugin != null)
-        //        {
-        //            NodeBase node = new(plugin, token);
-        //            AvailableNodes.Add(node.ID, node);
-        //        }
-        //    }
-
-        //    INodeBase? starter = null;
-        //    foreach (var node in AvailableNodes)
-        //    {
-        //        if (node.Value.NodeType == NodeType.Starter)
-        //        {
-        //            starter = node.Value;
-        //        }
-        //    }
-
-        //    foreach (var node in AvailableNodes)
-        //    {
-        //        if (node.Value.NodeType != NodeType.Starter)
-        //        {
-        //            starter.NextNodes.Add(node.Value.ID, node.Value);
-        //        }
-        //    }
-        //}
     }
 }
