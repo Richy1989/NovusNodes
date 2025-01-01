@@ -1,0 +1,58 @@
+﻿.note {
+    position: absolute;
+    display: inline-block; /* Ensures the container shrinks to fit its content */
+    min-width: 140px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    margin: 0px;
+    touch-action: none;
+    user-select: none;
+    transform: translate(0px, 0px);
+}
+
+.node-header {
+    padding: 0px;
+    font-weight: bold;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #ccc;
+}
+
+.node-body {
+    padding: 10px;
+    font-size: 0.9em;
+}
+
+/* Add to your CSS file, e.g., Node.razor.css */
+.node-connector {
+    cursor: pointer;
+    width: 12px;
+    height: 12px;
+    background-color: white;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 1px solid #000;
+    border-radius: 2px;
+}
+
+.node-connector-left {
+    left: -3px; /* Adjust as needed */
+}
+
+.node-connector-right {
+    right: -3px; /* Adjust as needed */
+}
+
+.draggable {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100%;
+    width: calc(100% - 20px);
+    background-color: rgba(255, 255, 255, 0); /* Adjust the color and opacity as needed */
+    z-index: 10; /* Ensure it is on top of all other divs */
+}

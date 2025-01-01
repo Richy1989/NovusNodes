@@ -1,6 +1,6 @@
-using MudBlazor.Services;
 using NovusNodo.Components;
 using NovusNodoCore.Managers;
+using MudBlazor.Services;
 
 namespace NovusNodo
 {
@@ -10,19 +10,16 @@ namespace NovusNodo
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            //Add Novus Core services
             builder.Services.AddSingleton<ExecutionManager>();
-
-            // Add MudBlazor services
-            builder.Services.AddMudServices();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
+            builder.Services.AddBlazorBootstrap();
+            builder.Services.AddMudServices();
             var app = builder.Build();
 
-            //Initialize Novus Core
             ExecutionManager executionManager = app.Services.GetRequiredService<ExecutionManager>();
             Task.Run(() => executionManager.Initialize());
 

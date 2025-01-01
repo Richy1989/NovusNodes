@@ -1,0 +1,26 @@
+﻿.plugin {
+    width: auto;
+    border: 1px solid #000;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    margin: 10px;
+}
+
+    .plugin:hover {
+        transform: scale(1.05);
+        box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+.plugin-header {
+    padding: 0px;
+    font-weight: bold;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #ccc;
+}
+
+.plugin-body {
+    padding: 10px;
+    font-size: 0.9em;
+}

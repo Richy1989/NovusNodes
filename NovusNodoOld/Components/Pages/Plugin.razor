@@ -1,11 +1,16 @@
 ﻿@using NovusNodoPluginLibrary
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 
+<MudElement HtmlTag="a" OnClick="AddItem">
+    <div class="plugin" style="background-color:@BackgroundColorCss">
+        <div class="plugin-header">@Name</div>
+        <div class="plugin-body">@ChildContent</div>
+    </div>
+</MudElement>
 
-<div class="plugin" style="background-color:@BackgroundColorCss" @onclick="AddItem">
-    <div class="plugin-header">@Name</div>
-    <div class="plugin-body">@ChildContent</div>
-</div>
+<MudButton Variant="Variant.Filled" OnClick="AddItem" Style="background-color: yellowgreen; color: white; width: 200px; height: 60px;">
+    Download Now
+</MudButton>
 
 @code
 {

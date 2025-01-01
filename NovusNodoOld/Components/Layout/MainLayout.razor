@@ -1,0 +1,50 @@
+﻿@using NovusNodo.Components.Pages
+@using NovusNodoCore.Managers
+@using NovusNodoPluginLibrary
+@inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
+@inherits LayoutComponentBase
+
+<MudPopoverProvider />
+<MudThemeProvider @rendermode="InteractiveServer" />
+<MudSnackbarProvider @rendermode="InteractiveServer" />
+<MudDialogProvider @rendermode="InteractiveServer" />
+
+<MudLayout>
+    <MudAppBar>
+        
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawerOpen">
+        <MudNavMenu>
+            @foreach (var item in items)
+            {
+                <Plugin PluginBase="item.Value"/>
+            }
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code
+{
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+    /// <summary>
+    /// Dictionary to hold the available plugins.
+    /// </summary>
+    private IDictionary<string, IPluginBase> items = new Dictionary<string, IPluginBase>();
+
+    /// <summary>
+    /// Method called when the component is initialized.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        // Retrieve the available plugins from the ExecutionManager.
+        items = ExecutionManager.AvailablePlugins;
+    }
+}
