@@ -1,23 +1,4 @@
-﻿// Handle the Delete key press
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'Delete') {
-
-        if (selectedLink) {
-            const cell = selectedLink;
-            cell.remove();
-            selectedLink = undefined;
-        }
-
-        if (selectedCell) {
-            const cell = selectedCell.model;
-            cell.remove(); // Remove the selected cell from the graph
-            selectedCell = undefined; // Clear the selection
-        }
-    }
-});
-
-
-/**
+﻿/**
  * The graph object for the JointJS diagram.
  * @type {joint.dia.Graph}
  */
@@ -133,18 +114,41 @@ function JJSCreatePaper(paperContainerName) {
     });
 }
 
+// Handle the Delete key press
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Delete') {
+
+        if (selectedLink) {
+            const cell = selectedLink;
+            cell.remove();
+            LinkDeleted(selectedLink);
+            selectedLink = undefined;
+        }
+
+        if (selectedCell) {
+            const cell = selectedCell.model;
+            cell.remove(); // Remove the selected cell from the graph
+
+
+            selectedCell = undefined; // Clear the selection
+
+        }
+    }
+});
+
+/**
+ * Logs the deletion of an element.
+ * @param {string} elementId - The ID of the deleted element.
+ */
 function ElementDeleted(elementId) {
-    
+    console.log('Element deleted:', elementId);
 }
 
-function LinkDeleted(elementId) {
-
-}
-
-
-
-function DeleteElement(elementId)
-{
+/**
+ * Deletes an element from the graph by its ID.
+ * @param {string} elementId - The ID of the element to delete.
+ */
+function DeleteElement(elementId) {
     var element = graph.getCell(elementId);
     element.remove();
 }
@@ -382,4 +386,22 @@ function JJSCreateLink(sourceID, sourcePortID, targetID, targetPortID) {
     });
 
     link.addTo(graph);
+}
+
+/**
+* Logs the deletion of a link and notifies the .NET code.
+* @param {Object} link - The deleted link object.
+*/
+function LinkDeleted(link) {
+    console.log('Link deleted:', link);
+    console.log('Link deleted source:', link.attributes.source);
+    console.log('Link deleted target:', link.attributes.target);
+
+    DotNet.invokeMethodAsync(
+        'NovusNodo',
+        'LinkRemoved',
+        link.attributes.source.id,
+        link.attributes.source.port,
+        link.attributes.target.id,
+        link.attributes.target.port);
 }

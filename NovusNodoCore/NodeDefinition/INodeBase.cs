@@ -1,4 +1,6 @@
-﻿using NovusNodoPluginLibrary;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.NodeDefinition
 {

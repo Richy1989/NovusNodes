@@ -2,6 +2,10 @@
 using System.Runtime.InteropServices;
 using NovusNodoPluginLibrary;
 using System.Linq;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace NovusNodoCore.NodeDefinition
 {
@@ -118,7 +122,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task TriggerNextNodes(OutputPort outputPort, string jsonData)
         {
-            if (token.IsCancellationRequested) return;
+            if (token.IsCancellationRequested) await Task.CompletedTask;
 
             foreach (var nextNode in outputPort.NextNodes)
             {

@@ -1,9 +1,17 @@
-﻿using System.Text.Json;
+﻿using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace NovusNodoCore.Extensions
 {
     internal class JsonExtensions
     {
+        /// <summary>
+        /// Serializes an object to a JSON string asynchronously.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to serialize.</typeparam>
+        /// <param name="obj">The object to serialize.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the JSON string representation of the object.</returns>
         public static async Task<string> SerializeObjectToJsonAsync<T>(T obj)
         {
             // Create a memory stream to hold the serialized JSON

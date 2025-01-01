@@ -1,17 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace NovusNodoCore.NodeDefinition
 {
-    public class InputPort : NodePort
+    /// <summary>
+    /// Represents an input port in a node.
+    /// </summary>
+    public class InputPort(INodeBase node) : NodePort(node)
     {
-        public string ConnectedOutputPort { get; set; } = "";
+        /// <summary>
+        /// Gets or sets the dictionary of connected output ports.
+        /// </summary>
+        public Dictionary<string, OutputPort> ConnectedOutputPort { get; set; } = [];
 
-        public InputPort(INodeBase node) : base(node)
+        public void RemoveAllConnections()
         {
+            foreach (var outputPort in ConnectedOutputPort)
+            {
+                outputPort.Value.NextNodes.Remove(ID);
+            }
+            ConnectedOutputPort.Clear();
         }
     }
 }

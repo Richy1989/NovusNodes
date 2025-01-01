@@ -1,4 +1,8 @@
-﻿using NovusNodoCore.NodeDefinition;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.Managers
@@ -15,7 +19,7 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Event fired when AvailableNodes is updated.
         /// </summary>
-        public event Func<INodeBase, Task>? AvailableNodesUpdated;
+        public event Func<INodeBase, Task> AvailableNodesUpdated;
 
         /// <summary>
         /// Gets or sets the available plugins.
@@ -83,6 +87,42 @@ namespace NovusNodoCore.Managers
         }
 
         /// <summary>
+        /// Removes the connection between the specified source and target nodes.
+        /// </summary>
+        /// <param name="sourceId">The ID of the source node.</param>
+        /// <param name="sourcePortId">The ID of the source port.</param>
+        /// <param name="targetId">The ID of the target node.</param>
+        /// <param name="targetPortId">The ID of the target port.</param>
+        public void RemoveConnection(string sourceId, string sourcePortId, string targetId, string targetPortId)
+        {
+            if (AvailableNodes.TryGetValue(sourceId, out var sourceNode) && AvailableNodes.TryGetValue(targetId, out var targetNode))
+            {
+                sourceNode.OutputPorts[sourcePortId].RemoveConnection(targetPortId);
+            }
+        }
+
+        /// <summary>
+        /// Removes the specified node and all its connections.
+        /// </summary>
+        /// <param name="id">The ID of the node to remove.</param>
+        public void ElementRemoved(string id)
+        {
+            if (AvailableNodes.TryGetValue(id, out var node))
+            {
+                AvailableNodes.Remove(id);
+
+                // Remove connections from output ports
+                foreach (var outputPort in node.OutputPorts)
+                {
+                    outputPort.Value.RemoveAllConnections();
+                }
+
+                // Remove connections from input port
+                node.InputPort.RemoveAllConnections();
+            }
+        }
+
+        /// <summary>
         /// Invokes the AvailableNodesUpdated event.
         /// </summary>
         /// <param name="nodeBase">The node that was updated.</param>
@@ -91,7 +131,7 @@ namespace NovusNodoCore.Managers
         {
             if (AvailableNodesUpdated == null)
             {
-                return;
+                await Task.CompletedTask;
             }
             await AvailableNodesUpdated.Invoke(nodeBase).ConfigureAwait(false);
         }

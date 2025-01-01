@@ -1,4 +1,6 @@
-﻿namespace NovusNodoCore.NodeDefinition
+﻿using System;
+
+namespace NovusNodoCore.NodeDefinition
 {
     /// <summary>
     /// Represents the base class for execution results.

@@ -7,6 +7,9 @@ using NovusNodoPluginLibrary;
 
 namespace NovusNodo.Components.Pages
 {
+    /// <summary>
+    /// Represents the home component for the Novus application.
+    /// </summary>
     public partial class NovusHome : ComponentBase, IDisposable
     {
         // To detect redundant calls
@@ -15,17 +18,34 @@ namespace NovusNodo.Components.Pages
         /// <summary>
         /// Delegate for the redraw connections action.
         /// </summary>
-        private static Func<string, string, string, string, Task>? FunctionAddNewConnectionAsync;
+        private static Func<string, string, string, string, Task> FunctionAddNewConnectionAsync;
+        private static Func<string, string, string, string, Task> FunctionRemovedConnectionAsync;
 
         /// <summary>
         /// Redraws the connections asynchronously.
         /// </summary>
         /// <param name="sourceId">The source node identifier.</param>
+        /// <param name="sourcePortId">The source port identifier.</param>
         /// <param name="targetId">The target node identifier.</param>
+        /// <param name="targetPortId">The target port identifier.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task LocalFunctionAddNewConnectionAsync(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
             ExecutionManager.NewConnection(sourceId, sourcePortId, targetId, targetPortId);
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Removes the connection asynchronously.
+        /// </summary>
+        /// <param name="sourceId">The source node identifier.</param>
+        /// <param name="sourcePortId">The source port identifier.</param>
+        /// <param name="targetId">The target node identifier.</param>
+        /// <param name="targetPortId">The target port identifier.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        private async Task LocalFunctionRemovedConnectionAsync(string sourceId, string sourcePortId, string targetId, string targetPortId)
+        {
+            ExecutionManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
             await Task.CompletedTask;
         }
 
@@ -41,6 +61,7 @@ namespace NovusNodo.Components.Pages
         {
             base.OnInitialized();
             FunctionAddNewConnectionAsync = LocalFunctionAddNewConnectionAsync;
+            FunctionRemovedConnectionAsync = LocalFunctionRemovedConnectionAsync;
             items = ExecutionManager.AvailableNodes;
             ExecutionManager.AvailableNodesUpdated += NodesAdded;
         }
@@ -64,13 +85,27 @@ namespace NovusNodo.Components.Pages
         /// Invokable method to handle the addition of a link.
         /// </summary>
         /// <param name="sourceID">The source node identifier.</param>
+        /// <param name="sourcePortId">The source port identifier.</param>
         /// <param name="targetId">The target node identifier.</param>
+        /// <param name="targetPortId">The target port identifier.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         [JSInvokable]
         public static async Task LinkAdded(string sourceID, string sourcePortId, string targetId, string targetPortId)
         {
             FunctionAddNewConnectionAsync?.Invoke(sourceID, sourcePortId, targetId, targetPortId);
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Invokable method to handle the removal of a link.
+        /// </summary>
+        /// <param name="jsonSource">The JSON representation of the source link.</param>
+        /// <param name="jsonTarget">The JSON representation of the target link.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        [JSInvokable]
+        public static async Task LinkRemoved(string sourceID, string sourcePortId, string targetId, string targetPortId)
+        {
+            await FunctionRemovedConnectionAsync(sourceID, sourcePortId, targetId, targetPortId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -114,6 +149,10 @@ namespace NovusNodo.Components.Pages
             }
         }
 
+        /// <summary>
+        /// Draws the links between nodes.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task DrawLinks()
         {
             foreach (var node in items.Values)
@@ -126,7 +165,7 @@ namespace NovusNodo.Components.Pages
                         INodeBase connectedNode = nextNode.Value;
 
                         await JS.InvokeVoidAsync("JJSCreateLink", [$"{node.ID}", $"{port.ID}", $"{connectedNode.ID}", $"{connectedPortId}"]);
-                    } 
+                    }
                 }
             }
         }
@@ -157,18 +196,23 @@ namespace NovusNodo.Components.Pages
                 foreach (var port in node.OutputPorts.Values)
                 {
                     await JS.InvokeVoidAsync("JJSAddOutputPort", [$"{node.ID}", $"{port.ID}"]);
-                }   
+                }
             }
         }
 
-        // Public implementation of Dispose pattern callable by consumers.
+        /// <summary>
+        /// Public implementation of Dispose pattern callable by consumers.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        // Protected implementation of Dispose pattern.
+        /// <summary>
+        /// Protected implementation of Dispose pattern.
+        /// </summary>
+        /// <param name="disposing">Indicates whether the method is called from Dispose.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposedValue)
