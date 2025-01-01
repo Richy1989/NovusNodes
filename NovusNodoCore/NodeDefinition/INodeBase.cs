@@ -7,6 +7,10 @@ namespace NovusNodoCore.NodeDefinition
     /// </summary>
     public interface INodeBase : IPluginBase
     {
+        NodePort InputPort { get; set; }
+
+        NodePort OutputPort { get; set; }
+        
         NodeUIConfig UIConfig { get; set; }
 
         /// <summary>

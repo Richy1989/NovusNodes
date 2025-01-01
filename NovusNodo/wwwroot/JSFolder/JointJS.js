@@ -51,16 +51,71 @@ function JJSCreatePaper(paperContainerName) {
     });
 
     // Notify the .NET code when an element is moved
-    graph.on('change:position', (element, newPosition) => {
+    graph.on('change:position', (element, newPosition) =>
+    {
         DotNet.invokeMethodAsync('NovusNodo', 'ElementMoved', element.id, newPosition.x, newPosition.y);
     });
 
     // Notify the .NET code when a link is connected
-    paper.on('link:connect', (linkView, evt, elementViewConnected) => {
-        DotNet.invokeMethodAsync('NovusNodo', 'LinkAdded', linkView.model.attributes.source.id, linkView.model.attributes.target.id);
+    paper.on('link:connect', (linkView, evt, elementViewConnected) =>
+    {
+        DotNet.invokeMethodAsync(
+            'NovusNodo',
+            'LinkAdded',
+            linkView.model.attributes.source.id,
+            linkView.model.attributes.source.port,
+            linkView.model.attributes.target.id,
+            linkView.model.attributes.target.port);
 
         console.log('A link was connected to an element or port:', linkView.model);
     });
+
+    paper.on('blank:pointerclick', function ()
+    {
+        resetAll(this);
+    });
+
+    paper.on('link:pointerclick', function (linkView)
+    {
+        resetAll(this);
+
+        var currentLink = linkView.model;
+        currentLink.attr('line/stroke', 'orange');
+        currentLink.label(0, {
+            attrs: {
+                body: {
+                    stroke: 'orange'
+                }
+            }
+        });
+    });
+}
+
+function resetAll(paper) {
+    paper.drawBackground({
+        color: 'white'
+    });
+
+    var elements = paper.model.getElements();
+    for (var i = 0, ii = elements.length; i < ii; i++)
+    {
+        var currentElement = elements[i];
+        currentElement.attr('body/stroke', 'black');
+    }
+
+    var links = paper.model.getLinks();
+    for (var j = 0, jj = links.length; j < jj; j++)
+    {
+        var currentLink = links[j];
+        currentLink.attr('line/stroke', 'black');
+        currentLink.label(0, {
+            attrs: {
+                body: {
+                    stroke: 'black'
+                }
+            }
+        });
+    }
 }
 
 /**
@@ -134,7 +189,7 @@ function JJSCreateNodeElement(id, color, text, x, y) {
         attrs: {
             portBody: {
                 magnet: true,
-                r: 10,
+                r: 5,
                 fill: '#023047',
                 stroke: '#023047'
             }
@@ -163,7 +218,7 @@ function JJSCreateNodeElement(id, color, text, x, y) {
         attrs: {
             portBody: {
                 magnet: true,
-                r: 10,
+                r: 5,
                 fill: '#E6A502',
                 stroke: '#023047'
             }
@@ -203,9 +258,12 @@ function JJSCreateNodeElement(id, color, text, x, y) {
 
     graph.addCell(node);
 }
-
-function JJSAddInputPorts(id, type)
-{
+/**
+ * Adds an input port to the specified node.
+ * @param {string} id - The ID of the node to which the input port will be added.
+ * @param {string} type - The type of the input port.
+ */
+function JJSAddInputPorts(id, type) {
     var node = graph.getCell(id);
 
     node.addPorts([
@@ -216,6 +274,11 @@ function JJSAddInputPorts(id, type)
     ]);
 }
 
+/**
+ * Adds an output port to the specified node.
+ * @param {string} id - The ID of the node to which the output port will be added.
+ * @param {string} type - The type of the output port.
+ */
 function JJSAddOutputPorts(id, type) {
     var node = graph.getCell(id);
 
@@ -225,4 +288,20 @@ function JJSAddOutputPorts(id, type) {
             attrs: { label: { text: '' } }
         }
     ]);
+}
+
+function JJSCreateLink(sourceID, sourcePortID, targetID, targetPortID) {
+    console.log('Creating link:', sourceID, targetID);
+
+    source = graph.getCell(sourceID);
+    target = graph.getCell(targetID);
+
+    sourcePort = source.getPort(sourcePortID);
+    targetPort = target.getPort(targetPortID);
+
+
+    var link = new joint.shapes.standard.Link();
+    link.source(sourcePort);
+    link.target(targetPort);
+    link.addTo(graph);
 }

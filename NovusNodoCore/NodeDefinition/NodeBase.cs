@@ -19,7 +19,14 @@ namespace NovusNodoCore.NodeDefinition
         private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
         private bool isInitialized = false;
 
-        public List<NodePort> nodePorts = [];
+        /// <summary>
+        /// Gets or sets the input port of the node.
+        /// </summary>
+        public NodePort InputPort { get; set; } = new NodePort(true);
+        /// <summary>
+        /// Gets or sets the output port of the node.
+        /// </summary>
+        public NodePort OutputPort { get; set; } = new NodePort(false);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NodeBase"/> class.
@@ -107,7 +114,9 @@ namespace NovusNodoCore.NodeDefinition
             foreach (var nextNode in NextNodes)
             {
                 nextNode.Value.ParentNode = this;
-                Task task = nextNode.Value.ExecuteNode(jsonData);
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                nextNode.Value.ExecuteNode(jsonData);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
             await Task.CompletedTask;
         }
@@ -143,7 +152,7 @@ namespace NovusNodoCore.NodeDefinition
         public Color Background => basedPlugin.Background;
 
         public NodeUIConfig UIConfig { get; set; } = new NodeUIConfig();
-
+      
         /// <summary>
         /// Defines the workload to be executed by the node.
         /// </summary>

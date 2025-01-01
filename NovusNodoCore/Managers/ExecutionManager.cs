@@ -74,11 +74,12 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="sourceId">The ID of the source node.</param>
         /// <param name="targetId">The ID of the target node.</param>
-        public void NewConnection(string sourceId, string targetId)
+        public void NewConnection(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
             if (AvailableNodes.TryGetValue(sourceId, out var sourceNode) && AvailableNodes.TryGetValue(targetId, out var targetNode))
             {
                 sourceNode.NextNodes.Add(targetNode.ID, targetNode);
+                sourceNode.OutputPort.ConnectedInputPorts.Add(targetPortId);
             }
         }
 
