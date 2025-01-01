@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using NovusNodoCore.NodeDefinition;
@@ -107,9 +108,9 @@ namespace NovusNodo.Components.Pages
                     }
 
                     await AddPorts(node).ConfigureAwait(false);
-
-                    await DrawLinks().ConfigureAwait(false);
                 }
+
+                await DrawLinks().ConfigureAwait(false);
             }
         }
 
@@ -117,9 +118,15 @@ namespace NovusNodo.Components.Pages
         {
             foreach (var node in items.Values)
             {
-                foreach (var ports in node.OutputPort.ConnectedInputPorts)
+                foreach (var port in node.OutputPorts.Values)
                 {
-                    await JS.InvokeVoidAsync("JJSCreateLink", [$"{node.ID}", $"{node.OutputPort.ID}", $"{ports}"]);
+                    foreach (var nextNode in port.NextNodes)
+                    {
+                        string connectedPortId = nextNode.Key;
+                        INodeBase connectedNode = nextNode.Value;
+
+                        await JS.InvokeVoidAsync("JJSCreateLink", [$"{node.ID}", $"{port.ID}", $"{connectedNode.ID}", $"{connectedPortId}"]);
+                    } 
                 }
             }
         }
@@ -142,9 +149,16 @@ namespace NovusNodo.Components.Pages
         private async Task AddPorts(INodeBase node)
         {
             if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Finisher)
-                await JS.InvokeVoidAsync("JJSAddInputPorts", [$"{node.ID}", $"{node.NodeType}"]);
+            {
+                await JS.InvokeVoidAsync("JJSAddInputPort", [$"{node.ID}", $"{node.InputPort.ID}"]);
+            }
             if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Starter)
-                await JS.InvokeVoidAsync("JJSAddOutputPorts", [$"{node.ID}", $"{node.NodeType}"]);
+            {
+                foreach (var port in node.OutputPorts.Values)
+                {
+                    await JS.InvokeVoidAsync("JJSAddOutputPort", [$"{node.ID}", $"{port.ID}"]);
+                }   
+            }
         }
 
         // Public implementation of Dispose pattern callable by consumers.

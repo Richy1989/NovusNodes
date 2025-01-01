@@ -17,6 +17,7 @@ namespace NovusNodoPlugins
         public InjectorNodePlugin()
         {
             JsonConfig = "{\"Interval\": 1000}";
+            AddWorkTask(Workload);
         }
 
         /// <summary>
@@ -62,13 +63,10 @@ namespace NovusNodoPlugins
         /// Defines the workload to be executed by the node.
         /// </summary>
         /// <returns>A function that represents the asynchronous operation.</returns>
-        public override Func<Task<string>> Workload(string jsonData)
+        public async Task<string> Workload(string jsonData)
         {
-            return async () =>
-            {
-                await Task.Delay(interval).ConfigureAwait(false);
-                return $"{{ \"currentDateTime\": \"{DateTime.UtcNow:O}\" }}";
-            };
+            await Task.Delay(interval).ConfigureAwait(false);
+            return await Task.FromResult($"{{ \"currentDateTime\": \"{DateTime.UtcNow:O}\" }}").ConfigureAwait(false);
         }
     }
 }

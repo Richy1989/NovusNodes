@@ -7,21 +7,21 @@ namespace NovusNodoCore.NodeDefinition
     /// </summary>
     public interface INodeBase : IPluginBase
     {
-        NodePort InputPort { get; set; }
+        /// <summary>
+        /// Gets or sets the input port of the node.
+        /// </summary>
+        public InputPort InputPort { get; set; }
+        /// <summary>
+        /// Gets or sets the output port of the node.
+        /// </summary>
+        public Dictionary<string, OutputPort> OutputPorts { get; set; }
 
-        NodePort OutputPort { get; set; }
-        
         NodeUIConfig UIConfig { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the node is enabled.
         /// </summary>
         bool IsEnabled { get; set; }
-
-        /// <summary>
-        /// Gets the dictionary of next nodes.
-        /// </summary>
-        IDictionary<string, INodeBase> NextNodes { get; }
 
         /// <summary>
         /// Executes the node.

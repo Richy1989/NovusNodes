@@ -11,8 +11,12 @@ namespace NovusNodoPluginLibrary
     /// Initializes a new instance of the <see cref="PluginBase{ConfigType}"/> class.
     /// </remarks>
     /// <param name="nodeType">The type of the node.</param>
-    public class PluginBase : IPluginBase
+    public abstract class PluginBase : IPluginBase
     {
+        public PluginBase()
+        {
+            WorkTasks = new Dictionary<string, Func<string, Task<string>>>();
+        }
         /// <summary>
         /// Gets the unique identifier for the plugin.
         /// </summary>
@@ -43,6 +47,13 @@ namespace NovusNodoPluginLibrary
         /// </summary>
         public required IPluginBase ParentNode { get; set; }
 
+        public IDictionary<string, Func<string, Task<string>>> WorkTasks { get; }
+
+        public void AddWorkTask(Func<string, Task<string>> task)
+        {
+            WorkTasks.Add(Guid.NewGuid().ToString(), task);
+        }
+
         /// <summary>
         /// Prepares the workload asynchronously.
         /// </summary>
@@ -57,10 +68,10 @@ namespace NovusNodoPluginLibrary
         /// </summary>
         /// <param name="jsonData">The JSON data to be processed by the workload.</param>
         /// <returns>A function that represents the asynchronous operation and returns a string.</returns>
-        public virtual Func<Task<string>> Workload(string jsonData)
-        {
-            throw new NotImplementedException();
-        }
+        //public virtual Func<Task<string>> Workload(string jsonData)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         /// <summary>
         /// Extracts a variable from the JSON configuration.

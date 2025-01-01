@@ -48,6 +48,8 @@ namespace NovusNodoPluginLibrary
         /// </summary>
         /// <param name="jsonData">The JSON data to be processed by the workload.</param>
         /// <returns>A function that represents the asynchronous operation and returns a string result.</returns>
-        Func<Task<string>> Workload(string jsonData);
+        //Func<Task<string>> Workload(string jsonData);
+
+        IDictionary<string, Func<string, Task<string>>> WorkTasks { get; }
     }
 }

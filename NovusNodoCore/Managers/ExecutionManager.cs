@@ -78,8 +78,7 @@ namespace NovusNodoCore.Managers
         {
             if (AvailableNodes.TryGetValue(sourceId, out var sourceNode) && AvailableNodes.TryGetValue(targetId, out var targetNode))
             {
-                sourceNode.NextNodes.Add(targetNode.ID, targetNode);
-                sourceNode.OutputPort.ConnectedInputPorts.Add(targetPortId);
+                sourceNode.OutputPorts[sourcePortId].AddConnection(targetPortId, targetNode);
             }
         }
 
@@ -100,42 +99,42 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Creates test nodes from the available plugins.
         /// </summary>
-        public void CreateTestNodes()
-        {
-            foreach (var item in AvailablePlugins)
-            {
-                var instance = Activator.CreateInstance(item.Value.GetType());
+        //public void CreateTestNodes()
+        //{
+        //    foreach (var item in AvailablePlugins)
+        //    {
+        //        var instance = Activator.CreateInstance(item.Value.GetType());
 
-                if (instance == null)
-                {
-                    continue;
-                }
+        //        if (instance == null)
+        //        {
+        //            continue;
+        //        }
 
-                var plugin = (IPluginBase)instance;
+        //        var plugin = (IPluginBase)instance;
 
-                if (plugin != null)
-                {
-                    NodeBase node = new(plugin, token);
-                    AvailableNodes.Add(node.ID, node);
-                }
-            }
+        //        if (plugin != null)
+        //        {
+        //            NodeBase node = new(plugin, token);
+        //            AvailableNodes.Add(node.ID, node);
+        //        }
+        //    }
 
-            INodeBase? starter = null;
-            foreach (var node in AvailableNodes)
-            {
-                if (node.Value.NodeType == NodeType.Starter)
-                {
-                    starter = node.Value;
-                }
-            }
+        //    INodeBase? starter = null;
+        //    foreach (var node in AvailableNodes)
+        //    {
+        //        if (node.Value.NodeType == NodeType.Starter)
+        //        {
+        //            starter = node.Value;
+        //        }
+        //    }
 
-            foreach (var node in AvailableNodes)
-            {
-                if (node.Value.NodeType != NodeType.Starter)
-                {
-                    starter.NextNodes.Add(node.Value.ID, node.Value);
-                }
-            }
-        }
+        //    foreach (var node in AvailableNodes)
+        //    {
+        //        if (node.Value.NodeType != NodeType.Starter)
+        //        {
+        //            starter.NextNodes.Add(node.Value.ID, node.Value);
+        //        }
+        //    }
+        //}
     }
 }

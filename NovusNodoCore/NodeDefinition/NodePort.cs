@@ -3,18 +3,19 @@
     /// <summary>
     /// Represents a port in a node, which can be either an input or output port.
     /// </summary>
-    public class NodePort(bool isInputPort)
+    public abstract class NodePort
     {
-        public List<string> ConnectedInputPorts { get; set; } = [];
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this port is an input port.
-        /// </summary>
-        public bool IsInputPort { get; set; } = isInputPort;
+        public NodePort(INodeBase node)
+        {
+            Node = node;
+            ID = Guid.NewGuid().ToString();
+        }
 
         /// <summary>
         /// Gets or sets the unique identifier for this port.
         /// </summary>
         public string ID { get; set; }
+
+        public INodeBase Node { get; set; }
     }
 }

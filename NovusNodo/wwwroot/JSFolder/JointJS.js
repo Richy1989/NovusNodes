@@ -1,4 +1,23 @@
-﻿/**
+﻿// Handle the Delete key press
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Delete') {
+
+        if (selectedLink) {
+            const cell = selectedLink;
+            cell.remove();
+            selectedLink = undefined;
+        }
+
+        if (selectedCell) {
+            const cell = selectedCell.model;
+            cell.remove(); // Remove the selected cell from the graph
+            selectedCell = undefined; // Clear the selection
+        }
+    }
+});
+
+
+/**
  * The graph object for the JointJS diagram.
  * @type {joint.dia.Graph}
  */
@@ -9,6 +28,12 @@ let graph = undefined;
  * @type {joint.dia.Paper}
  */
 let paper = undefined;
+
+// Keep track of the currently selected cell
+let selectedCell = null;
+
+// Keep track of the currently selected cell
+let selectedLink = null;
 
 /**
 * Creates a JointJS paper and attaches it to the specified container.
@@ -72,12 +97,12 @@ function JJSCreatePaper(paperContainerName) {
 
     paper.on('blank:pointerclick', function ()
     {
-        resetAll(this);
+        resetAll();
     });
 
     paper.on('link:pointerclick', function (linkView)
     {
-        resetAll(this);
+        resetAll();
 
         var currentLink = linkView.model;
         currentLink.attr('line/stroke', 'orange');
@@ -88,10 +113,51 @@ function JJSCreatePaper(paperContainerName) {
                 }
             }
         });
+
+        
+        selectedLink = currentLink;
+    });
+
+    // Highlight the selected cell
+    paper.on('element:pointerclick', (cellView) =>
+    {
+        resetAll();
+        
+        selectedCell = cellView;
+        cellView.highlight(); // Highlight the new selection
+    });
+
+    // Listen for cell removal events
+    graph.on('cell:remove', (cell) => {
+        console.log('Cell removed:', cell);
     });
 }
 
-function resetAll(paper) {
+function ElementDeleted(elementId) {
+    
+}
+
+function LinkDeleted(elementId) {
+
+}
+
+
+
+function DeleteElement(elementId)
+{
+    var element = graph.getCell(elementId);
+    element.remove();
+}
+
+function resetAll() {
+
+    if (selectedCell) {
+        selectedCell.unhighlight(); // Unhighlight the previous selection
+        selectedCell = undefined; 
+    }
+
+    selectedLink = undefined;
+
     paper.drawBackground({
         color: 'white'
     });
@@ -258,16 +324,18 @@ function JJSCreateNodeElement(id, color, text, x, y) {
 
     graph.addCell(node);
 }
+
 /**
  * Adds an input port to the specified node.
- * @param {string} id - The ID of the node to which the input port will be added.
- * @param {string} type - The type of the input port.
+ * @param {string} nodeId - The ID of the node to which the input port will be added.
+ * @param {string} portId - The ID of the input port to be added.
  */
-function JJSAddInputPorts(id, type) {
-    var node = graph.getCell(id);
+function JJSAddInputPort(nodeId, portId) {
+    var node = graph.getCell(nodeId);
 
     node.addPorts([
         {
+            id: portId,
             group: 'in',
             attrs: { label: { text: '' } }
         }
@@ -276,32 +344,42 @@ function JJSAddInputPorts(id, type) {
 
 /**
  * Adds an output port to the specified node.
- * @param {string} id - The ID of the node to which the output port will be added.
- * @param {string} type - The type of the output port.
+ * @param {string} nodeId - The ID of the node to which the output port will be added.
+ * @param {string} portId - The ID of the output port to be added.
  */
-function JJSAddOutputPorts(id, type) {
-    var node = graph.getCell(id);
+function JJSAddOutputPort(nodeId, portId) {
+
+    console.log('Adding output port:', nodeId, portId);
+
+    var node = graph.getCell(nodeId);
 
     node.addPorts([
         {
+            id: portId,
             group: 'out',
             attrs: { label: { text: '' } }
         }
     ]);
 }
 
+/**
+ * Creates a link between two ports on the graph.
+ * @param {string} sourceID - The ID of the source node.
+ * @param {string} sourcePortID - The ID of the source port.
+ * @param {string} targetID - The ID of the target node.
+ * @param {string} targetPortID - The ID of the target port.
+ */
 function JJSCreateLink(sourceID, sourcePortID, targetID, targetPortID) {
-    console.log('Creating link:', sourceID, targetID);
+
+    console.log('Creating link:', sourceID, sourcePortID, targetID, targetPortID);
 
     source = graph.getCell(sourceID);
     target = graph.getCell(targetID);
 
-    sourcePort = source.getPort(sourcePortID);
-    targetPort = target.getPort(targetPortID);
+    const link = new joint.shapes.standard.Link({
+        source: { id: sourceID, port: sourcePortID },
+        target: { id: targetID, port: targetPortID },
+    });
 
-
-    var link = new joint.shapes.standard.Link();
-    link.source(sourcePort);
-    link.target(targetPort);
     link.addTo(graph);
 }

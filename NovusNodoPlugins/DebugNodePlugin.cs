@@ -15,6 +15,9 @@ namespace NovusNodoPlugins
         public DebugNodePlugin()
         {
             JsonConfig = "{\"DebugPath\": \"msg.time\"}";
+
+            //Adding the task to the list of tasks
+            base.AddWorkTask(Workload);
         }
 
         /// <summary>
@@ -42,19 +45,16 @@ namespace NovusNodoPlugins
         /// </summary>
         /// <param name="jsonData">The JSON data to be processed by the workload.</param>
         /// <returns>A function representing the asynchronous workload.</returns>
-        public override Func<Task<string>> Workload(string jsonData)
+        public async Task<string> Workload(string jsonData)
         {
-            return async () =>
+            var variables = await JsonVariableExtractor.ExtractVariablesAsync(jsonData).ConfigureAwait(false);
+
+            foreach (var variable in variables)
             {
-                var variables = await JsonVariableExtractor.ExtractVariablesAsync(jsonData).ConfigureAwait(false);
+                Console.WriteLine($"{variable.Key}: {variable.Value}");
+            }
 
-                foreach (var variable in variables)
-                {
-                    Console.WriteLine($"{variable.Key}: {variable.Value}");
-                }
-
-                return await Task.FromResult(string.Empty).ConfigureAwait(false);
-            };
+            return await Task.FromResult(string.Empty).ConfigureAwait(false);
         }
     }
 }

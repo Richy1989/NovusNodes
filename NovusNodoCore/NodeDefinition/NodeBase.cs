@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
+using System.Runtime.InteropServices;
 using NovusNodoPluginLibrary;
+using System.Linq;
 
 namespace NovusNodoCore.NodeDefinition
 {
@@ -22,11 +24,11 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets the input port of the node.
         /// </summary>
-        public NodePort InputPort { get; set; } = new NodePort(true);
+        public InputPort InputPort { get; set; }
         /// <summary>
         /// Gets or sets the output port of the node.
         /// </summary>
-        public NodePort OutputPort { get; set; } = new NodePort(false);
+        public Dictionary<string, OutputPort> OutputPorts { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NodeBase"/> class.
@@ -37,6 +39,15 @@ namespace NovusNodoCore.NodeDefinition
         {
             this.basedPlugin = basedPlugin;
             this.token = token;
+
+            InputPort = new InputPort(this);
+            OutputPorts = [];
+
+            for(int i = 0; i < basedPlugin.WorkTasks.Count; i++)
+            {
+                var outputPort = new OutputPort(this);
+                OutputPorts.Add(outputPort.ID, outputPort);
+            }
 
             if (basedPlugin.NodeType == NodeType.Starter)
             {
@@ -52,11 +63,6 @@ namespace NovusNodoCore.NodeDefinition
         /// Gets or sets a value indicating whether the node is enabled.
         /// </summary>
         public bool IsEnabled { get; set; } = true;
-
-        /// <summary>
-        /// Gets the dictionary of next nodes.
-        /// </summary>
-        public IDictionary<string, INodeBase> NextNodes { get; set; } = new Dictionary<string, INodeBase>();
 
         /// <summary>
         /// Executes the node's workload if the node is enabled, and then triggers the execution of the next nodes.
@@ -87,13 +93,16 @@ namespace NovusNodoCore.NodeDefinition
                             isInitialized = true;
                         }
 
-                        result = await Workload(jsonData).Invoke().ConfigureAwait(false);
+                        int i = 0;
+                        //Execute all work tasks from the plugin
+                        //Then trigger all the connected nodes from the according output port
+                        foreach (var task in basedPlugin.WorkTasks.Values)
+                        {
+                            result = await task(jsonData).ConfigureAwait(false);
+                            await TriggerNextNodes(OutputPorts.Values.ElementAt(i), result).ConfigureAwait(false);
+                            i++;
+                        }
                     }
-
-                    // Not enabled starter nodes should not trigger next nodes
-                    if (NodeType == NodeType.Starter && !IsEnabled) return;
-
-                    await TriggerNextNodes(result).ConfigureAwait(false);
                 }
             }
             finally
@@ -107,11 +116,11 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         /// <param name="jsonData">The JSON data to be passed to the next nodes.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        private async Task TriggerNextNodes(string jsonData)
+        private async Task TriggerNextNodes(OutputPort outputPort, string jsonData)
         {
             if (token.IsCancellationRequested) return;
 
-            foreach (var nextNode in NextNodes)
+            foreach (var nextNode in outputPort.NextNodes)
             {
                 nextNode.Value.ParentNode = this;
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -152,16 +161,8 @@ namespace NovusNodoCore.NodeDefinition
         public Color Background => basedPlugin.Background;
 
         public NodeUIConfig UIConfig { get; set; } = new NodeUIConfig();
-      
-        /// <summary>
-        /// Defines the workload to be executed by the node.
-        /// </summary>
-        /// <param name="jsonData">The JSON data to be processed by the workload.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        public Func<Task<string>> Workload(string jsonData)
-        {
-            return basedPlugin.Workload(jsonData);
-        }
+
+        public IDictionary<string, Func<string, Task<string>>> WorkTasks => basedPlugin.WorkTasks;
 
         /// <summary>
         /// Prepares the workload asynchronously.
