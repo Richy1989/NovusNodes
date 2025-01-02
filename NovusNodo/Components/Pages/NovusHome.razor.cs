@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
@@ -78,6 +77,21 @@ namespace NovusNodo.Components.Pages
             ExecutionManager.AvailableNodesUpdated += NodesAdded;
         }
 
+        private async Task SetJointJSColors()
+        {
+            //Need to refresh the page when the dark mode is toggled
+
+
+            if (!NovusUIManagement.IsDarkMode)
+            {
+                await JS.InvokeVoidAsync("JJSSetColorPalette", ["#1a1a27", "#1e1e2d", "#1e1e2d"]);
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("JJSSetColorPalette", ["#e8e8e8", "#ffffff", "#e8e8e8"]);
+            }
+        }
+
         /// <summary>
         /// Invokable method to handle the movement of an element.
         /// </summary>
@@ -154,6 +168,7 @@ namespace NovusNodo.Components.Pages
         {
             if (firstRender)
             {
+                await SetJointJSColors().ConfigureAwait(false);
                 await JS.InvokeVoidAsync("JJSCreatePaper", "main");
 
                 foreach (var node in items.Values)
@@ -171,6 +186,7 @@ namespace NovusNodo.Components.Pages
                 }
 
                 await DrawLinks().ConfigureAwait(false);
+
             }
         }
 

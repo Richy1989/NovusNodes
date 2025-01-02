@@ -20,6 +20,24 @@ let selectedLink = null;
 * Creates a JointJS paper and attaches it to the specified container.
 * @param {string} paperContainerName - The ID of the container element.
 */
+
+let BackgroundColor = 'white';
+let StrokeColor = 'black';
+let LinkColor = '#7f1ddc';
+
+function reloadPage() {
+    location.reload();
+}
+
+function JJSSetColorPalette(backgroundColor, strokeColor, linkColor) {
+    BackgroundColor = backgroundColor;
+    StrokeColor = strokeColor;
+    LinkColor = linkColor;
+
+
+    console.log('Setting color palette:', BackgroundColor, StrokeColor, LinkColor);
+}
+
 function JJSCreatePaper(paperContainerName) {
     const container = document.getElementById(paperContainerName);
 
@@ -34,7 +52,19 @@ function JJSCreatePaper(paperContainerName) {
         height: container.offsetHeight,
         gridSize: 10,
         drawGrid: true,
-        defaultLink: () => new joint.shapes.standard.Link(),
+        defaultLink: () => new joint.shapes.standard.Link({
+            attrs: {
+                line: {
+                    stroke: LinkColor, // Set the default link color here
+                    strokeWidth: 2,
+                    targetMarker: {
+                        'type': 'path',
+                        'd': 'M 10 -5 0 0 10 5 Z',
+                        'fill': LinkColor
+                    }
+                }
+            }
+        }),
         linkPinning: false,
         validateConnection: function (cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
             // Prevent linking from input ports
@@ -145,25 +175,25 @@ function ResetAll() {
     selectedLink = undefined;
 
     paper.drawBackground({
-        color: 'white'
+        color: BackgroundColor
     });
 
     var elements = paper.model.getElements();
     for (var i = 0, ii = elements.length; i < ii; i++)
     {
         var currentElement = elements[i];
-        currentElement.attr('body/stroke', 'black');
+        currentElement.attr('body/stroke', StrokeColor);
     }
 
     var links = paper.model.getLinks();
     for (var j = 0, jj = links.length; j < jj; j++)
     {
         var currentLink = links[j];
-        currentLink.attr('line/stroke', 'black');
+        currentLink.attr('line/stroke', LinkColor);
         currentLink.label(0, {
             attrs: {
                 body: {
-                    stroke: 'black'
+                    stroke: LinkColor
                 }
             }
         });
@@ -202,7 +232,7 @@ function JJSCreateNodeElement(id, color, text, x, y) {
                 rx: 5,
                 ry: 5,
                 fill: color, // Node-RED style color
-                stroke: 'Black',
+                stroke: StrokeColor,
                 strokeWidth: 1,
             },
             header: {
@@ -251,7 +281,7 @@ function JJSCreateNodeElement(id, color, text, x, y) {
         attrs: {
             portBody: {
                 magnet: true,
-                r: 5,
+                r: 7,
                 fill: '#023047',
                 stroke: '#023047'
             }
@@ -280,7 +310,7 @@ function JJSCreateNodeElement(id, color, text, x, y) {
         attrs: {
             portBody: {
                 magnet: true,
-                r: 5,
+                r: 7,
                 fill: '#E6A502',
                 stroke: '#023047'
             }
@@ -375,6 +405,15 @@ function JJSCreateLink(sourceID, sourcePortID, targetID, targetPortID) {
     const link = new joint.shapes.standard.Link({
         source: { id: sourceID, port: sourcePortID },
         target: { id: targetID, port: targetPortID },
+    });
+
+    link.attr('line/stroke', LinkColor);
+    link.label(0, {
+        attrs: {
+            body: {
+                stroke: LinkColor
+            }
+        }
     });
 
     link.addTo(graph);

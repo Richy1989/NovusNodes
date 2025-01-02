@@ -1,6 +1,8 @@
 ﻿@inherits LayoutComponentBase
+@inject NovusNodo.Management.NovusUIManagement NovusUIManagement
+@inject IJSRuntime JS
 
-<MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
+<MudThemeProvider Theme="@_theme" IsDarkMode="NovusUIManagement.IsDarkMode" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -14,6 +16,16 @@
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
+    </MudDrawer>
+    <MudDrawer @bind-Open="NovusUIManagement.DrawerSettingsOpen" Fixed="false" Anchor="Anchor.End" Elevation="2" Variant="@DrawerVariant.Persistent">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">Settings</MudText>
+        </MudDrawerHeader>
+        <MudNavMenu>
+            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBox">Profile</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ShoppingCart">Orders</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.History">Order History</MudNavLink>
+        </MudNavMenu>
     </MudDrawer>
     <MudMainContent Class="mt-16 pa-4">
         @Body
