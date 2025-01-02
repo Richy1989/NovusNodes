@@ -1,0 +1,55 @@
+﻿.sidebarCustom {
+    position:absolute;
+    top: 0;
+    min-width: 4px;
+    height: 100%;
+    background: #222;
+    z-index: 1000;
+}
+
+    .sidebarCustom header {
+        font-size: 28px;
+        color: #fff;
+        line-height: 70px;
+        text-align: center;
+        background: #1b1b1b;
+    }
+
+    .sidebarCustom a {
+        display: block;
+        height: 65px;
+        width: 100%;
+        color: #fff;
+        line-height: 65px;
+        padding-left: 30px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 5px solid transparent;
+        transition: 0.5s;
+    }
+
+        .sidebarCustom a.active,
+        .sidebarCustom a:hover {
+            border-left: 5px solid #4070f4;
+            color: #4070f4;
+        }
+
+        .sidebarCustom a i {
+            font-size: 23px;
+            margin-right: 16px;
+        }
+
+        .sidebarCustom a span {
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+    .sidebarCustom .resizerCustom {
+        width: 4px;
+        height: 100%;
+        background: #4070f4;
+        position: absolute;
+        top: 0;
+        left: 0; /* Position the resizer on the left edge of the sidebar */
+        cursor: col-resize;
+    }

@@ -9,7 +9,7 @@
 <MudLayout>
     <MudAppBar Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+        <MudText Typo="Typo.h5" Class="ml-3">Novus Nodo</MudText>
         <MudSpacer />
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
         <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
@@ -17,7 +17,7 @@
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
     </MudDrawer>
-    <MudDrawer @bind-Open="NovusUIManagement.DrawerSettingsOpen" Fixed="false" Anchor="Anchor.End" Elevation="2" Variant="@DrawerVariant.Persistent">
+    <MudDrawer @bind-Open="NovusUIManagement.DrawerSettingsOpen" Width="240px" Anchor="Anchor.End" ClipMode="DrawerClipMode.Docked" Variant="DrawerVariant.Persistent" Elevation="2">
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">Settings</MudText>
         </MudDrawerHeader>
@@ -28,7 +28,8 @@
         </MudNavMenu>
     </MudDrawer>
     <MudMainContent Class="mt-16 pa-4">
-        @Body
+        <SettingsSidebar InitWidth="240"></SettingsSidebar>
+            @Body
     </MudMainContent>
 </MudLayout>
 

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using MudBlazor;
+using NovusNodo.Components.Pages;
 using NovusNodo.Management;
 
 namespace NovusNodo.Components.Layout
@@ -54,5 +56,19 @@ namespace NovusNodo.Components.Layout
             true => Icons.Material.Rounded.AutoMode,
             false => Icons.Material.Outlined.DarkMode,
         };
+
+        /// <summary>
+        /// Method called after the component has rendered.
+        /// </summary>
+        /// <param name="firstRender">Indicates if this is the first render.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await JS.InvokeVoidAsync("InitCustomSideBar");
+
+            }
+        }
     }
 }

@@ -25,9 +25,7 @@ let BackgroundColor = 'white';
 let StrokeColor = 'black';
 let LinkColor = '#7f1ddc';
 
-function reloadPage() {
-    location.reload();
-}
+
 
 function JJSSetColorPalette(backgroundColor, strokeColor, linkColor) {
     BackgroundColor = backgroundColor;
@@ -282,8 +280,8 @@ function JJSCreateNodeElement(id, color, text, x, y) {
             portBody: {
                 magnet: true,
                 r: 7,
-                fill: '#023047',
-                stroke: '#023047'
+                fill: '#4A90E2',//'#023047',
+                stroke: '#4A90E2'
             }
         },
         label: {

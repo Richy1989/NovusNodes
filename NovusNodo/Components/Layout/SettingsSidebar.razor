@@ -1,0 +1,40 @@
+﻿<div class="wrapper" >
+    <div class="sidebarCustom" style="width: @string.Format($"{InitWidth}px"); right: @string.Format($"{InitWidth}px")">
+        <header class="header">Tivotal</header>
+        <a href="#" class="active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#">
+            <i class="fas fa-message"></i>
+            <span>Messages</span>
+        </a>
+        <a href="#">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+        </a>
+        <a href="#">
+            <i class="fas fa-heart"></i>
+            <span>Saved</span>
+        </a>
+        <a href="#">
+            <i class="fas fa-trophy"></i>
+            <span>Rewards</span>
+        </a>
+        <a href="#">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </a>
+        <a href="#">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+
+        <div class="resizerCustom"></div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int InitWidth { get; set; } = 240;
+}

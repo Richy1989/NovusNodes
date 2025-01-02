@@ -79,16 +79,13 @@ namespace NovusNodo.Components.Pages
 
         private async Task SetJointJSColors()
         {
-            //Need to refresh the page when the dark mode is toggled
-
-
-            if (!NovusUIManagement.IsDarkMode)
+            if (NovusUIManagement.IsDarkMode)
             {
-                await JS.InvokeVoidAsync("JJSSetColorPalette", ["#1a1a27", "#1e1e2d", "#1e1e2d"]);
+                await JS.InvokeVoidAsync("JJSSetColorPalette", [$"{NovusUIManagement.DarkPalette.Background}", "#ffffff", "#e8e8e8"]);
             }
             else
             {
-                await JS.InvokeVoidAsync("JJSSetColorPalette", ["#e8e8e8", "#ffffff", "#e8e8e8"]);
+                await JS.InvokeVoidAsync("JJSSetColorPalette", [$"{NovusUIManagement.LightPalette.Background}", "#1e1e2d", "#1e1e2d"]);
             }
         }
 
