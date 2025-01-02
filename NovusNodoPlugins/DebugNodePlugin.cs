@@ -45,7 +45,7 @@ namespace NovusNodoPlugins
         /// </summary>
         /// <param name="jsonData">The JSON data to be processed by the workload.</param>
         /// <returns>A function representing the asynchronous workload.</returns>
-        public async Task<string> Workload(string jsonData)
+        public static async Task<string> Workload(string jsonData)
         {
             var variables = await JsonVariableExtractor.ExtractVariablesAsync(jsonData).ConfigureAwait(false);
 

@@ -1,4 +1,8 @@
-﻿<div class="wrapper" >
+﻿@using NovusNodo.Components.Pages
+@inject NovusNodo.Management.NovusUIManagement NovusUIManagement
+@rendermode InteractiveServer
+
+<div class="wrapper" >
     <div class="sidebarCustom" style="width: @string.Format($"{InitWidth}px"); right: @string.Format($"{InitWidth}px")">
         <header class="header">Tivotal</header>
         <a href="#" class="active">
@@ -9,25 +13,14 @@
             <i class="fas fa-message"></i>
             <span>Messages</span>
         </a>
+
         <a href="#">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Cart</span>
-        </a>
-        <a href="#">
-            <i class="fas fa-heart"></i>
-            <span>Saved</span>
-        </a>
-        <a href="#">
-            <i class="fas fa-trophy"></i>
-            <span>Rewards</span>
-        </a>
-        <a href="#">
-            <i class="fas fa-user"></i>
-            <span>Account</span>
-        </a>
-        <a href="#">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
+            <i class="fas fa-message"></i>
+
+            @if (DynNodeUIType is not null)
+            {
+                <span><DynamicComponent Type="DynNodeUIType" /></span>
+            }
         </a>
 
         <div class="resizerCustom"></div>
@@ -37,4 +30,30 @@
 @code {
     [Parameter]
     public int InitWidth { get; set; } = 240;
+
+    private Type DynNodeUIType;
+
+    protected override void OnInitialized()
+    {
+        NovusUIManagement.NodeDoubleClicked += async (node) =>
+        {
+            DynNodeUIType = node.UI;
+
+            StateHasChanged();
+            await Task.CompletedTask.ConfigureAwait(false);
+        };
+
+        DynNodeUIType = NovusUIManagement.SideBarUI;
+    }
+
+    public Type GetUI()
+    {
+        if (NovusUIManagement != null && NovusUIManagement.SideBarUI != null)
+        {
+            return NovusUIManagement.SideBarUI;
+        }
+
+        return typeof(BlankConfig);
+    }
+
 }

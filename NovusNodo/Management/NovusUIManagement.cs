@@ -1,12 +1,39 @@
-﻿using MudBlazor;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using MudBlazor;
+using NovusNodo.Components.Layout;
+using NovusNodo.Components.Pages;
+using NovusNodoCore.Managers;
+using NovusNodoCore.NodeDefinition;
 
 namespace NovusNodo.Management
 {
     /// <summary>
     /// Manages the UI settings for the Novus application.
     /// </summary>
-    public class NovusUIManagement
+    public class NovusUIManagement : IDisposable
     {
+        public NovusUIManagement(ExecutionManager executionManager)
+        {
+            this.ExecutionManager = executionManager;
+        }
+
+        public IJSRuntime JS { get; set; }
+
+        private ExecutionManager ExecutionManager { get; set; }
+
+        public event Func<INodeBase, Task> NodeDoubleClicked;
+
+        public Type SideBarUI { get; set; } = typeof(BlankConfig);
+
+        // To detect redundant calls
+        private bool _disposedValue;
+
+        public NovusUIManagement()
+        {
+            
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether the dark mode is enabled.
         /// </summary>
@@ -55,5 +82,52 @@ namespace NovusNodo.Management
             Divider = "#292838",
             OverlayLight = "#1e1e2d80",
         };
+
+        public Type GetSettingsUIType()
+        {
+            return null;
+        }
+
+        public async Task ReloadPage()
+        {
+            await JS.InvokeVoidAsync("GJSReloadPage");
+        }
+
+        [JSInvokable("NovusUIManagement.CellDoubleClick")]
+        public async Task JJSNodeDoubleClicked(string id)
+        {
+            var node = ExecutionManager.AvailableNodes[id];
+
+            if (node == null || node.UI == null) return;
+            
+            SideBarUI = node.UI;
+            await NodeDoubleClicked(node).ConfigureAwait(false);
+        }
+
+
+        /// <summary>
+        /// Public implementation of Dispose pattern callable by consumers.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Protected implementation of Dispose pattern.
+        /// </summary>
+        /// <param name="disposing">Indicates whether the method is called from Dispose.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                }
+
+                _disposedValue = true;
+            }
+        }
     }
 }

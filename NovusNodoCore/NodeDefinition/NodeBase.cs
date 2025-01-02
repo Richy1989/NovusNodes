@@ -63,6 +63,8 @@ namespace NovusNodoCore.NodeDefinition
             }
         }
 
+        public Type UI { get => basedPlugin.UI; set => basedPlugin.UI = value; }
+
         /// <summary>
         /// Gets or sets a value indicating whether the node is enabled.
         /// </summary>

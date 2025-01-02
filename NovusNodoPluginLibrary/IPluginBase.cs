@@ -7,6 +7,7 @@ namespace NovusNodoPluginLibrary
     /// </summary>
     public interface IPluginBase
     {
+        Type UI { get; set; }
         /// <summary>
         /// Gets or sets the JSON configuration.
         /// </summary>

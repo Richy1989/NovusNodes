@@ -24,18 +24,24 @@ let selectedLink = null;
 let BackgroundColor = 'white';
 let StrokeColor = 'black';
 let LinkColor = '#7f1ddc';
-
-
-
+/**
+ * Sets the color palette for the JointJS diagram.
+ * @param {string} backgroundColor - The background color of the diagram.
+ * @param {string} strokeColor - The stroke color for the elements.
+ * @param {string} linkColor - The color of the links.
+ */
 function JJSSetColorPalette(backgroundColor, strokeColor, linkColor) {
     BackgroundColor = backgroundColor;
     StrokeColor = strokeColor;
     LinkColor = linkColor;
 
-
     console.log('Setting color palette:', BackgroundColor, StrokeColor, LinkColor);
 }
 
+/**
+ * Creates a JointJS paper and attaches it to the specified container.
+ * @param {string} paperContainerName - The ID of the container element.
+ */
 function JJSCreatePaper(paperContainerName) {
     const container = document.getElementById(paperContainerName);
 
@@ -136,9 +142,10 @@ function JJSCreatePaper(paperContainerName) {
         cellView.highlight(); // Highlight the new selection
     });
 
-    // Listen for cell removal events
-    graph.on('cell:remove', (cell) => {
-        console.log('Cell removed:', cell);
+    // Highlight the selected cell
+    paper.on('element:pointerdblclick', (cellView) => {
+        console.log('Element double clicked:', cellView.model.id);
+        NovusReference.invokeMethodAsync("NovusUIManagement.CellDoubleClick", cellView.model.id);
     });
 }
 

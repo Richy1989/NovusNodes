@@ -17,37 +17,40 @@ namespace NovusNodoPluginLibrary
         {
             WorkTasks = new Dictionary<string, Func<string, Task<string>>>();
         }
+
+        public Type UI { get; set; }
+        
         /// <summary>
         /// Gets the unique identifier for the plugin.
         /// </summary>
-        public virtual string ID { get; }
+        public abstract string ID { get; }
 
         /// <summary>
         /// Gets the name of the plugin.
         /// </summary>
-        public virtual string Name { get; }
+        public abstract string Name { get; }
 
         /// <summary>
         /// Gets the background color of the plugin.
         /// </summary>
-        public virtual Color Background { get; }
+        public abstract Color Background { get; }
 
         /// <summary>
         /// Gets the type of the node.
         /// </summary>
-        public virtual NodeType NodeType { get; }
+        public abstract NodeType NodeType { get; }
 
         /// <summary>
         /// Gets or sets the JSON configuration.
         /// </summary>
-        public required string JsonConfig { get; set; }
+        public string JsonConfig { get; set; } = "";
 
         /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
-        public required IPluginBase ParentNode { get; set; }
+        public IPluginBase ParentNode { get; set; }
 
-        public IDictionary<string, Func<string, Task<string>>> WorkTasks { get; }
+        public IDictionary<string, Func<string, Task<string>>> WorkTasks { get; } = new Dictionary<string, Func<string, Task<string>>>();
 
         public void AddWorkTask(Func<string, Task<string>> task)
         {

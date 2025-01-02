@@ -11,6 +11,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NovusNodoPluginLibrary", "N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NovusNodo", "NovusNodo\NovusNodo.csproj", "{F49FA6DD-B919-4F0C-A662-AF2E3FA92E87}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NovusNodoUIPlugins", "NovusNodoUIPlugins\NovusNodoUIPlugins.csproj", "{18F329A2-F623-4DBE-AE96-2BCBF1C77141}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4558DB4C-9313-43F3-9F2E-425E09F3D475} = {4558DB4C-9313-43F3-9F2E-425E09F3D475}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +38,10 @@ Global
 		{F49FA6DD-B919-4F0C-A662-AF2E3FA92E87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F49FA6DD-B919-4F0C-A662-AF2E3FA92E87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F49FA6DD-B919-4F0C-A662-AF2E3FA92E87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18F329A2-F623-4DBE-AE96-2BCBF1C77141}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18F329A2-F623-4DBE-AE96-2BCBF1C77141}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18F329A2-F623-4DBE-AE96-2BCBF1C77141}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18F329A2-F623-4DBE-AE96-2BCBF1C77141}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
