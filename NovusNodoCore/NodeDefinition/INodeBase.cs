@@ -10,14 +10,23 @@ namespace NovusNodoCore.NodeDefinition
     public interface INodeBase : IPluginBase
     {
         /// <summary>
+        /// Gets the plugin base instance.
+        /// </summary>
+        public IPluginBase PluginBase { get; }
+
+        /// <summary>
         /// Gets or sets the input port of the node.
         /// </summary>
-        public InputPort InputPort { get; set; }
-        /// <summary>
-        /// Gets or sets the output port of the node.
-        /// </summary>
-        public Dictionary<string, OutputPort> OutputPorts { get; set; }
+        InputPort InputPort { get; set; }
 
+        /// <summary>
+        /// Gets or sets the output ports of the node.
+        /// </summary>
+        Dictionary<string, OutputPort> OutputPorts { get; set; }
+
+        /// <summary>
+        /// Gets or sets the UI configuration of the node.
+        /// </summary>
         NodeUIConfig UIConfig { get; set; }
 
         /// <summary>
@@ -26,8 +35,9 @@ namespace NovusNodoCore.NodeDefinition
         bool IsEnabled { get; set; }
 
         /// <summary>
-        /// Executes the node.
+        /// Executes the node with the provided JSON data.
         /// </summary>
+        /// <param name="jsonData">The JSON data to be processed by the node.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task ExecuteNode(string jsonData);
     }

@@ -1,11 +1,10 @@
-﻿using System.Drawing;
-using System.Runtime.InteropServices;
-using NovusNodoPluginLibrary;
-using System.Linq;
-using System.Threading.Tasks;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.NodeDefinition
 {
@@ -13,24 +12,24 @@ namespace NovusNodoCore.NodeDefinition
     /// Represents the base class for all nodes in the system.
     /// </summary>
     /// <typeparam name="ConfigType">The type of the configuration object.</typeparam>
-    /// <remarks>
-    /// Initializes a new instance of the <see cref="NodeBase{ConfigType}"/> class.
-    /// </remarks>
-    /// <param name="basedPlugin">The plugin base instance.</param>
-    /// <param name="token">The cancellation token.</param>
     public class NodeBase : INodeBase
     {
-        private readonly IPluginBase basedPlugin;
         private readonly CancellationToken token;
         private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
         private bool isInitialized = false;
 
         /// <summary>
+        /// Gets the plugin base instance.
+        /// </summary>
+        public IPluginBase PluginBase { get; }
+
+        /// <summary>
         /// Gets or sets the input port of the node.
         /// </summary>
         public InputPort InputPort { get; set; }
+
         /// <summary>
-        /// Gets or sets the output port of the node.
+        /// Gets or sets the output ports of the node.
         /// </summary>
         public Dictionary<string, OutputPort> OutputPorts { get; set; }
 
@@ -41,13 +40,13 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="token">The cancellation token.</param>
         public NodeBase(IPluginBase basedPlugin, CancellationToken token)
         {
-            this.basedPlugin = basedPlugin;
+            this.PluginBase = basedPlugin;
             this.token = token;
 
             InputPort = new InputPort(this);
-            OutputPorts = [];
+            OutputPorts = new Dictionary<string, OutputPort>();
 
-            for(int i = 0; i < basedPlugin.WorkTasks.Count; i++)
+            for (int i = 0; i < basedPlugin.WorkTasks.Count; i++)
             {
                 var outputPort = new OutputPort(this);
                 OutputPorts.Add(outputPort.ID, outputPort);
@@ -63,7 +62,10 @@ namespace NovusNodoCore.NodeDefinition
             }
         }
 
-        public Type UI { get => basedPlugin.UI; set => basedPlugin.UI = value; }
+        /// <summary>
+        /// Gets or sets the UI type for the node.
+        /// </summary>
+        public Type UI { get => PluginBase.UI; set => PluginBase.UI = value; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the node is enabled.
@@ -93,16 +95,16 @@ namespace NovusNodoCore.NodeDefinition
 
                     if (IsEnabled)
                     {
-                        if(!isInitialized)
+                        if (!isInitialized)
                         {
                             await PrepareWorkloadAsync().ConfigureAwait(false);
                             isInitialized = true;
                         }
 
                         int i = 0;
-                        //Execute all work tasks from the plugin
-                        //Then trigger all the connected nodes from the according output port
-                        foreach (var task in basedPlugin.WorkTasks.Values)
+                        // Execute all work tasks from the plugin
+                        // Then trigger all the connected nodes from the according output port
+                        foreach (var task in PluginBase.WorkTasks.Values)
                         {
                             result = await task(jsonData).ConfigureAwait(false);
                             await TriggerNextNodes(OutputPorts.Values.ElementAt(i), result).ConfigureAwait(false);
@@ -120,6 +122,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Triggers the execution of the next nodes in the sequence.
         /// </summary>
+        /// <param name="outputPort">The output port to trigger the next nodes from.</param>
         /// <param name="jsonData">The JSON data to be passed to the next nodes.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task TriggerNextNodes(OutputPort outputPort, string jsonData)
@@ -139,12 +142,12 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
-        public IPluginBase ParentNode { get => basedPlugin.ParentNode; set => basedPlugin.ParentNode = value; }
+        public IPluginBase ParentNode { get => PluginBase.ParentNode; set => PluginBase.ParentNode = value; }
 
         /// <summary>
         /// Gets the type of the node.
         /// </summary>
-        public NodeType NodeType => basedPlugin.NodeType;
+        public NodeType NodeType => PluginBase.NodeType;
 
         /// <summary>
         /// Gets the unique identifier for the node.
@@ -154,17 +157,17 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets the JSON configuration for the node.
         /// </summary>
-        public string JsonConfig { get => basedPlugin.JsonConfig; set => basedPlugin.JsonConfig = value; }
+        public string JsonConfig { get => PluginBase.JsonConfig; set => PluginBase.JsonConfig = value; }
 
         /// <summary>
         /// Gets the name of the node.
         /// </summary>
-        public string Name => basedPlugin.Name;
+        public string Name => PluginBase.Name;
 
         /// <summary>
         /// Gets the background color of the node.
         /// </summary>
-        public Color Background => basedPlugin.Background;
+        public Color Background => PluginBase.Background;
 
         /// <summary>
         /// Gets or sets the UI configuration for the node.
@@ -174,7 +177,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets the dictionary of work tasks associated with the node.
         /// </summary>
-        public IDictionary<string, Func<string, Task<string>>> WorkTasks => basedPlugin.WorkTasks;
+        public IDictionary<string, Func<string, Task<string>>> WorkTasks => PluginBase.WorkTasks;
 
         /// <summary>
         /// Prepares the workload asynchronously.
@@ -182,7 +185,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task PrepareWorkloadAsync()
         {
-            await basedPlugin.PrepareWorkloadAsync().ConfigureAwait(false);
+            await PluginBase.PrepareWorkloadAsync().ConfigureAwait(false);
         }
     }
 }

@@ -18,6 +18,10 @@ namespace NovusNodo
             // Add MudBlazor services
             builder.Services.AddMudServices();
 
+            // Add logging to console
+            builder.Logging.SetMinimumLevel(LogLevel.Debug);
+            builder.Logging.AddConsole();
+
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();

@@ -6,20 +6,21 @@ namespace NovusNodoPluginLibrary
     /// <summary>
     /// Represents the base class for all plugins.
     /// </summary>
-    /// <typeparam name="ConfigType">The type of the configuration object.</typeparam>
-    /// <remarks>
-    /// Initializes a new instance of the <see cref="PluginBase{ConfigType}"/> class.
-    /// </remarks>
-    /// <param name="nodeType">The type of the node.</param>
     public abstract class PluginBase : IPluginBase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PluginBase"/> class.
+        /// </summary>
         public PluginBase()
         {
             WorkTasks = new Dictionary<string, Func<string, Task<string>>>();
         }
 
+        /// <summary>
+        /// Gets or sets the UI type associated with the plugin.
+        /// </summary>
         public Type UI { get; set; }
-        
+
         /// <summary>
         /// Gets the unique identifier for the plugin.
         /// </summary>
@@ -50,8 +51,15 @@ namespace NovusNodoPluginLibrary
         /// </summary>
         public IPluginBase ParentNode { get; set; }
 
+        /// <summary>
+        /// Gets the dictionary of work tasks.
+        /// </summary>
         public IDictionary<string, Func<string, Task<string>>> WorkTasks { get; } = new Dictionary<string, Func<string, Task<string>>>();
 
+        /// <summary>
+        /// Adds a work task to the dictionary.
+        /// </summary>
+        /// <param name="task">The work task to add.</param>
         public void AddWorkTask(Func<string, Task<string>> task)
         {
             WorkTasks.Add(Guid.NewGuid().ToString(), task);
@@ -65,16 +73,6 @@ namespace NovusNodoPluginLibrary
         {
             return Task.CompletedTask;
         }
-
-        /// <summary>
-        /// Defines the workload to be executed by the node.
-        /// </summary>
-        /// <param name="jsonData">The JSON data to be processed by the workload.</param>
-        /// <returns>A function that represents the asynchronous operation and returns a string.</returns>
-        //public virtual Func<Task<string>> Workload(string jsonData)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         /// <summary>
         /// Extracts a variable from the JSON configuration.

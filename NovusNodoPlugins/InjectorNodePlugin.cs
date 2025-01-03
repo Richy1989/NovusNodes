@@ -66,7 +66,7 @@ namespace NovusNodoPlugins
         public async Task<string> Workload(string jsonData)
         {
             await Task.Delay(interval).ConfigureAwait(false);
-            return await Task.FromResult($"{{ \"currentDateTime\": \"{DateTime.UtcNow:O}\" }}").ConfigureAwait(false);
+            return await Task.FromResult($"{{\"msg\" : {{ \"currentDateTime\": \"{DateTime.UtcNow:O}\" }} }}").ConfigureAwait(false);
         }
     }
 }

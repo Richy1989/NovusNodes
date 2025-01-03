@@ -1,6 +1,8 @@
 ﻿@using NovusNodo.Components.Pages
 @inject NovusNodo.Management.NovusUIManagement NovusUIManagement
 @rendermode InteractiveServer
+@inject ILogger<SettingsSidebar> Logger
+@inject ILoggerFactory LoggerFactory
 
 <div class="wrapper" >
     <div class="sidebarCustom" style="width: @string.Format($"{InitWidth}px"); right: @string.Format($"{InitWidth}px")">
@@ -18,7 +20,7 @@
 <style>
 
     .sidebarCustom {
-    background:@NovusUIManagement.GetCurrentPalette().Background;
+        background: @NovusUIManagement.GetCurrentPalette().BackgroundGray;
     }
 
     .sidebarCustom header {
@@ -57,16 +59,18 @@
         {
             DynNodeUIType = node.UI;
 
-            Parameters.Add("OnClickCallback", EventCallback.Factory.Create<MouseEventArgs>(this, ShowDTMessage));
+            ILogger logger = LoggerFactory.CreateLogger(node.UI);
+
+            //Parameters.Add("OnClickCallback", EventCallback.Factory.Create<MouseEventArgs>(this, ShowDTMessage));
+            Parameters.Add("Logger", logger);
             Parameters.Add("GetConfig", GetConfig);
+            Parameters.Add("PluginBase", node.PluginBase);
 
             StateHasChanged();
             await Task.CompletedTask.ConfigureAwait(false);
         };
 
         DynNodeUIType = NovusUIManagement.SideBarUI;
-
-
     }
 
     /// <summary>
@@ -78,9 +82,13 @@
         var message = $"The current DT is: {DateTime.Now}.";
     }
 
-    private async Task GetConfig(string settingsCode)
+    /// <summary>
+    /// Logs the provided settings code to the console.
+    /// </summary>
+    /// <param name="configString">The settings config to log.</param>
+    private async Task GetConfig(string configString)
     {
-        Console.WriteLine("Settings saved: " + settingsCode);
+        Logger.LogDebug($"Settings saved: {configString}");
         await Task.CompletedTask;   
     }
 }
