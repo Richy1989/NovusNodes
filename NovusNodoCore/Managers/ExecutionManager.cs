@@ -14,6 +14,7 @@ namespace NovusNodoCore.Managers
     /// </summary>
     public class ExecutionManager
     {
+        private IServiceProvider serviceProvider;
         /// <summary>
         /// The logger factory.
         /// </summary>
@@ -55,6 +56,7 @@ namespace NovusNodoCore.Managers
         /// <param name="loggerFactory">The logger factory.</param>
         public ExecutionManager(ILoggerFactory loggerFactory, IServiceProvider  serviceProvider)
         {
+            this.serviceProvider = serviceProvider;
             this.loggerFactory = loggerFactory;
             cts = new CancellationTokenSource();
             token = cts.Token;
@@ -88,6 +90,9 @@ namespace NovusNodoCore.Managers
             if (plugin != null)
             {
                 var logger = loggerFactory.CreateLogger(typeof(NodeBase));
+                
+
+                
                 NodeBase node = new(plugin, logger, jSRuntime, token);
                 AvailableNodes.Add(node.ID, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);

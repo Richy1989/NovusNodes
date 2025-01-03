@@ -21,7 +21,8 @@ namespace NovusNodoCore.NodeDefinition
         private readonly CancellationToken token;
         private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
         private bool isInitialized = false;
-        private readonly IJSRuntime jSRuntime;
+        private IJSRuntime jSRuntime;
+        private IServiceProvider provider;
 
         // Callback for executing JavaScript code
         public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
@@ -55,16 +56,20 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="token">The cancellation token.</param>
         public NodeBase(IPluginBase basedPlugin, ILogger Logger, IJSRuntime jSRuntime, CancellationToken token)
         {
-            this.jSRuntime = jSRuntime;
             this.PluginBase = basedPlugin;
-            this.PluginBase.Logger = Logger;
-            this.token = token;
             this.Logger = Logger;
+           this.jSRuntime = jSRuntime;
+            this.token = token;
+            Init(basedPlugin);
+        }
 
-            this.PluginBase.ExecuteJavaScriptCodeCallback = ExecuteJavaScriptCode;
+        public void Init(IPluginBase basedPlugin)
+        {
+            this.PluginBase.Logger = Logger;
+            PluginBase.ExecuteJavaScriptCodeCallback = ExecuteJavaScriptCode;
 
             InputPort = new InputPort(this);
-            OutputPorts = new Dictionary<string, OutputPort>();
+            OutputPorts = [];
 
             for (int i = 0; i < basedPlugin.WorkTasks.Count; i++)
             {
@@ -87,6 +92,11 @@ namespace NovusNodoCore.NodeDefinition
                 });
                 executor.Start();
             }
+        }
+
+        public void UpdateJSRuntime(IJSRuntime jSRuntime)
+        {
+            this.jSRuntime = jSRuntime;
         }
 
         /// <summary>
@@ -161,8 +171,24 @@ namespace NovusNodoCore.NodeDefinition
         /// <returns>A task that represents the asynchronous operation, containing the result of the JavaScript execution.</returns>
         public async Task<JsonObject> ExecuteJavaScriptCode(string code, JsonObject parameters)
         {
-            JsonObject value = await jSRuntime.InvokeAsync<JsonObject>("GJSRunUserCode", [code, parameters]).ConfigureAwait(false);
-            return await Task.FromResult(value).ConfigureAwait(false);
+            int tries = 0;
+
+            while (tries < 3)
+            {
+                try
+                {
+                    JsonObject value = await jSRuntime.InvokeAsync<JsonObject>("GJSRunUserCode", [code, parameters]).ConfigureAwait(false);
+                    return await Task.FromResult(value).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, $"Error executing JavaScript code. This was try {tries} / 3");
+                    tries++;
+                    await Task.Delay(50).ConfigureAwait(false);
+                }
+            }
+            Logger.LogError("Failed to execute JavaScript code after 3 tries.");
+            return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
         }
 
         /// <summary>

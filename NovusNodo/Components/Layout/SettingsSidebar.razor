@@ -35,7 +35,6 @@
 
 </style>
 
-
 @code
 {
     /// <summary>
@@ -47,8 +46,11 @@
     /// <summary>
     /// Gets or sets the parameters to be passed to the dynamic component.
     /// </summary>
-    public IDictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
+    public IDictionary<string, object> Parameters { get; set; }
 
+    /// <summary>
+    /// Represents the type of the dynamic component to be rendered.
+    /// </summary>
     private Type DynNodeUIType;
 
     /// <summary>
@@ -56,22 +58,37 @@
     /// </summary>
     protected override void OnInitialized()
     {
+        Parameters = PrepareParameters();
+        DynNodeUIType = NovusUIManagement.SideBarUI;
+
         NovusUIManagement.NodeDoubleClicked += async (node) =>
         {
             DynNodeUIType = node.UI;
 
-            ILogger logger = LoggerFactory.CreateLogger(node.UI);
-
-            //Parameters.Add("OnClickCallback", EventCallback.Factory.Create<MouseEventArgs>(this, ShowDTMessage));
-            Parameters.Add("Logger", logger);
-            Parameters.Add("GetConfig", GetConfig);
-            Parameters.Add("PluginBase", node.PluginBase);
+            Parameters = PrepareParameters();
 
             StateHasChanged();
             await Task.CompletedTask.ConfigureAwait(false);
         };
+    }
 
-        DynNodeUIType = NovusUIManagement.SideBarUI;
+    /// <summary>
+    /// Prepares the parameters to be passed to the dynamic component.
+    /// </summary>
+    /// <returns>A dictionary containing the parameters.</returns>
+    private IDictionary<string, object> PrepareParameters()
+    {
+        IDictionary<string, object> parameters = new Dictionary<string, object>();
+
+        if (NovusUIManagement.CurrentlySelectedNode != null)
+        {
+            ILogger logger = LoggerFactory.CreateLogger(NovusUIManagement.CurrentlySelectedNode.UI);
+            parameters.Add("Logger", logger);
+            parameters.Add("GetConfig", GetConfig);
+            parameters.Add("PluginBase", NovusUIManagement.CurrentlySelectedNode.PluginBase);
+        }
+
+        return parameters;
     }
 
     /// <summary>

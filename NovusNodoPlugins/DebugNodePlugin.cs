@@ -1,9 +1,7 @@
 ﻿using System.Drawing;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
-using NovusNodoPluginLibrary.Helper;
 
 namespace NovusNodoPlugins
 {
@@ -52,33 +50,33 @@ namespace NovusNodoPlugins
         {
             //var variables = await JsonVariableExtractor.ExtractVariablesAsync(jsonData).ConfigureAwait(false);
 
-            //var message = await PrintVariableRecursive(variables).ConfigureAwait(false);
+            var message = await PrintVariableRecursive(jsonData).ConfigureAwait(false);
 
-            foreach (var kvp in jsonData)
-            {
-                Logger.LogInformation($"{kvp.Key}: {kvp.Value}");
-            }
+            //foreach (var kvp in jsonData)
+            //{
+            //    Logger.LogInformation($"{kvp.Key}: {kvp.Value}");
+            //}
 
-            //Logger.LogInformation(jsonData);
+            Logger.LogInformation(message);
             return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
         }
 
-        private async Task<string> PrintVariableRecursive(Dictionary<string, object> input)
+        private async Task<string> PrintVariableRecursive(JsonObject jsonObject)
         {
             string message = "";
-            foreach (var variable in input)
+            //recursive function to create a string representation of the JSON object
+            foreach (var kvp in jsonObject)
             {
-                if (variable.Value is Dictionary<string, object> nestedVariable)
+                if (kvp.Value is JsonObject)
                 {
-                    message += $"{variable.Key}";
-                    message += await PrintVariableRecursive(nestedVariable).ConfigureAwait(false);
+                    message += $"{kvp.Key}: {await PrintVariableRecursive(kvp.Value as JsonObject).ConfigureAwait(false)}\n";
                 }
                 else
                 {
-                    message+= $"{variable.Key}: {variable.Value}";
+                    message += $"{kvp.Key}: {kvp.Value}\n";
                 }
             }
-            return await Task.FromResult(message).ConfigureAwait(false);
+            return message;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 
 namespace NovusNodoPluginLibrary
@@ -38,7 +39,6 @@ namespace NovusNodoPluginLibrary
         {
             PluginConfig = PluginBase.JsonConfig;
             base.OnInitialized();
-            
         }
 
         /// <summary>

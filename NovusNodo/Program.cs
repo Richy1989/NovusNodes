@@ -17,7 +17,7 @@ namespace NovusNodo
 
             //Add Novus Core services
             builder.Services.AddSingleton<ExecutionManager>();
-            builder.Services.AddScoped<NovusUIManagement>();
+            builder.Services.AddSingleton<NovusUIManagement>();
 
             // Add MudBlazor services
             builder.Services.AddMudServices();

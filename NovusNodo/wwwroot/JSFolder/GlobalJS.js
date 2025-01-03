@@ -86,6 +86,28 @@ function GJSRunUserCode(code, parameters) {
     }
 }
 
-function GJSHighlightCode() {
-    hljs.highlightAll();
+
+let codeMirrorInstance;
+
+function initializeCodeMirror(elementId, initialCode) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        codeMirrorInstance = CodeMirror(element, {
+            value: initialCode || "",
+            mode: "javascript",
+            lineNumbers: true,
+            tabSize: 2,
+            indentWithTabs: true,
+        });
+    }
+}
+
+function getCodeMirrorValue() {
+    return codeMirrorInstance ? codeMirrorInstance.getValue() : "";
+}
+
+function setCodeMirrorValue(newValue) {
+    if (codeMirrorInstance) {
+        codeMirrorInstance.setValue(newValue);
+    }
 }

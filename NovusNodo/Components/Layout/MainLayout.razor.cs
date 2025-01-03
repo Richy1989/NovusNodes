@@ -2,6 +2,7 @@
 using Microsoft.JSInterop;
 using MudBlazor;
 using NovusNodo.Management;
+using NovusNodoCore.NodeDefinition;
 
 namespace NovusNodo.Components.Layout
 {
@@ -29,6 +30,11 @@ namespace NovusNodo.Components.Layout
                 PaletteDark = NovusUIManagement.DarkPalette,
                 LayoutProperties = new LayoutProperties()
             };
+
+            foreach (var node in ExecutionManager.AvailableNodes)
+            {
+                (node.Value as NodeBase).UpdateJSRuntime(JS);
+            }
         }
 
         /// <summary>
@@ -66,8 +72,8 @@ namespace NovusNodo.Components.Layout
         {
             if (firstRender)
             {
+                NovusUIManagement.JS = JS;
                 await JS.InvokeVoidAsync("GJSInitSettingsSideBar").ConfigureAwait(false);
-
                 novusUIManagementRef = DotNetObjectReference.Create(NovusUIManagement);
                 await JS.InvokeVoidAsync("GJSSetNovusReference", novusUIManagementRef).ConfigureAwait(false);
             }

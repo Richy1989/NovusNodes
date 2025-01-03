@@ -11,13 +11,13 @@ namespace NovusNodo.Management
     /// </summary>
     public class NovusUIManagement : IDisposable
     {
+        public INodeBase CurrentlySelectedNode { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="NovusUIManagement"/> class with the specified execution manager.
         /// </summary>
         /// <param name="executionManager">The execution manager.</param>
-        public NovusUIManagement(ExecutionManager executionManager, IJSRuntime jSRuntime)
+        public NovusUIManagement(ExecutionManager executionManager)
         {
-            this.JS = jSRuntime;
             this.ExecutionManager = executionManager;
         }
 
@@ -134,7 +134,8 @@ namespace NovusNodo.Management
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ReloadPage()
         {
-            await JS.InvokeVoidAsync("GJSReloadPage");
+            //await Task.CompletedTask.ConfigureAwait(false);
+            await JS.InvokeVoidAsync("GJSReloadPage").ConfigureAwait(false);
         }
 
         /// <summary>
@@ -145,12 +146,12 @@ namespace NovusNodo.Management
         [JSInvokable("NovusUIManagement.CellDoubleClick")]
         public async Task JJSNodeDoubleClicked(string id)
         {
-            var node = ExecutionManager.AvailableNodes[id];
+            CurrentlySelectedNode = ExecutionManager.AvailableNodes[id];
 
-            if (node == null || node.UI == null) return;
+            if (CurrentlySelectedNode == null || CurrentlySelectedNode.UI == null) return;
 
-            SideBarUI = node.UI;
-            await NodeDoubleClicked(node).ConfigureAwait(false);
+            SideBarUI = CurrentlySelectedNode.UI;
+            await NodeDoubleClicked(CurrentlySelectedNode).ConfigureAwait(false);
         }
 
         /// <summary>

@@ -18,6 +18,7 @@ namespace NovusNodoPluginLibrary
             WorkTasks = new Dictionary<string, Func<JsonObject, Task<JsonObject>>>();
         }
 
+
         public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
 
         /// <summary>
