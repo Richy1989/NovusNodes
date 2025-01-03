@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using MudBlazor;
-using NovusNodo.Components.Pages;
 using NovusNodo.Management;
 
 namespace NovusNodo.Components.Layout

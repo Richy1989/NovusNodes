@@ -3,23 +3,26 @@
     top: 0;
     min-width: 4px;
     height: 100%;
-    background: #222;
+    /*background: #222;*/
     z-index: 1000;
 }
 
-    .sidebarCustom header {
-        font-size: 28px;
-        color: #fff;
-        line-height: 70px;
-        text-align: center;
-        background: #1b1b1b;
-    }
+.sidebarCustomContent {
+    padding:20px;
+}
+
+.sidebarCustom header {
+    font-size: 28px;
+    /*color: #fff;*/
+    line-height: 70px;
+    text-align: center;
+    /*background: #1b1b1b;*/
+}
 
     .sidebarCustom a {
         display: block;
         height: 65px;
         width: 100%;
-        color: #fff;
         line-height: 65px;
         padding-left: 30px;
         border-top: 1px solid rgba(255, 255, 255, 0.1);

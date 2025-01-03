@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 using MudBlazor;
-using NovusNodo.Components.Layout;
 using NovusNodo.Components.Pages;
 using NovusNodoCore.Managers;
 using NovusNodoCore.NodeDefinition;
@@ -13,25 +11,44 @@ namespace NovusNodo.Management
     /// </summary>
     public class NovusUIManagement : IDisposable
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NovusUIManagement"/> class with the specified execution manager.
+        /// </summary>
+        /// <param name="executionManager">The execution manager.</param>
         public NovusUIManagement(ExecutionManager executionManager)
         {
             this.ExecutionManager = executionManager;
         }
 
+        /// <summary>
+        /// Gets or sets the JavaScript runtime.
+        /// </summary>
         public IJSRuntime JS { get; set; }
 
+        /// <summary>
+        /// Gets the execution manager.
+        /// </summary>
         private ExecutionManager ExecutionManager { get; set; }
 
+        /// <summary>
+        /// Occurs when a node is double-clicked.
+        /// </summary>
         public event Func<INodeBase, Task> NodeDoubleClicked;
 
+        /// <summary>
+        /// Gets or sets the type of the sidebar UI.
+        /// </summary>
         public Type SideBarUI { get; set; } = typeof(BlankConfig);
 
         // To detect redundant calls
         private bool _disposedValue;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NovusUIManagement"/> class.
+        /// </summary>
         public NovusUIManagement()
         {
-            
+
         }
 
         /// <summary>
@@ -42,8 +59,14 @@ namespace NovusNodo.Management
         /// </value>
         public bool IsDarkMode { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the drawer settings are open.
+        /// </summary>
         public bool DrawerSettingsOpen { get; set; } = true;
 
+        /// <summary>
+        /// Gets the light palette.
+        /// </summary>
         public readonly PaletteLight LightPalette = new()
         {
             Black = "#110e2d",
@@ -54,6 +77,9 @@ namespace NovusNodo.Management
             GrayLighter = "#f9f9f9",
         };
 
+        /// <summary>
+        /// Gets the dark palette.
+        /// </summary>
         public readonly PaletteDark DarkPalette = new()
         {
             Primary = "#7e6fff",
@@ -83,27 +109,48 @@ namespace NovusNodo.Management
             OverlayLight = "#1e1e2d80",
         };
 
+        public Palette GetCurrentPalette()
+        {
+            if (IsDarkMode)
+            {
+                return DarkPalette;
+            }
+            return LightPalette;
+        }
+
+        /// <summary>
+        /// Gets the type of the settings UI.
+        /// </summary>
+        /// <returns>The type of the settings UI.</returns>
         public Type GetSettingsUIType()
         {
             return null;
         }
 
+        /// <summary>
+        /// Reloads the page.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ReloadPage()
         {
             await JS.InvokeVoidAsync("GJSReloadPage");
         }
 
+        /// <summary>
+        /// Handles the node double-click event from JavaScript.
+        /// </summary>
+        /// <param name="id">The ID of the node.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         [JSInvokable("NovusUIManagement.CellDoubleClick")]
         public async Task JJSNodeDoubleClicked(string id)
         {
             var node = ExecutionManager.AvailableNodes[id];
 
             if (node == null || node.UI == null) return;
-            
+
             SideBarUI = node.UI;
             await NodeDoubleClicked(node).ConfigureAwait(false);
         }
-
 
         /// <summary>
         /// Public implementation of Dispose pattern callable by consumers.

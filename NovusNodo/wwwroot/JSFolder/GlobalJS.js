@@ -16,7 +16,7 @@ function GJSSetNovusReference(novusReference) {
 /**
  * Reloads the current page.
  */
-function GJReloadPage() {
+function GJSReloadPage() {
     location.reload();
 }
 

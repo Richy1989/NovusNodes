@@ -4,56 +4,83 @@
 
 <div class="wrapper" >
     <div class="sidebarCustom" style="width: @string.Format($"{InitWidth}px"); right: @string.Format($"{InitWidth}px")">
-        <header class="header">Tivotal</header>
-        <a href="#" class="active">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="#">
-            <i class="fas fa-message"></i>
-            <span>Messages</span>
-        </a>
-
-        <a href="#">
-            <i class="fas fa-message"></i>
-
+        <header class="header">Novus - Config</header>
+        <div class="sidebarCustomContent" >
             @if (DynNodeUIType is not null)
             {
-                <span><DynamicComponent Type="DynNodeUIType" /></span>
+                <DynamicComponent Type="DynNodeUIType" Parameters="Parameters" />
             }
-        </a>
-
+        </div>
         <div class="resizerCustom"></div>
     </div>
 </div>
 
-@code {
+<style>
+
+    .sidebarCustom {
+    background:@NovusUIManagement.GetCurrentPalette().Background;
+    }
+
+    .sidebarCustom header {
+    background:@NovusUIManagement.GetCurrentPalette().BackgroundGray;
+    color:@NovusUIManagement.GetCurrentPalette().TextPrimary;
+    }
+
+    .sidebarCustom a {
+    color:@NovusUIManagement.GetCurrentPalette().DrawerText;
+    }
+
+</style>
+
+
+@code
+{
+    /// <summary>
+    /// Gets or sets the initial width of the sidebar.
+    /// </summary>
     [Parameter]
     public int InitWidth { get; set; } = 240;
 
+    /// <summary>
+    /// Gets or sets the parameters to be passed to the dynamic component.
+    /// </summary>
+    public IDictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
+
     private Type DynNodeUIType;
 
+    /// <summary>
+    /// Initializes the component and subscribes to the NodeDoubleClicked event.
+    /// </summary>
     protected override void OnInitialized()
     {
         NovusUIManagement.NodeDoubleClicked += async (node) =>
         {
             DynNodeUIType = node.UI;
 
+            Parameters.Add("OnClickCallback", EventCallback.Factory.Create<MouseEventArgs>(this, ShowDTMessage));
+            Parameters.Add("GetConfig", GetConfig);
+
             StateHasChanged();
             await Task.CompletedTask.ConfigureAwait(false);
         };
 
         DynNodeUIType = NovusUIManagement.SideBarUI;
+
+
     }
 
-    public Type GetUI()
+    /// <summary>
+    /// Displays a message with the current date and time.
+    /// </summary>
+    /// <param name="e">The mouse event arguments.</param>
+    private void ShowDTMessage(MouseEventArgs e)
     {
-        if (NovusUIManagement != null && NovusUIManagement.SideBarUI != null)
-        {
-            return NovusUIManagement.SideBarUI;
-        }
-
-        return typeof(BlankConfig);
+        var message = $"The current DT is: {DateTime.Now}.";
     }
 
+    private async Task GetConfig(string settingsCode)
+    {
+        Console.WriteLine("Settings saved: " + settingsCode);
+        await Task.CompletedTask;   
+    }
 }
