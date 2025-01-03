@@ -49,12 +49,23 @@ namespace NovusNodoPlugins
         {
             var variables = await JsonVariableExtractor.ExtractVariablesAsync(jsonData).ConfigureAwait(false);
 
-            foreach (var variable in variables)
-            {
-                Console.WriteLine($"{variable.Key}: {variable.Value}");
-            }
+            await PrintVariableRecursive(variables).ConfigureAwait(false);
+            return await Task.FromResult("").ConfigureAwait(false);
+        }
 
-            return await Task.FromResult(string.Empty).ConfigureAwait(false);
+        private static async Task PrintVariableRecursive(Dictionary<string, object> input)
+        {
+            foreach (var variable in input)
+            {
+                if (variable.Value is Dictionary<string, object> nestedVariable)
+                {
+                    await PrintVariableRecursive(nestedVariable).ConfigureAwait(false);
+                }
+                else
+                {
+                    Console.WriteLine($"{variable.Key}: {variable.Value}");
+                }
+            }
         }
     }
 }

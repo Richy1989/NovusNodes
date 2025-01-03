@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace NovusNodoPluginLibrary
 {
@@ -15,6 +16,11 @@ namespace NovusNodoPluginLibrary
         {
             WorkTasks = new Dictionary<string, Func<string, Task<string>>>();
         }
+
+        /// <summary>
+        /// Gets or sets the logger instance for the plugin.
+        /// </summary>
+        public ILogger Logger { get; set; }
 
         /// <summary>
         /// Gets or sets the UI type associated with the plugin.

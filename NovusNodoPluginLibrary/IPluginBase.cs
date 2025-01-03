@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using Microsoft.Extensions.Logging;
 
 namespace NovusNodoPluginLibrary
 {
@@ -7,7 +8,16 @@ namespace NovusNodoPluginLibrary
     /// </summary>
     public interface IPluginBase
     {
+        /// <summary>
+        /// Gets or sets the logger instance for the plugin.
+        /// </summary>
+        ILogger Logger { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the UI component associated with the plugin.
+        /// </summary>
         Type UI { get; set; }
+
         /// <summary>
         /// Gets or sets the JSON configuration.
         /// </summary>
@@ -45,12 +55,8 @@ namespace NovusNodoPluginLibrary
         Task PrepareWorkloadAsync();
 
         /// <summary>
-        /// Defines the workload to be executed by the node.
+        /// Gets the dictionary of work tasks to be executed by the node.
         /// </summary>
-        /// <param name="jsonData">The JSON data to be processed by the workload.</param>
-        /// <returns>A function that represents the asynchronous operation and returns a string result.</returns>
-        //Func<Task<string>> Workload(string jsonData);
-
         IDictionary<string, Func<string, Task<string>>> WorkTasks { get; }
     }
 }

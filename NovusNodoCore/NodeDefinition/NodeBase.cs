@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.NodeDefinition
@@ -24,6 +25,11 @@ namespace NovusNodoCore.NodeDefinition
         public IPluginBase PluginBase { get; }
 
         /// <summary>
+        /// Gets or sets the logger instance for the plugin.
+        /// </summary>
+        public ILogger Logger { get; set; }
+
+        /// <summary>
         /// Gets or sets the input port of the node.
         /// </summary>
         public InputPort InputPort { get; set; }
@@ -38,10 +44,11 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         /// <param name="basedPlugin">The plugin base instance.</param>
         /// <param name="token">The cancellation token.</param>
-        public NodeBase(IPluginBase basedPlugin, CancellationToken token)
+        public NodeBase(IPluginBase basedPlugin, ILogger Logger, CancellationToken token)
         {
             this.PluginBase = basedPlugin;
             this.token = token;
+            this.Logger = Logger;
 
             InputPort = new InputPort(this);
             OutputPorts = new Dictionary<string, OutputPort>();

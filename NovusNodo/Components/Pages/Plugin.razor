@@ -1,5 +1,6 @@
 ﻿@using NovusNodoPluginLibrary
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
+@inject ILoggerFactory LoggerFactory
 
 
 <div class="plugin" style="background-color:@BackgroundColorCss" @onclick="AddItem">
@@ -17,7 +18,7 @@
     /// <summary>
     /// Gets or sets the child content to be rendered inside the plugin.
     /// </summary>
-    [Parameter] public RenderFragment? ChildContent { get; set; } // For additional content
+    [Parameter] public RenderFragment ChildContent { get; set; } // For additional content
 
     /// <summary>
     /// Gets or sets the background color CSS string.

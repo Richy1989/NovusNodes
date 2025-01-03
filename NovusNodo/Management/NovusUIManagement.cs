@@ -15,8 +15,9 @@ namespace NovusNodo.Management
         /// Initializes a new instance of the <see cref="NovusUIManagement"/> class with the specified execution manager.
         /// </summary>
         /// <param name="executionManager">The execution manager.</param>
-        public NovusUIManagement(ExecutionManager executionManager)
+        public NovusUIManagement(ExecutionManager executionManager, IJSRuntime jSRuntime)
         {
+            this.JS = jSRuntime;
             this.ExecutionManager = executionManager;
         }
 

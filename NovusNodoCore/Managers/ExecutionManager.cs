@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
 
@@ -12,6 +13,7 @@ namespace NovusNodoCore.Managers
     /// </summary>
     public class ExecutionManager
     {
+        public ILoggerFactory LoggerFactory { get; set; }
         /// <summary>
         /// The cancellation token source used to cancel operations.
         /// </summary>
@@ -45,8 +47,9 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
         /// </summary>
-        public ExecutionManager()
+        public ExecutionManager(ILoggerFactory loggerFactory)
         {
+            LoggerFactory = loggerFactory;
             cts = new CancellationTokenSource();
             token = cts.Token;
             pluginLoader = new PluginLoader(this);
@@ -78,7 +81,8 @@ namespace NovusNodoCore.Managers
 
             if (plugin != null)
             {
-                NodeBase node = new(plugin, token);
+                var logger = LoggerFactory.CreateLogger(typeof(NodeBase));
+                NodeBase node = new(plugin, logger, token);
                 AvailableNodes.Add(node.ID, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
             }

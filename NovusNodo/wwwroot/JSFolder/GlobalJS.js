@@ -23,7 +23,7 @@ function GJSReloadPage() {
 /**
  * Initializes the custom sidebar with resizable functionality.
  */
-function InitCustomSideBar() {
+function GJSInitSettingsSideBar() {
     let sidebar = document.querySelector(".sidebarCustom");
     let resizer = document.querySelector(".resizerCustom");
 

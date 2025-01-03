@@ -11,16 +11,16 @@ namespace NovusNodo
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Logging.SetMinimumLevel(LogLevel.Debug);
+            // Add logging to console
+            builder.Logging.AddConsole();
+
             //Add Novus Core services
             builder.Services.AddSingleton<ExecutionManager>();
-            builder.Services.AddSingleton<NovusUIManagement>();
+            builder.Services.AddScoped<NovusUIManagement>();
 
             // Add MudBlazor services
             builder.Services.AddMudServices();
-
-            // Add logging to console
-            builder.Logging.SetMinimumLevel(LogLevel.Debug);
-            builder.Logging.AddConsole();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()

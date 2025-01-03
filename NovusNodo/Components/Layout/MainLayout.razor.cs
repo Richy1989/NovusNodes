@@ -66,9 +66,7 @@ namespace NovusNodo.Components.Layout
         {
             if (firstRender)
             {
-                await JS.InvokeVoidAsync("InitCustomSideBar");
-
-                NovusUIManagement.JS = JS;
+                await JS.InvokeVoidAsync("GJSInitSettingsSideBar").ConfigureAwait(false);
 
                 novusUIManagementRef = DotNetObjectReference.Create(NovusUIManagement);
                 await JS.InvokeVoidAsync("GJSSetNovusReference", novusUIManagementRef).ConfigureAwait(false);
