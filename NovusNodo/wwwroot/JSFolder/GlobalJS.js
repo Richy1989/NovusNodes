@@ -85,3 +85,7 @@ function GJSRunUserCode(code, parameters) {
         console.error('Error executing code:', error);
     }
 }
+
+function GJSHighlightCode() {
+    hljs.highlightAll();
+}

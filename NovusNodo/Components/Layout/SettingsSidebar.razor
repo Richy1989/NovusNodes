@@ -3,6 +3,7 @@
 @rendermode InteractiveServer
 @inject ILogger<SettingsSidebar> Logger
 @inject ILoggerFactory LoggerFactory
+@inject IJSRuntime JS
 
 <div class="wrapper" >
     <div class="sidebarCustom" style="width: @string.Format($"{InitWidth}px"); right: @string.Format($"{InitWidth}px")">
@@ -20,7 +21,7 @@
 <style>
 
     .sidebarCustom {
-        background: @NovusUIManagement.GetCurrentPalette().BackgroundGray;
+    background: @NovusUIManagement.GetCurrentPalette().BackgroundGray;
     }
 
     .sidebarCustom header {
@@ -80,6 +81,16 @@
     private void ShowDTMessage(MouseEventArgs e)
     {
         var message = $"The current DT is: {DateTime.Now}.";
+    }
+
+    /// <summary>
+    /// Method called after the component has rendered.
+    /// </summary>
+    /// <param name="firstRender">Indicates if this is the first render.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // await JS.InvokeVoidAsync("GJSHighlightCode").ConfigureAwait(false);
     }
 
     /// <summary>

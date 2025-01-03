@@ -5,15 +5,6 @@ namespace NovusNodoUIPlugins.JSFunctionNode
     public partial class JavaScriptFunctionPluginUI
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="JavaScriptFunctionPluginUI"/> class.
-        /// </summary>
-        public JavaScriptFunctionPluginUI()
-        {
-            Console.WriteLine("JavaScriptFunctionPluginUI component initialized");
-        }
-        
-
-        /// <summary>
         /// Saves the settings asynchronously.
         /// </summary>
         /// <returns>A task that represents the asynchronous save operation.</returns>
@@ -34,7 +25,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
             {
                 if (disposing)
                 {
-                    base.Logger?.LogDebug("JavaScriptFunctionPluginUI component disposed");
+                    Logger?.LogDebug("JavaScriptFunctionPluginUI component disposed");
                 }
 
                 DisposedValue = true;
