@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 
 namespace NovusNodoPluginLibrary
@@ -57,6 +58,8 @@ namespace NovusNodoPluginLibrary
         /// <summary>
         /// Gets the dictionary of work tasks to be executed by the node.
         /// </summary>
-        IDictionary<string, Func<string, Task<string>>> WorkTasks { get; }
+        IDictionary<string, Func<JsonObject, Task<JsonObject>>> WorkTasks { get; }
+
+        Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
     }
 }

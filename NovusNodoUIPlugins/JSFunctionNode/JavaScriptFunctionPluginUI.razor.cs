@@ -5,17 +5,13 @@ namespace NovusNodoUIPlugins.JSFunctionNode
     public partial class JavaScriptFunctionPluginUI
     {
         /// <summary>
-        /// Gets or sets the settings code.
-        /// </summary>
-        private string PluginConfig { get; set; } = string.Empty;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="JavaScriptFunctionPluginUI"/> class.
         /// </summary>
         public JavaScriptFunctionPluginUI()
         {
             Console.WriteLine("JavaScriptFunctionPluginUI component initialized");
         }
+        
 
         /// <summary>
         /// Saves the settings asynchronously.

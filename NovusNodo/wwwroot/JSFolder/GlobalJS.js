@@ -68,3 +68,20 @@ function GJSInitSettingsSideBar() {
 
     resizer.addEventListener("mousedown", mousedownListener);
 }
+
+function GJSRunUserCode(code, parameters) {
+
+    console.log("Running user code: " + code);
+    console.log("With parameters: " + parameters);
+
+    try {
+        // Create a new function with `param` as the parameter
+        const func = new Function('msg', code);
+        let result = func(parameters);
+        console.log("Result: " + result);
+        // Execute the function with the provided parameter
+        return result
+    } catch (error) {
+        console.error('Error executing code:', error);
+    }
+}

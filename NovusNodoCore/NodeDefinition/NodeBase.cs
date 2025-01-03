@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.NodeDefinition
@@ -18,6 +21,10 @@ namespace NovusNodoCore.NodeDefinition
         private readonly CancellationToken token;
         private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
         private bool isInitialized = false;
+        private readonly IJSRuntime jSRuntime;
+
+        // Callback for executing JavaScript code
+        public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
 
         /// <summary>
         /// Gets the plugin base instance.
@@ -43,12 +50,18 @@ namespace NovusNodoCore.NodeDefinition
         /// Initializes a new instance of the <see cref="NodeBase"/> class.
         /// </summary>
         /// <param name="basedPlugin">The plugin base instance.</param>
+        /// <param name="Logger">The logger instance.</param>
+        /// <param name="jSRuntime">The JavaScript runtime instance.</param>
         /// <param name="token">The cancellation token.</param>
-        public NodeBase(IPluginBase basedPlugin, ILogger Logger, CancellationToken token)
+        public NodeBase(IPluginBase basedPlugin, ILogger Logger, IJSRuntime jSRuntime, CancellationToken token)
         {
+            this.jSRuntime = jSRuntime;
             this.PluginBase = basedPlugin;
+            this.PluginBase.Logger = Logger;
             this.token = token;
             this.Logger = Logger;
+
+            this.PluginBase.ExecuteJavaScriptCodeCallback = ExecuteJavaScriptCode;
 
             InputPort = new InputPort(this);
             OutputPorts = new Dictionary<string, OutputPort>();
@@ -63,7 +76,14 @@ namespace NovusNodoCore.NodeDefinition
             {
                 Task executor = new(async () =>
                 {
-                    await ExecuteNode(string.Empty).ConfigureAwait(false);
+                    try
+                    {
+                        await ExecuteNode([]).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Error executing node.");
+                    }
                 });
                 executor.Start();
             }
@@ -84,7 +104,7 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         /// <param name="jsonData">The JSON data to be processed by the node.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public async Task ExecuteNode(string jsonData)
+        public async Task ExecuteNode(JsonObject jsonData)
         {
             await semaphoreSlim.WaitAsync().ConfigureAwait(false);
 
@@ -98,7 +118,7 @@ namespace NovusNodoCore.NodeDefinition
                         run = false;
                     }
 
-                    string result = string.Empty;
+                    JsonObject result;
 
                     if (IsEnabled)
                     {
@@ -113,8 +133,15 @@ namespace NovusNodoCore.NodeDefinition
                         // Then trigger all the connected nodes from the according output port
                         foreach (var task in PluginBase.WorkTasks.Values)
                         {
-                            result = await task(jsonData).ConfigureAwait(false);
-                            await TriggerNextNodes(OutputPorts.Values.ElementAt(i), result).ConfigureAwait(false);
+                            try
+                            {
+                                result = await task(jsonData).ConfigureAwait(false);
+                                await TriggerNextNodes(OutputPorts.Values.ElementAt(i), result).ConfigureAwait(false);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError(ex, "Error executing work task.");
+                            }
                             i++;
                         }
                     }
@@ -127,12 +154,24 @@ namespace NovusNodoCore.NodeDefinition
         }
 
         /// <summary>
+        /// Executes the provided JavaScript code with the given parameters.
+        /// </summary>
+        /// <param name="code">The JavaScript code to execute.</param>
+        /// <param name="parameters">The parameters to pass to the JavaScript code.</param>
+        /// <returns>A task that represents the asynchronous operation, containing the result of the JavaScript execution.</returns>
+        public async Task<JsonObject> ExecuteJavaScriptCode(string code, JsonObject parameters)
+        {
+            JsonObject value = await jSRuntime.InvokeAsync<JsonObject>("GJSRunUserCode", [code, parameters]).ConfigureAwait(false);
+            return await Task.FromResult(value).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Triggers the execution of the next nodes in the sequence.
         /// </summary>
         /// <param name="outputPort">The output port to trigger the next nodes from.</param>
         /// <param name="jsonData">The JSON data to be passed to the next nodes.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        private async Task TriggerNextNodes(OutputPort outputPort, string jsonData)
+        private async Task TriggerNextNodes(OutputPort outputPort, JsonObject jsonData)
         {
             if (token.IsCancellationRequested) await Task.CompletedTask;
 
@@ -184,7 +223,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets the dictionary of work tasks associated with the node.
         /// </summary>
-        public IDictionary<string, Func<string, Task<string>>> WorkTasks => PluginBase.WorkTasks;
+        public IDictionary<string, Func<JsonObject, Task<JsonObject>>> WorkTasks => PluginBase.WorkTasks;
 
         /// <summary>
         /// Prepares the workload asynchronously.

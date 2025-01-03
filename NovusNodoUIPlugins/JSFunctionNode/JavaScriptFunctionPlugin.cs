@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Text.Json.Nodes;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoUIPlugins.JSFunctionNode
@@ -14,7 +15,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         public JavaScriptFunctionPlugin()
         {
             UI = typeof(JavaScriptFunctionPluginUI);
-            JsonConfig = "return msg";
+            JsonConfig = "return msg;";
             AddWorkTask(Workload);
         }
 
@@ -43,10 +44,15 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         /// </summary>
         /// <param name="jsonData">The JSON data to be processed by the workload.</param>
         /// <returns>A task that represents the asynchronous operation and returns a string result.</returns>
-        public async Task<string> Workload(string jsonData)
+        public async Task<JsonObject> Workload(JsonObject jsonData)
         {
+            
             Console.WriteLine("Hello from JavaScriptFunctionPlugin!");
-            return await Task.FromResult(jsonData).ConfigureAwait(false);
+
+            //JsonConfig is the written JS Program at this point
+            return await ExecuteJavaScriptCodeCallback(JsonConfig, jsonData).ConfigureAwait(false);
+
+
         }
     }
 }

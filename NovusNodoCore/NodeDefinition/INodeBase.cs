@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using NovusNodoPluginLibrary;
 
@@ -39,6 +40,6 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         /// <param name="jsonData">The JSON data to be processed by the node.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task ExecuteNode(string jsonData);
+        Task ExecuteNode(JsonObject jsonData);
     }
 }

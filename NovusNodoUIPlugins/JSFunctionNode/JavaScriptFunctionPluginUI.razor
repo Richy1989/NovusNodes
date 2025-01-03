@@ -8,7 +8,7 @@
     <h3>JavaScript Settings Node</h3>
     @* <textarea @bind="PluginConfig" class="settings-textarea"></textarea> *@
 
-    <MudTextField T="string" Label="JS Code" Variant="Variant.Outlined" Lines="20" Class="settings-textarea" Text="@PluginConfig" AutoGrow HelperText="This field grows when you enter new lines" />
+    <MudTextField T="string" Label="JS Code" Variant="Variant.Outlined" Lines="20" Class="settings-textarea" @bind-Value="PluginConfig" AutoGrow HelperText="This field grows when you enter new lines" />
 
     <MudButton Onclick="SaveSettings" Variant="Variant.Filled" Color="Color.Primary" Class="save-button">Save</MudButton>
 </div>

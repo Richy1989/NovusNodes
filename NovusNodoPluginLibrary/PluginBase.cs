@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 
 namespace NovusNodoPluginLibrary
@@ -14,8 +15,10 @@ namespace NovusNodoPluginLibrary
         /// </summary>
         public PluginBase()
         {
-            WorkTasks = new Dictionary<string, Func<string, Task<string>>>();
+            WorkTasks = new Dictionary<string, Func<JsonObject, Task<JsonObject>>>();
         }
+
+        public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
 
         /// <summary>
         /// Gets or sets the logger instance for the plugin.
@@ -60,13 +63,13 @@ namespace NovusNodoPluginLibrary
         /// <summary>
         /// Gets the dictionary of work tasks.
         /// </summary>
-        public IDictionary<string, Func<string, Task<string>>> WorkTasks { get; } = new Dictionary<string, Func<string, Task<string>>>();
+        public IDictionary<string, Func<JsonObject, Task<JsonObject>>> WorkTasks { get; } = new Dictionary<string, Func<JsonObject, Task<JsonObject>>>();
 
         /// <summary>
         /// Adds a work task to the dictionary.
         /// </summary>
         /// <param name="task">The work task to add.</param>
-        public void AddWorkTask(Func<string, Task<string>> task)
+        public void AddWorkTask(Func<JsonObject, Task<JsonObject>> task)
         {
             WorkTasks.Add(Guid.NewGuid().ToString(), task);
         }

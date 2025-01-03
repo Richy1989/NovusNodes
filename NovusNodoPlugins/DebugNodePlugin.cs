@@ -1,4 +1,7 @@
 ﻿using System.Drawing;
+using System.Runtime.InteropServices.JavaScript;
+using System.Text.Json.Nodes;
+using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
 using NovusNodoPluginLibrary.Helper;
 
@@ -45,27 +48,37 @@ namespace NovusNodoPlugins
         /// </summary>
         /// <param name="jsonData">The JSON data to be processed by the workload.</param>
         /// <returns>A function representing the asynchronous workload.</returns>
-        public static async Task<string> Workload(string jsonData)
+        public async Task<JsonObject> Workload(JsonObject jsonData)
         {
-            var variables = await JsonVariableExtractor.ExtractVariablesAsync(jsonData).ConfigureAwait(false);
+            //var variables = await JsonVariableExtractor.ExtractVariablesAsync(jsonData).ConfigureAwait(false);
 
-            await PrintVariableRecursive(variables).ConfigureAwait(false);
-            return await Task.FromResult("").ConfigureAwait(false);
+            //var message = await PrintVariableRecursive(variables).ConfigureAwait(false);
+
+            foreach (var kvp in jsonData)
+            {
+                Logger.LogInformation($"{kvp.Key}: {kvp.Value}");
+            }
+
+            //Logger.LogInformation(jsonData);
+            return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
         }
 
-        private static async Task PrintVariableRecursive(Dictionary<string, object> input)
+        private async Task<string> PrintVariableRecursive(Dictionary<string, object> input)
         {
+            string message = "";
             foreach (var variable in input)
             {
                 if (variable.Value is Dictionary<string, object> nestedVariable)
                 {
-                    await PrintVariableRecursive(nestedVariable).ConfigureAwait(false);
+                    message += $"{variable.Key}";
+                    message += await PrintVariableRecursive(nestedVariable).ConfigureAwait(false);
                 }
                 else
                 {
-                    Console.WriteLine($"{variable.Key}: {variable.Value}");
+                    message+= $"{variable.Key}: {variable.Value}";
                 }
             }
+            return await Task.FromResult(message).ConfigureAwait(false);
         }
     }
 }

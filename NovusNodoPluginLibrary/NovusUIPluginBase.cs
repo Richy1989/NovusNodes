@@ -27,6 +27,21 @@ namespace NovusNodoPluginLibrary
         protected bool DisposedValue { get; set; }
 
         /// <summary>
+        /// Gets or sets the settings code.
+        /// </summary>
+        public string PluginConfig { get; set; }
+
+        /// <summary>
+        /// Method called when the component is initialized.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            PluginConfig = PluginBase.JsonConfig;
+            base.OnInitialized();
+            
+        }
+
+        /// <summary>
         /// Public implementation of Dispose pattern callable by consumers.
         /// </summary>
         public void Dispose()

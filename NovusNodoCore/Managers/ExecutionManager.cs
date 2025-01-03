@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
 
@@ -13,7 +14,11 @@ namespace NovusNodoCore.Managers
     /// </summary>
     public class ExecutionManager
     {
-        public ILoggerFactory LoggerFactory { get; set; }
+        /// <summary>
+        /// The logger factory.
+        /// </summary>
+        private ILoggerFactory loggerFactory;
+
         /// <summary>
         /// The cancellation token source used to cancel operations.
         /// </summary>
@@ -47,9 +52,10 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
         /// </summary>
-        public ExecutionManager(ILoggerFactory loggerFactory)
+        /// <param name="loggerFactory">The logger factory.</param>
+        public ExecutionManager(ILoggerFactory loggerFactory, IServiceProvider  serviceProvider)
         {
-            LoggerFactory = loggerFactory;
+            this.loggerFactory = loggerFactory;
             cts = new CancellationTokenSource();
             token = cts.Token;
             pluginLoader = new PluginLoader(this);
@@ -68,7 +74,7 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="pluginBase">The plugin base to create the node from.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task CreateNode(IPluginBase pluginBase)
+        public async Task CreateNode(IPluginBase pluginBase, IJSRuntime jSRuntime)
         {
             var instance = Activator.CreateInstance(pluginBase.GetType());
 
@@ -81,8 +87,8 @@ namespace NovusNodoCore.Managers
 
             if (plugin != null)
             {
-                var logger = LoggerFactory.CreateLogger(typeof(NodeBase));
-                NodeBase node = new(plugin, logger, token);
+                var logger = loggerFactory.CreateLogger(typeof(NodeBase));
+                NodeBase node = new(plugin, logger, jSRuntime, token);
                 AvailableNodes.Add(node.ID, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
             }

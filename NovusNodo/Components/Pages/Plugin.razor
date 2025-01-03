@@ -1,7 +1,7 @@
 ﻿@using NovusNodoPluginLibrary
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 @inject ILoggerFactory LoggerFactory
-
+@inject IJSRuntime JS
 
 <div class="plugin" style="background-color:@BackgroundColorCss" @onclick="AddItem">
     <div class="plugin-header">@Name</div>
@@ -58,6 +58,6 @@
     private async Task AddItem()
     {
         if (PluginBase != null)
-            await ExecutionManager.CreateNode(PluginBase).ConfigureAwait(false);
+            await ExecutionManager.CreateNode(PluginBase, JS).ConfigureAwait(false);
     }
 }
