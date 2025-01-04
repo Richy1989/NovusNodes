@@ -58,6 +58,6 @@
     private async Task AddItem()
     {
         if (PluginBase != null)
-            await ExecutionManager.CreateNode(PluginBase, JS).ConfigureAwait(false);
+            await ExecutionManager.CreateNode(PluginBase).ConfigureAwait(false);
     }
 }

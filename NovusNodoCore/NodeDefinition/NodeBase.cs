@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.NodeDefinition
@@ -21,7 +20,6 @@ namespace NovusNodoCore.NodeDefinition
         private readonly CancellationToken token;
         private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
         private bool isInitialized = false;
-        private IJSRuntime jSRuntime;
         private IServiceProvider provider;
 
         // Callback for executing JavaScript code
@@ -54,11 +52,10 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="Logger">The logger instance.</param>
         /// <param name="jSRuntime">The JavaScript runtime instance.</param>
         /// <param name="token">The cancellation token.</param>
-        public NodeBase(IPluginBase basedPlugin, ILogger Logger, IJSRuntime jSRuntime, CancellationToken token)
+        public NodeBase(IPluginBase basedPlugin, ILogger Logger, CancellationToken token)
         {
             this.PluginBase = basedPlugin;
             this.Logger = Logger;
-           this.jSRuntime = jSRuntime;
             this.token = token;
             Init(basedPlugin);
         }
@@ -92,11 +89,6 @@ namespace NovusNodoCore.NodeDefinition
                 });
                 executor.Start();
             }
-        }
-
-        public void UpdateJSRuntime(IJSRuntime jSRuntime)
-        {
-            this.jSRuntime = jSRuntime;
         }
 
         /// <summary>
@@ -177,7 +169,8 @@ namespace NovusNodoCore.NodeDefinition
             {
                 try
                 {
-                    JsonObject value = await jSRuntime.InvokeAsync<JsonObject>("GJSRunUserCode", [code, parameters]).ConfigureAwait(false);
+                    //ToDo: Add c#-javascript API
+                    JsonObject value = new JsonObject(); // await jSRuntime.InvokeAsync<JsonObject>("GJSRunUserCode", [code, parameters]).ConfigureAwait(false);
                     return await Task.FromResult(value).ConfigureAwait(false);
                 }
                 catch (Exception ex)

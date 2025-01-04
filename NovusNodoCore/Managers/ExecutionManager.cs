@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
 using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
 
@@ -50,6 +49,8 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public IDictionary<string, INodeBase> AvailableNodes { get; set; } = new Dictionary<string, INodeBase>();
 
+        NodeJSEnvironmentManager d;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
         /// </summary>
@@ -61,6 +62,11 @@ namespace NovusNodoCore.Managers
             cts = new CancellationTokenSource();
             token = cts.Token;
             pluginLoader = new PluginLoader(this);
+
+            d = new NodeJSEnvironmentManager();
+            d.Initialize();
+
+
         }
 
         /// <summary>
@@ -76,7 +82,7 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="pluginBase">The plugin base to create the node from.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task CreateNode(IPluginBase pluginBase, IJSRuntime jSRuntime)
+        public async Task CreateNode(IPluginBase pluginBase)
         {
             var instance = Activator.CreateInstance(pluginBase.GetType());
 
@@ -93,7 +99,7 @@ namespace NovusNodoCore.Managers
                 
 
                 
-                NodeBase node = new(plugin, logger, jSRuntime, token);
+                NodeBase node = new(plugin, logger, token);
                 AvailableNodes.Add(node.ID, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
             }

@@ -31,10 +31,10 @@ namespace NovusNodo.Components.Layout
                 LayoutProperties = new LayoutProperties()
             };
 
-            foreach (var node in ExecutionManager.AvailableNodes)
-            {
-                (node.Value as NodeBase).UpdateJSRuntime(JS);
-            }
+            //foreach (var node in ExecutionManager.AvailableNodes)
+            //{
+            //    (node.Value as NodeBase).UpdateJSRuntime(JS);
+            //}
         }
 
         /// <summary>

@@ -99,6 +99,13 @@ function initializeCodeMirror(elementId, initialCode) {
             tabSize: 2,
             indentWithTabs: true,
         });
+
+        //// Adjust the height when content changes
+        //codeMirrorInstance.on("changes", () => {
+        //    const lineCount = codeMirrorInstance.lineCount();
+        //    const lineHeight = codeMirrorInstance.defaultTextHeight();
+        //    document.getElementById(elementId).style.height = `${lineCount * lineHeight + 10}px`;
+        //});
     }
 }
 
