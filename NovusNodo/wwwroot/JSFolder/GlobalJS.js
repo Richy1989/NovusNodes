@@ -69,24 +69,6 @@ function GJSInitSettingsSideBar() {
     resizer.addEventListener("mousedown", mousedownListener);
 }
 
-function GJSRunUserCode(code, parameters) {
-
-    console.log("Running user code: " + code);
-    console.log("With parameters: " + parameters);
-
-    try {
-        // Create a new function with `param` as the parameter
-        const func = new Function('msg', code);
-        let result = func(JSON.parse(parameters));
-        console.log("Result: " + result);
-        // Execute the function with the provided parameter
-        return JSON.stringify(result);
-    } catch (error) {
-        console.error('Error executing code:', error);
-    }
-}
-
-
 let codeMirrorInstance;
 
 function initializeCodeMirror(elementId, initialCode) {
@@ -111,5 +93,3 @@ function setCodeMirrorValue(newValue) {
         codeMirrorInstance.setValue(newValue);
     }
 }
-
-module.exports = { GJSRunUserCode };

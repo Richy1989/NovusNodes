@@ -1,13 +1,13 @@
-﻿using System.Text.Json.Nodes;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using NovusNodoPluginLibrary;
 
 namespace NovusNodoUIPlugins.JSFunctionNode
 {
+    /// <summary>
+    /// Represents the UI component for the JavaScript function plugin.
+    /// </summary>
     public partial class JavaScriptFunctionPluginUI
     {
-        private string Code { get; set; } = "console.log('Hello, CodeMirror!');";
         /// <summary>
         /// Saves the settings asynchronously.
         /// </summary>
@@ -15,39 +15,25 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         private async Task SaveSettings()
         {
             // Get the code from CodeMirror
-            PluginConfig = await JS.InvokeAsync<string>("getCodeMirrorValue");
-            //Console.WriteLine($"Saved Code: {Code}");
+            PluginConfig = await JS.InvokeAsync<string>("getCodeMirrorValue").ConfigureAwait(false);
 
             await GetConfig(PluginConfig).ConfigureAwait(false);
             PluginBase.JsonConfig = PluginConfig;
             Logger.LogInformation($"Plugin Info - New JS Code is: \n{PluginConfig}");
         }
 
-        protected override async Task OnInitializedAsync()
-        {
-           // PluginBase.ExecuteJavaScriptCodeCallback = ExecuteJavaScriptCode;
-            await base.OnInitializedAsync().ConfigureAwait(false);
-        }
-
+        /// <summary>
+        /// Method invoked after the component has been rendered.
+        /// </summary>
+        /// <param name="firstRender">Indicates whether this is the first time the component has been rendered.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
                 // Initialize CodeMirror
-                await JS.InvokeVoidAsync("initializeCodeMirror", "CodeEditor", PluginConfig);
+                await JS.InvokeVoidAsync("initializeCodeMirror", "CodeEditor", PluginConfig).ConfigureAwait(false);
             }
-        }
-
-        /// <summary>
-        /// Executes the provided JavaScript code with the given parameters.
-        /// </summary>
-        /// <param name="code">The JavaScript code to execute.</param>
-        /// <param name="parameters">The parameters to pass to the JavaScript code.</param>
-        /// <returns>A task that represents the asynchronous operation, containing the result of the JavaScript execution.</returns>
-        public async Task<JsonObject> ExecuteJavaScriptCode(string code, JsonObject parameters)
-        {
-            JsonObject value = await JS.InvokeAsync<JsonObject>("GJSRunUserCode", [code, parameters]).ConfigureAwait(false);
-            return await Task.FromResult(value).ConfigureAwait(false);
         }
 
         /// <summary>

@@ -47,8 +47,6 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         /// <returns>A task that represents the asynchronous operation and returns a string result.</returns>
         public async Task<JsonObject> Workload(JsonObject jsonData)
         {
-            Console.WriteLine("Hello from JavaScriptFunctionPlugin!");
-
             //JsonConfig is the written JS Program at this point
             return await ExecuteJavaScriptCodeCallback(JsonConfig, jsonData).ConfigureAwait(false);
         }
