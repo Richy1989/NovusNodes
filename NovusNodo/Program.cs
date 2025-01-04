@@ -2,6 +2,7 @@ using MudBlazor.Services;
 using NovusNodo.Components;
 using NovusNodo.Management;
 using NovusNodoCore.Managers;
+using NovusNodoCore;
 
 namespace NovusNodo
 {
@@ -18,6 +19,8 @@ namespace NovusNodo
             //Add Novus Core services
             builder.Services.AddSingleton<ExecutionManager>();
             builder.Services.AddSingleton<NovusUIManagement>();
+
+            builder.Services.AddNovusCoreComponents();
 
             // Add MudBlazor services
             builder.Services.AddMudServices();

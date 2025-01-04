@@ -77,10 +77,10 @@ function GJSRunUserCode(code, parameters) {
     try {
         // Create a new function with `param` as the parameter
         const func = new Function('msg', code);
-        let result = func(parameters);
+        let result = func(JSON.parse(parameters));
         console.log("Result: " + result);
         // Execute the function with the provided parameter
-        return result
+        return JSON.stringify(result);
     } catch (error) {
         console.error('Error executing code:', error);
     }
@@ -99,13 +99,6 @@ function initializeCodeMirror(elementId, initialCode) {
             tabSize: 2,
             indentWithTabs: true,
         });
-
-        //// Adjust the height when content changes
-        //codeMirrorInstance.on("changes", () => {
-        //    const lineCount = codeMirrorInstance.lineCount();
-        //    const lineHeight = codeMirrorInstance.defaultTextHeight();
-        //    document.getElementById(elementId).style.height = `${lineCount * lineHeight + 10}px`;
-        //});
     }
 }
 
@@ -118,3 +111,5 @@ function setCodeMirrorValue(newValue) {
         codeMirrorInstance.setValue(newValue);
     }
 }
+
+module.exports = { GJSRunUserCode };

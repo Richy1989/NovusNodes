@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NovusNodoCore.Managers;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.NodeDefinition
@@ -20,7 +21,7 @@ namespace NovusNodoCore.NodeDefinition
         private readonly CancellationToken token;
         private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
         private bool isInitialized = false;
-        private IServiceProvider provider;
+        private NodeJSEnvironmentManager nodeJSEnvironmentManager;
 
         // Callback for executing JavaScript code
         public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
@@ -52,11 +53,12 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="Logger">The logger instance.</param>
         /// <param name="jSRuntime">The JavaScript runtime instance.</param>
         /// <param name="token">The cancellation token.</param>
-        public NodeBase(IPluginBase basedPlugin, ILogger Logger, CancellationToken token)
+        public NodeBase(IPluginBase basedPlugin, ILogger Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, CancellationToken token)
         {
             this.PluginBase = basedPlugin;
             this.Logger = Logger;
             this.token = token;
+            this.nodeJSEnvironmentManager = nodeJSEnvironmentManager;
             Init(basedPlugin);
         }
 
@@ -170,7 +172,7 @@ namespace NovusNodoCore.NodeDefinition
                 try
                 {
                     //ToDo: Add c#-javascript API
-                    JsonObject value = new JsonObject(); // await jSRuntime.InvokeAsync<JsonObject>("GJSRunUserCode", [code, parameters]).ConfigureAwait(false);
+                    JsonObject value = nodeJSEnvironmentManager.RunUserCode(code, parameters);
                     return await Task.FromResult(value).ConfigureAwait(false);
                 }
                 catch (Exception ex)

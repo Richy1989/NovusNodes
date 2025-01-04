@@ -13,6 +13,8 @@ namespace NovusNodoCore.Managers
     /// </summary>
     public class ExecutionManager
     {
+        private NodeJSEnvironmentManager NodeJSEnvironmentManager;
+
         private IServiceProvider serviceProvider;
         /// <summary>
         /// The logger factory.
@@ -49,24 +51,21 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public IDictionary<string, INodeBase> AvailableNodes { get; set; } = new Dictionary<string, INodeBase>();
 
-        NodeJSEnvironmentManager d;
+        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
         /// </summary>
         /// <param name="loggerFactory">The logger factory.</param>
-        public ExecutionManager(ILoggerFactory loggerFactory, IServiceProvider  serviceProvider)
+        public ExecutionManager(ILoggerFactory loggerFactory, NodeJSEnvironmentManager nodeJSEnvironmentManager)
         {
-            this.serviceProvider = serviceProvider;
             this.loggerFactory = loggerFactory;
             cts = new CancellationTokenSource();
             token = cts.Token;
             pluginLoader = new PluginLoader(this);
 
-            d = new NodeJSEnvironmentManager();
-            d.Initialize();
-
-
+            this.NodeJSEnvironmentManager = nodeJSEnvironmentManager;
+            NodeJSEnvironmentManager.Initialize();
         }
 
         /// <summary>
@@ -99,7 +98,7 @@ namespace NovusNodoCore.Managers
                 
 
                 
-                NodeBase node = new(plugin, logger, token);
+                NodeBase node = new(plugin, logger, NodeJSEnvironmentManager, token);
                 AvailableNodes.Add(node.ID, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
             }

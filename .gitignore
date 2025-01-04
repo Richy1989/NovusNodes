@@ -1,7 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/csharp
 # Edit at https://www.toptal.com/developers/gitignore?templates=csharp
 
-libnode/
+# Ignore the entire folder
+libnode
 
 ### Csharp ###
 ## Ignore Visual Studio temporary files, build results, and

@@ -2,16 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>diable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NovusNodoPluginLibrary\NovusNodoPluginLibrary.csproj" />
+    <Content Remove="C:\Users\richy\.nuget\packages\microsoft.javascript.nodeapi\0.8.16\contentFiles\any\net8.0\import.cjs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Nodes\" />
+    <ProjectReference Include="..\NovusNodoPluginLibrary\NovusNodoPluginLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>
