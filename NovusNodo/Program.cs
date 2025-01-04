@@ -12,7 +12,6 @@ namespace NovusNodo
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Logging.SetMinimumLevel(LogLevel.Debug);
             // Add logging to console
             builder.Logging.AddConsole();
 

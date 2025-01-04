@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using Microsoft.JavaScript.NodeApi;
+using Microsoft.JavaScript.NodeApi.Generator;
 using Microsoft.JavaScript.NodeApi.Runtime;
 
 namespace NovusNodoCore.Managers
@@ -38,7 +39,7 @@ namespace NovusNodoCore.Managers
             string wwwrootDir = Path.Combine(executingDir, "wwwroot");
             globalNovusJavaScriptPath = Path.Combine(wwwrootDir, "JSFolder", "BackendGlobal.js");
             string baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string libnodePath = Path.Combine(executingDir, "../", "libnode", "out", "Release", "libnode.dll");
+            string libnodePath = GetLibNodePath();// Path.Combine(executingDir, "../", "libnode", "out", "Release", "libnode.dll");
             
             logger.LogDebug("Libnode path: {0}", libnodePath);
             logger.LogDebug("BackendGlobal path: {0}", globalNovusJavaScriptPath);
@@ -117,6 +118,22 @@ namespace NovusNodoCore.Managers
 
                 _disposedValue = true;
             }
+        }
+
+        private string GetLibNodePath()
+        {
+            string appDir = Path.GetDirectoryName(typeof(Program).Assembly.Location)!;
+            string libnodePath = Path.Combine(appDir, "libnode.dll");
+
+            if (File.Exists(libnodePath)) return libnodePath;
+
+            string executingDir = Directory.GetCurrentDirectory();
+            libnodePath = Path.Combine(executingDir, "../", "libnode", "out", "Release", "libnode.dll");
+            
+            if (File.Exists(libnodePath)) return libnodePath;
+
+            logger.LogError("libnode.dll not found");
+            throw new FileNotFoundException("libnode.dll not found");
         }
     }
 }
