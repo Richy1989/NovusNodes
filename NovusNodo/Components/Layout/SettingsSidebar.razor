@@ -22,16 +22,16 @@
 <style>
 
     .sidebarCustom {
-        background:@NovusUIManagement.GetCurrentPalette().BackgroundGray;
+    background:@NovusUIManagement.GetCurrentPalette().BackgroundGray;
     }
 
     .sidebarCustom header {
-        background:@NovusUIManagement.GetCurrentPalette().BackgroundGray;
-        color:@NovusUIManagement.GetCurrentPalette().TextPrimary;
+    background:@NovusUIManagement.GetCurrentPalette().BackgroundGray;
+    color:@NovusUIManagement.GetCurrentPalette().TextPrimary;
     }
 
     .sidebarCustom a {
-        color:@NovusUIManagement.GetCurrentPalette().DrawerText;
+    color:@NovusUIManagement.GetCurrentPalette().DrawerText;
     }
 
 </style>
@@ -68,8 +68,10 @@
 
             Parameters = PrepareParameters();
 
-            StateHasChanged();
-            await Task.CompletedTask.ConfigureAwait(false);
+            await InvokeAsync(() =>
+            {
+                base.StateHasChanged();
+            });
         };
     }
 

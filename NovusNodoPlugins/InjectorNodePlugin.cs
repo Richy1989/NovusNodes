@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using NovusNodoPluginLibrary;
 using NovusNodoPluginLibrary.Helper;
@@ -66,13 +67,16 @@ namespace NovusNodoPlugins
         /// <returns>A function that represents the asynchronous operation.</returns>
         public async Task<JsonObject> Workload(JsonObject jsonData)
         {
-            var jsonObject = new JsonObject
-            {
-                ["currentDateTime"] = DateTime.UtcNow.ToString("O")
-            };
+            var time = new { DateTime = DateTime.UtcNow.ToString("O") };
+
+            JsonObject jsonObject = JsonSerializer.Deserialize<JsonObject>(JsonSerializer.Serialize(time));
+
+            //var jsonObject = new JsonObject
+            //{
+            //    ["currentDateTime"] = DateTime.UtcNow.ToString("O")
+            //};
 
             await Task.Delay(interval).ConfigureAwait(false);
-            //return await Task.FromResult($"{{\"msg\" : {{ \"currentDateTime\": \"{DateTime.UtcNow:O}\" }} }}").ConfigureAwait(false);
             return await Task.FromResult(jsonObject).ConfigureAwait(false);
         }
     }

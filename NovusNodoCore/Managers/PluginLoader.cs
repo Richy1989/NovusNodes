@@ -18,8 +18,8 @@ namespace NovusNodoCore.Managers
 
         public void LoadPlugins()
         {
-            paths.Add("C:\\Users\\richy\\SoftwarewDevelopment\\NodiAutomati\\NovusNodo\\NovusNodoPlugins\\bin\\Debug\\net8.0");
-            paths.Add("C:\\Users\\richy\\SoftwarewDevelopment\\NodiAutomati\\NovusNodo\\NovusNodoUIPlugins\\bin\\Debug\\net8.0");
+            paths.Add("C:\\Users\\richy\\SoftwarewDevelopment\\NodiAutomati\\NovusNodo\\NovusNodoPlugins\\bin\\Debug\\net9.0");
+            paths.Add("C:\\Users\\richy\\SoftwarewDevelopment\\NodiAutomati\\NovusNodo\\NovusNodoUIPlugins\\bin\\Debug\\net9.0");
 
             foreach (var path in paths)
             {

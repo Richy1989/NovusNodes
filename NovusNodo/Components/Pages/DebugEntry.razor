@@ -1,15 +1,14 @@
 ﻿@using Blazor.JsonEditor.Component
 @using System.Text.Json.Nodes
+@using System.Text.Json
 @inject IJSRuntime JS
-
-
 
 <MudCard Class="mb-2">
     <MudCardContent>
         <MudText Typo="Typo.subtitle2">@Timestamp.ToString("g")</MudText>
         <MudText Typo="Typo.body2" Color="Color.Secondary">@Tag</MudText>
 
-        <div id="@string.Format("#{0}", MessageID)"></div>
+        <div id="@string.Format("{0}", MessageID)"></div>
 
     </MudCardContent>
 </MudCard>
@@ -19,8 +18,11 @@
 
     @string.Format("#{0}", MessageID)
     {
-        width: 500px;
-        height: 300px;
+    /* width: 500px;
+    height: 300px; */
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
     }
 </style>
 
@@ -34,7 +36,8 @@
     {
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]).ConfigureAwait(false);
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
+            await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
         }
     }
 

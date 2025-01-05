@@ -14,7 +14,7 @@ namespace NovusNodo.Components.Layout
         private bool _drawerOpen = true;
         private MudTheme _theme = null;
         private DotNetObjectReference<NovusUIManagement> novusUIManagementRef;
-
+        private ElementReference debugScrollDiv;
         // To detect redundant calls
         private bool _disposedValue;
         /// <summary>
@@ -37,10 +37,18 @@ namespace NovusNodo.Components.Layout
 
         private async Task ExecutionManager_DebugLogChanged((string, System.Text.Json.Nodes.JsonObject) arg)
         {
+
             await InvokeAsync(() =>
             {
                 base.StateHasChanged();
             });
+            await ScrollToBottom();
+        }
+
+
+        private async Task ScrollToBottom()
+        {
+            await JS.InvokeVoidAsync("scrollToBottom", debugScrollDiv);
         }
 
         /// <summary>
