@@ -12,7 +12,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         /// Saves the settings asynchronously.
         /// </summary>
         /// <returns>A task that represents the asynchronous save operation.</returns>
-        private async Task SaveSettings()
+        public override async Task SaveSettings()
         {
             // Get the code from CodeMirror
             PluginConfig = await JS.InvokeAsync<string>("getCodeMirrorValue").ConfigureAwait(false);

@@ -18,6 +18,7 @@ namespace NovusNodoPluginLibrary
             WorkTasks = new Dictionary<string, Func<JsonObject, Task<JsonObject>>>();
         }
 
+        public Func<Task> SaveSettings { get; set; }
 
         public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
         public Func<string, JsonObject, Task> UpdateDebugLog { get; set; }
@@ -40,7 +41,7 @@ namespace NovusNodoPluginLibrary
         /// <summary>
         /// Gets the name of the plugin.
         /// </summary>
-        public abstract string Name { get; }
+        public abstract string Name { get; set; }
 
         /// <summary>
         /// Gets the background color of the plugin.

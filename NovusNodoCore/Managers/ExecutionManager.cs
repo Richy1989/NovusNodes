@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.JavaScript;
-using System.Text.Json.Nodes;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
@@ -15,13 +10,15 @@ namespace NovusNodoCore.Managers
     /// </summary>
     public class ExecutionManager
     {
-        private NodeJSEnvironmentManager NodeJSEnvironmentManager;
+        /// <summary>
+        /// The NodeJS environment manager.
+        /// </summary>
+        private readonly NodeJSEnvironmentManager NodeJSEnvironmentManager;
 
-        private IServiceProvider serviceProvider;
         /// <summary>
         /// The logger factory.
         /// </summary>
-        private ILoggerFactory loggerFactory;
+        private readonly ILoggerFactory loggerFactory;
 
         /// <summary>
         /// The cancellation token source used to cancel operations.
@@ -42,6 +39,10 @@ namespace NovusNodoCore.Managers
         /// Event fired when AvailableNodes is updated.
         /// </summary>
         public event Func<INodeBase, Task> AvailableNodesUpdated;
+
+        /// <summary>
+        /// Event fired when DebugLog is updated.
+        /// </summary>
         public event Func<(string, JsonObject), Task> DebugLogChanged;
 
         /// <summary>
@@ -54,12 +55,16 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public IDictionary<string, INodeBase> AvailableNodes { get; set; } = new Dictionary<string, INodeBase>();
 
+        /// <summary>
+        /// Gets or sets the debug log.
+        /// </summary>
         public IDictionary<string, JsonObject> DebugLog { get; set; } = new Dictionary<string, JsonObject>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
         /// </summary>
         /// <param name="loggerFactory">The logger factory.</param>
+        /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager.</param>
         public ExecutionManager(ILoggerFactory loggerFactory, NodeJSEnvironmentManager nodeJSEnvironmentManager)
         {
             this.loggerFactory = loggerFactory;
@@ -98,9 +103,6 @@ namespace NovusNodoCore.Managers
             if (plugin != null)
             {
                 var logger = loggerFactory.CreateLogger(typeof(NodeBase));
-                
-
-                
                 NodeBase node = new(plugin, logger, NodeJSEnvironmentManager, OnDebugLogUpdated, token);
                 AvailableNodes.Add(node.ID, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
@@ -172,6 +174,12 @@ namespace NovusNodoCore.Managers
             await AvailableNodesUpdated.Invoke(nodeBase).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Invokes the DebugLogChanged event.
+        /// </summary>
+        /// <param name="id">The ID of the debug log entry.</param>
+        /// <param name="message">The debug log message.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task OnDebugLogUpdated(string id, JsonObject message)
         {
             string dID = Guid.NewGuid().ToString();

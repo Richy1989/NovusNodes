@@ -27,9 +27,9 @@ namespace NovusNodoPlugins
         public override string ID { get; } = "B52F8BEC-BFAA-44D6-9AC2-D2565711A210";
 
         /// <summary>
-        /// Gets the name of the plugin.
+        /// Gets or sets the name of the plugin.
         /// </summary>
-        public override string Name { get; } = "Debug";
+        public override string Name { get; set; } = "Debug";
 
         /// <summary>
         /// Gets the background color of the plugin.
@@ -63,6 +63,11 @@ namespace NovusNodoPlugins
 
         private async Task<string> PrintVariableRecursive(JsonObject jsonObject)
         {
+            if(jsonObject == null)
+            {
+                return "";
+            }
+
             string message = "";
             //recursive function to create a string representation of the JSON object
             foreach (var kvp in jsonObject)

@@ -15,7 +15,7 @@ namespace NovusNodoCore.Managers
     {
         private readonly ILogger<NodeJSEnvironmentManager> logger;
         private bool _disposedValue;
-        private readonly NodejsPlatform nodejsPlatform;
+        private NodejsPlatform nodejsPlatform;
         private NodejsEnvironment nodejs;
         private string globalNovusJavaScriptPath = null;
 
@@ -45,7 +45,7 @@ namespace NovusNodoCore.Managers
             logger.LogDebug("BackendGlobal path: {0}", globalNovusJavaScriptPath);
 
             // Initialize the NodeJS environment.
-            NodejsPlatform nodejsPlatform = new(libnodePath);
+            nodejsPlatform = new(libnodePath);
             nodejs = nodejsPlatform.CreateEnvironment(baseDir);
             logger.LogInformation("NodeJS environment initialized");
         }
@@ -69,6 +69,7 @@ namespace NovusNodoCore.Managers
                 }
                 catch (Exception e)
                 {
+                    //ToDo: Show in Debug log!
                     logger.LogError(e, "Error running user code");
                 }
             });

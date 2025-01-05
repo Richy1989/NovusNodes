@@ -9,6 +9,7 @@ namespace NovusNodoPluginLibrary
     /// </summary>
     public interface IPluginBase
     {
+        Func<Task> SaveSettings { get; set; }
         /// <summary>
         /// Gets or sets the logger instance for the plugin.
         /// </summary>
@@ -35,9 +36,9 @@ namespace NovusNodoPluginLibrary
         string ID { get; }
 
         /// <summary>
-        /// Gets the name of the plugin.
+        /// Gets or sets the name of the plugin.
         /// </summary>
-        string Name { get; }
+        string Name { get; set; }
 
         /// <summary>
         /// Gets the background color of the plugin.

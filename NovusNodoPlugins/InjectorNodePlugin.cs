@@ -28,9 +28,9 @@ namespace NovusNodoPlugins
         public override string ID { get; } = "0B8A143C-B574-4EBA-BDAF-106B1F279AA2";
 
         /// <summary>
-        /// Gets the name of the plugin.
+        /// Gets or sets the name of the plugin.
         /// </summary>
-        public override string Name { get; } = "Injector";
+        public override string Name { get; set; } = "Injector";
 
         /// <summary>
         /// Gets the background color of the plugin.

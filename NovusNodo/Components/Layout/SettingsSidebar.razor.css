@@ -16,6 +16,10 @@
     text-align: center;
 }
 
+.sidebarCustom .name {
+    text-align: center;
+}
+
     .sidebarCustom a {
         display: block;
         height: 65px;

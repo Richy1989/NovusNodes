@@ -37,8 +37,12 @@ namespace NovusNodoPluginLibrary
         /// </summary>
         protected override void OnInitialized()
         {
-            if(PluginBase != null)
+            if (PluginBase != null)
+            {
                 PluginConfig = PluginBase.JsonConfig;
+                PluginBase.SaveSettings = SaveSettings;
+
+            }
             base.OnInitialized();
         }
 
@@ -56,5 +60,7 @@ namespace NovusNodoPluginLibrary
         /// </summary>
         /// <param name="disposing">Indicates whether the method is called from Dispose.</param>
         protected abstract void Dispose(bool disposing);
+
+        public abstract Task SaveSettings();
     }
 }

@@ -356,6 +356,11 @@ function JJSCreateNodeElement(id, color, text, x, y) {
     graph.addCell(node);
 }
 
+function JJSChangeNodeLabel(nodeId, text) {
+    var node = graph.getCell(nodeId);
+    node.attr('headerLabel/text', text);
+}
+
 /**
  * Adds an input port to the specified node.
  * @param {string} nodeId - The ID of the node to which the input port will be added.

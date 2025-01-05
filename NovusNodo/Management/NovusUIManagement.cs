@@ -148,10 +148,12 @@ namespace NovusNodo.Management
         {
             CurrentlySelectedNode = ExecutionManager.AvailableNodes[id];
 
-            if (CurrentlySelectedNode == null || CurrentlySelectedNode.UI == null) return;
+            if (CurrentlySelectedNode != null && CurrentlySelectedNode.UI != null)
+            {
+                SideBarUI = CurrentlySelectedNode.UI;
+            }
 
-            SideBarUI = CurrentlySelectedNode.UI;
-            await NodeDoubleClicked(CurrentlySelectedNode).ConfigureAwait(false);
+            await NodeDoubleClicked(CurrentlySelectedNode);
         }
 
         /// <summary>

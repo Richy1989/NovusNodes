@@ -29,7 +29,7 @@
     /// <summary>
     /// Gets or sets the child content to be rendered inside the node.
     /// </summary>
-    [Parameter] public RenderFragment? ChildContent { get; set; } // For additional content
+    [Parameter] public RenderFragment ChildContent { get; set; } // For additional content
 
     [Parameter] public Func<MouseEventArgs, string, Task> ConnectorClicked { get; set; }
 

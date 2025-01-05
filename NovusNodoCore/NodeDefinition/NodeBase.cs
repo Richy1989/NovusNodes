@@ -104,6 +104,8 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public bool IsEnabled { get; set; } = true;
 
+        public Func<Task> SaveSettings { get => PluginBase.SaveSettings; set => PluginBase.SaveSettings = value; }
+
         /// <summary>
         /// Executes the node's workload if the node is enabled, and then triggers the execution of the next nodes.
         /// </summary>
@@ -228,9 +230,9 @@ namespace NovusNodoCore.NodeDefinition
         public string JsonConfig { get => PluginBase.JsonConfig; set => PluginBase.JsonConfig = value; }
 
         /// <summary>
-        /// Gets the name of the node.
+        /// Gets or sets the name of the node.
         /// </summary>
-        public string Name => PluginBase.Name;
+        public string Name { get => PluginBase.Name; set => PluginBase.Name = value; }
 
         /// <summary>
         /// Gets the background color of the node.
