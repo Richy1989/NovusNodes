@@ -59,19 +59,19 @@ namespace NovusNodoCore.Managers
         public JsonObject RunUserCode(string code, JsonObject parameters)
         {
             string content = "";
-            try
+            nodejs.Run(() =>
             {
-                nodejs.Run(() =>
+                try
                 {
                     var globalNovusJavaScript = nodejs.Import(globalNovusJavaScriptPath);
                     content = (string)globalNovusJavaScript.CallMethod("RunUserCode", $"{code}", GetStringRepresentation(parameters));
-                });
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e, "Error running user code");
-            }
 
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Error running user code");
+                }
+            });
             var json = JsonSerializer.Deserialize<JsonObject>(content);
 
             if (json == null)

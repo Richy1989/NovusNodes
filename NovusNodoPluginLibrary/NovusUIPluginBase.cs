@@ -37,7 +37,8 @@ namespace NovusNodoPluginLibrary
         /// </summary>
         protected override void OnInitialized()
         {
-            PluginConfig = PluginBase.JsonConfig;
+            if(PluginBase != null)
+                PluginConfig = PluginBase.JsonConfig;
             base.OnInitialized();
         }
 

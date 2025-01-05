@@ -64,6 +64,13 @@
 
         NovusUIManagement.NodeDoubleClicked += async (node) =>
         {
+            DynNodeUIType = typeof(BlankConfig);
+
+            await InvokeAsync(() =>
+            {
+                base.StateHasChanged();
+            });
+
             DynNodeUIType = node.UI;
 
             Parameters = PrepareParameters();
