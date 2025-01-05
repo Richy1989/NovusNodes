@@ -113,15 +113,15 @@ function JsonEditorCreateEditor(editorElementId, content) {
 
     /* import { createJSONEditor } from 'https://cdn.jsdelivr.net/npm/vanilla-jsoneditor@2/standalone.js';*/
 
-    //const editor = createJSONEditor({
-    //    target: document.getElementById(editorElementId),
+    const editor = createJSONEditor({
+        target: document.getElementById(editorElementId),
 
-    //    props: {
-    //        mainMenuBar: false,
-    //        content,
-    //        /*onChange: handleChange,*/
-    //    },
-    //});
+        props: {
+            mainMenuBar: false,
+            content,
+            /*onChange: handleChange,*/
+        },
+    });
 
     // use methods get, set, update, and onChange to get data in or out of the editor.
     // Use updateProps to update properties.
