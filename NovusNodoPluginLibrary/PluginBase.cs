@@ -20,6 +20,7 @@ namespace NovusNodoPluginLibrary
 
 
         public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
+        public Func<string, JsonObject, Task> UpdateDebugLog { get; set; }
 
         /// <summary>
         /// Gets or sets the logger instance for the plugin.

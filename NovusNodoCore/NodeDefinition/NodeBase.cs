@@ -53,9 +53,10 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="Logger">The logger instance.</param>
         /// <param name="jSRuntime">The JavaScript runtime instance.</param>
         /// <param name="token">The cancellation token.</param>
-        public NodeBase(IPluginBase basedPlugin, ILogger Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, CancellationToken token)
+        public NodeBase(IPluginBase basedPlugin, ILogger Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, Func<string, JsonObject, Task> updateDebugFunction, CancellationToken token)
         {
             this.PluginBase = basedPlugin;
+            (this.PluginBase as PluginBase).UpdateDebugLog = updateDebugFunction;
             this.Logger = Logger;
             this.token = token;
             this.nodeJSEnvironmentManager = nodeJSEnvironmentManager;

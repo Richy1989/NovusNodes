@@ -1,6 +1,7 @@
-﻿@using NovusNodo.Components.Pages
+﻿@rendermode InteractiveServer
+
+@using NovusNodo.Components.Pages
 @inject NovusNodo.Management.NovusUIManagement NovusUIManagement
-@rendermode InteractiveServer
 @inject ILogger<SettingsSidebar> Logger
 @inject ILoggerFactory LoggerFactory
 @inject IJSRuntime JS
@@ -21,16 +22,16 @@
 <style>
 
     .sidebarCustom {
-    background: @NovusUIManagement.GetCurrentPalette().BackgroundGray;
+        background:@NovusUIManagement.GetCurrentPalette().BackgroundGray;
     }
 
     .sidebarCustom header {
-    background:@NovusUIManagement.GetCurrentPalette().BackgroundGray;
-    color:@NovusUIManagement.GetCurrentPalette().TextPrimary;
+        background:@NovusUIManagement.GetCurrentPalette().BackgroundGray;
+        color:@NovusUIManagement.GetCurrentPalette().TextPrimary;
     }
 
     .sidebarCustom a {
-    color:@NovusUIManagement.GetCurrentPalette().DrawerText;
+        color:@NovusUIManagement.GetCurrentPalette().DrawerText;
     }
 
 </style>
@@ -89,25 +90,6 @@
         }
 
         return parameters;
-    }
-
-    /// <summary>
-    /// Displays a message with the current date and time.
-    /// </summary>
-    /// <param name="e">The mouse event arguments.</param>
-    private void ShowDTMessage(MouseEventArgs e)
-    {
-        var message = $"The current DT is: {DateTime.Now}.";
-    }
-
-    /// <summary>
-    /// Method called after the component has rendered.
-    /// </summary>
-    /// <param name="firstRender">Indicates if this is the first render.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        // await JS.InvokeVoidAsync("GJSHighlightCode").ConfigureAwait(false);
     }
 
     /// <summary>

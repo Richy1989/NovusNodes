@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using NovusNodo.Components.Pages
+@inherits LayoutComponentBase
 @inject NovusNodo.Management.NovusUIManagement NovusUIManagement
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 @inject IJSRuntime JS
@@ -19,18 +20,45 @@
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
     </MudDrawer>
-    <MudDrawer @bind-Open="NovusUIManagement.DrawerSettingsOpen" Width="240px" Anchor="Anchor.End" ClipMode="DrawerClipMode.Docked" Variant="DrawerVariant.Persistent" Elevation="2">
+    <MudDrawer @bind-Open="NovusUIManagement.DrawerSettingsOpen" Class="custom-drawer" Width="440px" Anchor="Anchor.End" ClipMode="DrawerClipMode.Docked" Variant="DrawerVariant.Persistent" Elevation="2">
+       
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">Settings</MudText>
         </MudDrawerHeader>
-        <MudNavMenu>
-            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBox">Profile</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ShoppingCart">Orders</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.History">Order History</MudNavLink>
-        </MudNavMenu>
+        <div class="scrollable-drawer-content">
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" MinimumTabWidth="20px" PanelClass="pa-4">
+                <MudTabPanel Icon="@Icons.Material.Filled.History">
+    @*                 <textarea style="background-color:@GetCurrentPalette().BackgroundGray; color:@GetCurrentPalette().TextPrimary" class="debugarea"> </textarea>*@
+                <MudNavMenu>
+                    @* <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBox">Profile</MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ShoppingCart">Orders</MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.History">Order History</MudNavLink> *@
+                   
+                    @foreach(var debug in ExecutionManager.DebugLog)
+                    {
+                        <MudNavLink> <DebugEntry Timestamp="DateTime.Now" MessageID="@debug.Key" Tag="Info" Message="@debug.Value"></DebugEntry></MudNavLink>
+                    }
+
+                </MudNavMenu>
+
+                </MudTabPanel>
+                <MudTabPanel Icon="@Icons.Material.Filled.Settings">
+                    <MudText>Content Two</MudText>
+                </MudTabPanel>
+                <MudTabPanel Icon="@Icons.Material.Filled.History">
+                    <MudText>Content Three</MudText>
+                </MudTabPanel>
+                <MudTabPanel Icon="@Icons.Material.Filled.AccountBox" Disabled="true">
+                    <MudText>Content Disabled</MudText>
+                </MudTabPanel>
+            </MudTabs>
+        </div>
+        
+        
+   
     </MudDrawer>
     <MudMainContent Class="mt-16 pa-4">
-        <SettingsSidebar InitWidth="240"></SettingsSidebar>
+        <SettingsSidebar InitWidth="440"></SettingsSidebar>
             @Body
     </MudMainContent>
 </MudLayout>
@@ -40,3 +68,4 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+

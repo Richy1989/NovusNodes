@@ -3,7 +3,6 @@
     top: 0;
     min-width: 4px;
     height: 100%;
-    /*background: #222;*/
     z-index: 1000;
 }
 
@@ -13,10 +12,8 @@
 
 .sidebarCustom header {
     font-size: 28px;
-    /*color: #fff;*/
     line-height: 70px;
     text-align: center;
-    /*background: #1b1b1b;*/
 }
 
     .sidebarCustom a {
@@ -56,3 +53,4 @@
         left: 0; /* Position the resizer on the left edge of the sidebar */
         cursor: col-resize;
     }
+

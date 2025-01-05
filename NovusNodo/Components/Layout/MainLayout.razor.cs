@@ -24,17 +24,23 @@ namespace NovusNodo.Components.Layout
         {
             base.OnInitialized();
 
+
+            ExecutionManager.DebugLogChanged += ExecutionManager_DebugLogChanged;
+
             _theme = new()
             {
                 PaletteLight = NovusUIManagement.LightPalette,
                 PaletteDark = NovusUIManagement.DarkPalette,
                 LayoutProperties = new LayoutProperties()
             };
+        }
 
-            //foreach (var node in ExecutionManager.AvailableNodes)
-            //{
-            //    (node.Value as NodeBase).UpdateJSRuntime(JS);
-            //}
+        private async Task ExecutionManager_DebugLogChanged((string, System.Text.Json.Nodes.JsonObject) arg)
+        {
+            await InvokeAsync(() =>
+            {
+                base.StateHasChanged();
+            });
         }
 
         /// <summary>
@@ -103,6 +109,11 @@ namespace NovusNodo.Components.Layout
 
                 _disposedValue = true;
             }
+        }
+
+        private Palette GetCurrentPalette()
+        {
+            return NovusUIManagement.GetCurrentPalette();
         }
     }
 }

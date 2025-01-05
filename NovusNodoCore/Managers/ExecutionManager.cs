@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.JavaScript;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -40,6 +42,7 @@ namespace NovusNodoCore.Managers
         /// Event fired when AvailableNodes is updated.
         /// </summary>
         public event Func<INodeBase, Task> AvailableNodesUpdated;
+        public event Func<(string, JsonObject), Task> DebugLogChanged;
 
         /// <summary>
         /// Gets or sets the available plugins.
@@ -51,7 +54,7 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public IDictionary<string, INodeBase> AvailableNodes { get; set; } = new Dictionary<string, INodeBase>();
 
-        
+        public IDictionary<string, JsonObject> DebugLog { get; set; } = new Dictionary<string, JsonObject>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
@@ -98,7 +101,7 @@ namespace NovusNodoCore.Managers
                 
 
                 
-                NodeBase node = new(plugin, logger, NodeJSEnvironmentManager, token);
+                NodeBase node = new(plugin, logger, NodeJSEnvironmentManager, OnDebugLogUpdated, token);
                 AvailableNodes.Add(node.ID, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
             }
@@ -167,6 +170,13 @@ namespace NovusNodoCore.Managers
                 await Task.CompletedTask;
             }
             await AvailableNodesUpdated.Invoke(nodeBase).ConfigureAwait(false);
+        }
+
+        public async Task OnDebugLogUpdated(string id, JsonObject message)
+        {
+            string dID = Guid.NewGuid().ToString();
+            DebugLog.Add(dID, message);
+            await DebugLogChanged.Invoke((dID, message)).ConfigureAwait(false);
         }
     }
 }

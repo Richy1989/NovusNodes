@@ -30,8 +30,12 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task LocalFunctionAddNewConnectionAsync(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
-            ExecutionManager.NewConnection(sourceId, sourcePortId, targetId, targetPortId);
-            await Task.CompletedTask;
+            await InvokeAsync(() =>
+            {
+                ExecutionManager.NewConnection(sourceId, sourcePortId, targetId, targetPortId);
+            });
+            
+//            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -44,8 +48,12 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task LocalFunctionRemovedConnectionAsync(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
-            ExecutionManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
-            await Task.CompletedTask;
+            await InvokeAsync(() =>
+            {
+                ExecutionManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
+            });
+            
+            //await Task.CompletedTask;
         }
 
         /// <summary>
@@ -55,8 +63,11 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task LocalFunctionElementRemovedAsync(string elementId)
         {
-            ExecutionManager.ElementRemoved(elementId);
-            await Task.CompletedTask;
+            await InvokeAsync(() =>
+            {
+                ExecutionManager.ElementRemoved(elementId);
+            });
+            //await Task.CompletedTask;
         }
 
         /// <summary>
@@ -81,11 +92,11 @@ namespace NovusNodo.Components.Pages
         {
             if (NovusUIManagement.IsDarkMode)
             {
-                await JS.InvokeVoidAsync("JJSSetColorPalette", [$"{NovusUIManagement.DarkPalette.Background}", "#ffffff", "#e8e8e8"]).ConfigureAwait(false);
+                await JS.InvokeVoidAsync("JJSSetColorPalette", [$"{NovusUIManagement.DarkPalette.Background}", "#ffffff", "#e8e8e8"]);
             }
             else
             {
-                await JS.InvokeVoidAsync("JJSSetColorPalette", [$"{NovusUIManagement.LightPalette.Background}", "#1e1e2d", "#1e1e2d"]).ConfigureAwait(false);
+                await JS.InvokeVoidAsync("JJSSetColorPalette", [$"{NovusUIManagement.LightPalette.Background}", "#1e1e2d", "#1e1e2d"]);
             }
         }
 
@@ -115,8 +126,7 @@ namespace NovusNodo.Components.Pages
         [JSInvokable]
         public static async Task LinkAdded(string sourceID, string sourcePortId, string targetId, string targetPortId)
         {
-            FunctionAddNewConnectionAsync?.Invoke(sourceID, sourcePortId, targetId, targetPortId);
-            await Task.CompletedTask;
+            await FunctionAddNewConnectionAsync.Invoke(sourceID, sourcePortId, targetId, targetPortId);
         }
 
         /// <summary>
@@ -130,7 +140,7 @@ namespace NovusNodo.Components.Pages
         [JSInvokable]
         public static async Task LinkRemoved(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
-            await FunctionRemovedConnectionAsync(sourceId, sourcePortId, targetId, targetPortId).ConfigureAwait(false);
+            await FunctionRemovedConnectionAsync(sourceId, sourcePortId, targetId, targetPortId);
         }
 
         /// <summary>
@@ -141,7 +151,7 @@ namespace NovusNodo.Components.Pages
         [JSInvokable]
         public static async Task ElementRemoved(string elementId)
         {
-            await FunctionElementRemovedAsync(elementId).ConfigureAwait(false);
+            await FunctionElementRemovedAsync(elementId);
         }
 
         /// <summary>
@@ -152,8 +162,8 @@ namespace NovusNodo.Components.Pages
         private async Task NodesAdded(INodeBase node)
         {
             items = ExecutionManager.AvailableNodes;
-            await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}"]).ConfigureAwait(false);
-            await AddPorts(node).ConfigureAwait(false);
+            await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}"]);
+            await AddPorts(node);
         }
 
         /// <summary>
@@ -165,24 +175,24 @@ namespace NovusNodo.Components.Pages
         {
             if (firstRender)
             {
-                await SetJointJSColors().ConfigureAwait(false);
+                await SetJointJSColors();
                 await JS.InvokeVoidAsync("JJSCreatePaper", "main");
 
                 foreach (var node in items.Values)
                 {
                     if (node.UIConfig.X > 0 && node.UIConfig.Y > 0)
                     {
-                        await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}", $"{node.UIConfig.X}", $"{node.UIConfig.Y}"]).ConfigureAwait(false);
+                        await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}", $"{node.UIConfig.X}", $"{node.UIConfig.Y}"]);
                     }
                     else
                     {
-                        await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}"]).ConfigureAwait(false);
+                        await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}"]);
                     }
 
-                    await AddPorts(node).ConfigureAwait(false);
+                    await AddPorts(node);
                 }
 
-                await DrawLinks().ConfigureAwait(false);
+                await DrawLinks();
 
             }
         }
@@ -202,7 +212,7 @@ namespace NovusNodo.Components.Pages
                         string connectedPortId = nextNode.Key;
                         INodeBase connectedNode = nextNode.Value;
 
-                        await JS.InvokeVoidAsync("JJSCreateLink", [$"{node.ID}", $"{port.ID}", $"{connectedNode.ID}", $"{connectedPortId}"]).ConfigureAwait(false);
+                        await JS.InvokeVoidAsync("JJSCreateLink", [$"{node.ID}", $"{port.ID}", $"{connectedNode.ID}", $"{connectedPortId}"]);
                     }
                 }
             }
@@ -227,13 +237,13 @@ namespace NovusNodo.Components.Pages
         {
             if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Finisher)
             {
-                await JS.InvokeVoidAsync("JJSAddInputPort", [$"{node.ID}", $"{node.InputPort.ID}"]).ConfigureAwait(false);
+                await JS.InvokeVoidAsync("JJSAddInputPort", [$"{node.ID}", $"{node.InputPort.ID}"]);
             }
             if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Starter)
             {
                 foreach (var port in node.OutputPorts.Values)
                 {
-                    await JS.InvokeVoidAsync("JJSAddOutputPort", [$"{node.ID}", $"{port.ID}"]).ConfigureAwait(false);
+                    await JS.InvokeVoidAsync("JJSAddOutputPort", [$"{node.ID}", $"{port.ID}"]);
                 }
             }
         }

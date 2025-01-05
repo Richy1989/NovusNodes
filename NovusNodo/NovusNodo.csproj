@@ -8,6 +8,7 @@
 
 
   <ItemGroup>
+    <PackageReference Include="Blazor.JsonEditor" Version="1.1.0" />
     <PackageReference Include="MudBlazor" Version="7.*" />
   </ItemGroup>
 

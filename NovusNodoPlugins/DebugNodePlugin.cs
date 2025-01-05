@@ -56,7 +56,7 @@ namespace NovusNodoPlugins
             //{
             //    Logger.LogInformation($"{kvp.Key}: {kvp.Value}");
             //}
-
+            await UpdateDebugLog.Invoke(ID, jsonData).ConfigureAwait(false);
             Logger.LogInformation(message);
             return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
         }
