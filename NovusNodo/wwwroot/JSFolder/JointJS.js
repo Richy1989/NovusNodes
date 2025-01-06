@@ -4,7 +4,16 @@
  */
 let graph = undefined;
 
+/**
+ * The name of the container element.
+ * @type {string}
+ */
 let containerName = undefined;
+
+/**
+ * The paper resizer object for the JointJS diagram.
+ * @type {ResizeObserver}
+ */
 let paperResizer = undefined;
 /**
  * The paper object for the JointJS diagram.
@@ -12,10 +21,16 @@ let paperResizer = undefined;
  */
 let paper = undefined;
 
-// Keep track of the currently selected cell
+/**
+ * The currently selected cell in the JointJS diagram.
+ * @type {joint.dia.CellView|null}
+ */
 let selectedCell = null;
 
-// Keep track of the currently selected cell
+/**
+ * The currently selected link in the JointJS diagram.
+ * @type {joint.dia.Link|null}
+ */
 let selectedLink = null;
 
 /**
@@ -40,7 +55,10 @@ function JJSSetColorPalette(backgroundColor, strokeColor, linkColor) {
     console.log('Setting color palette:', BackgroundColor, StrokeColor, LinkColor);
 }
 
-// Function to find the furthest elements in x and y directions
+/**
+ * Finds the elements that are furthest along the x and y axes.
+ * @returns {Object} An object containing the furthest elements along the x and y axes.
+ */
 function findFurthestElements() {
     var elements = graph.getElements();
     var furthestXElement = null;
@@ -66,15 +84,22 @@ function findFurthestElements() {
     };
 }
 
+/**
+ * Resizes the JointJS paper to fit the container and the furthest elements.
+ */
 function ResizePaper() {
     var container = document.getElementById("main_container");
 
     var furthest = findFurthestElements();
 
-    let width = Math.max(container.offsetWidth, furthest.furthestXElement.position().x + furthest.furthestXElement.size().width + 10);
-    let height = Math.max(container.offsetHeight, furthest.furthestYElement.position().y + furthest.furthestYElement.size().height + 10);
+    let width = container.offsetWidth;
+    let height = container.offsetHeight;
 
-    //console.log('Resizing paper to fit container:', width, height);
+    if (furthest.furthestXElement != null && furthest.furthestYElement != null) {
+        width = Math.max(width, furthest.furthestXElement.position().x + furthest.furthestXElement.size().width + 10);
+        height = Math.max(height, furthest.furthestYElement.position().y + furthest.furthestYElement.size().height + 10);
+    }
+
     paper.setDimensions(width, height);
 }
 

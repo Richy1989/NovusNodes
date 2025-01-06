@@ -6,42 +6,25 @@
 @inject ILoggerFactory LoggerFactory
 @inject IJSRuntime JS
 
-<div class="wrapper" >
-    <div class="sidebarCustom" style="width: @string.Format($"{InitWidth}px"); right: @string.Format($"{InitWidth}px")">
 
-        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" MinimumTabWidth="20px" PanelClass="pa-4">
-            <MudTabPanel Icon="@Icons.Material.Filled.Code">
-                <header class="header">Novus - Config</header>
-                <div class="name">
-                    <MudTextField T="string" @bind-value="CurrentSelectedNodeName" Label="Selected Node:" HelperText="Change the Node Name" HelperTextOnFocus="true" Variant="Variant.Text" />
-                </div>
-                <div class="sidebarCustomContent" >
-                    @if (DynNodeUIType is not null)
-                    {
-                        <DynamicComponent Type="DynNodeUIType" Parameters="Parameters" />
-                    }
-                </div>
-            </MudTabPanel>
-            <MudButton Onclick="SaveSettings" Variant="Variant.Filled" Color="Color.Primary" Class="save-button">Save</MudButton>
-        </MudTabs>
-        <div class="resizerCustom"></div>
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" MinimumTabWidth="20px" PanelClass="pa-4">
+    <MudTabPanel Icon="@Icons.Material.Filled.Code">
+        <header class="header">Novus - Config</header>
+        <div class="name">
+            <MudTextField T="string" @bind-value="CurrentSelectedNodeName" Label="Selected Node:" HelperText="Change the Node Name" HelperTextOnFocus="true" Variant="Variant.Text" />
+        </div>
+        <div class="sidebarCustomContent" >
+            @if (DynNodeUIType is not null)
+            {
+                <DynamicComponent Type="DynNodeUIType" Parameters="Parameters" />
+            }
+        </div>
+    </MudTabPanel>
+    <div style="display: flex; justify-content: space-between; align-items: center;">            
+        <MudButton Onclick="SaveSettings" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save">Save</MudButton>
+        <MudButton Onclick="CancelSettings" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Close">Cancel</MudButton>
     </div>
-</div>
-
-<style>
-    .sidebarCustom {
-    background:@NovusUIManagement.GetCurrentPalette().BackgroundGray;
-    }
-
-    .sidebarCustom header {
-    background:@NovusUIManagement.GetCurrentPalette().BackgroundGray;
-    color:@NovusUIManagement.GetCurrentPalette().TextPrimary;
-    }
-
-    .sidebarCustom a {
-    color:@NovusUIManagement.GetCurrentPalette().DrawerText;
-    }
-</style>
+</MudTabs>
 
 @code
 {
@@ -49,12 +32,6 @@
     /// Represents the name of the currently selected node.
     /// </summary>
     public string CurrentSelectedNodeName = "";
-
-    /// <summary>
-    /// Gets or sets the initial width of the sidebar.
-    /// </summary>
-    [Parameter]
-    public int InitWidth { get; set; } = 240;
 
     /// <summary>
     /// Gets or sets the parameters to be passed to the dynamic component.
@@ -66,13 +43,17 @@
     /// </summary>
     private Type DynNodeUIType;
 
-    protected override async void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await JS.InvokeVoidAsync("GJSInitSettingsSideBar");
-        }
-    }
+    // /// <summary>
+    // /// Invoked after the component has been rendered.
+    // /// </summary>
+    // /// <param name="firstRender">Indicates whether this is the first time the component has been rendered.</param>
+    // protected override async void OnAfterRender(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         await JS.InvokeVoidAsync("GJSInitSettingsSideBar");
+    //     }
+    // }
 
     /// <summary>
     /// Saves the settings of the currently selected node.
@@ -92,11 +73,27 @@
     }
 
     /// <summary>
+    /// Saves the settings of the currently selected node.
+    /// </summary>
+    public async Task CancelSettings()
+    {
+        NovusUIManagement.CurrentlySelectedNode = null; 
+        NovusUIManagement.SideBarUI = typeof(BlankConfig);
+        Parameters = PrepareParameters(typeof(BlankConfig));
+        DynNodeUIType = NovusUIManagement.SideBarUI;
+        await JS.InvokeVoidAsync("SetResizableSidebarWidth", "0px");
+
+        await InvokeAsync(() =>
+            {
+                base.StateHasChanged();
+            });
+    }
+
+    /// <summary>
     /// Initializes the component and subscribes to the NodeDoubleClicked event.
     /// </summary>
     protected override void OnInitialized()
     {
-
         Parameters = PrepareParameters(NovusUIManagement.SideBarUI);
 
         DynNodeUIType = NovusUIManagement.SideBarUI;
@@ -128,6 +125,8 @@
 
             CurrentSelectedNodeName = node.Name;
 
+            await JS.InvokeVoidAsync("SetResizableSidebarWidth", "400px");
+
             await InvokeAsync(() =>
             {
                 base.StateHasChanged();
@@ -138,6 +137,7 @@
     /// <summary>
     /// Prepares the parameters to be passed to the dynamic component.
     /// </summary>
+    /// <param name="ui">The type of the dynamic component.</param>
     /// <returns>A dictionary containing the parameters.</returns>
     private IDictionary<string, object> PrepareParameters(Type ui)
     {
@@ -147,20 +147,9 @@
         {
             ILogger logger = LoggerFactory.CreateLogger(ui);
             parameters.Add("Logger", logger);
-            parameters.Add("GetConfig", GetConfig);
             parameters.Add("PluginBase", NovusUIManagement.CurrentlySelectedNode.PluginBase);
         }
 
         return parameters;
-    }
-
-    /// <summary>
-    /// Logs the provided settings code to the console.
-    /// </summary>
-    /// <param name="configString">The settings config to log.</param>
-    private async Task GetConfig(string configString)
-    {
-        Logger.LogDebug($"Settings saved: {configString}");
-        await Task.CompletedTask;   
     }
 }

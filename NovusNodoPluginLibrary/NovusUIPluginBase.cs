@@ -7,12 +7,6 @@ namespace NovusNodoPluginLibrary
     public abstract class NovusUIPluginBase : ComponentBase
     {
         /// <summary>
-        /// Gets or sets the function to retrieve the configuration.
-        /// </summary>
-        [Parameter]
-        public Func<string, Task> GetConfig { get; set; }
-
-        /// <summary>
         /// Gets or sets the logger instance.
         /// </summary>
         [Parameter]

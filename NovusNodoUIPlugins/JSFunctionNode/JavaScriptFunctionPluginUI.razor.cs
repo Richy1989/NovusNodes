@@ -17,7 +17,6 @@ namespace NovusNodoUIPlugins.JSFunctionNode
             // Get the code from CodeMirror
             PluginConfig = await JS.InvokeAsync<string>("getCodeMirrorValue").ConfigureAwait(false);
 
-            await GetConfig(PluginConfig).ConfigureAwait(false);
             PluginBase.JsonConfig = PluginConfig;
             Logger.LogInformation($"Plugin Info - New JS Code is: \n{PluginConfig}");
         }
