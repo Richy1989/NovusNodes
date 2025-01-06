@@ -63,6 +63,9 @@ $(window).on('mousemove', null, null, _.debounce((event) => {
         const newWidth = Math.min(resizeData.startWidth - cursorScreenXDelta, resizeData.maxWidth);
 
         $(resizeData.resizeTarget).outerWidth(newWidth);
+
+        //Resize the Joint JS Paper
+        ResizePaper();
     }
 }, 1));
 

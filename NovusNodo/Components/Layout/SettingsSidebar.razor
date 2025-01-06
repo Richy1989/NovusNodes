@@ -9,9 +9,9 @@
 
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" MinimumTabWidth="20px" PanelClass="pa-4">
     <MudTabPanel Icon="@Icons.Material.Filled.Code">
-        <header class="header">Novus - Config</header>
+        <MudText Style="text-align:center;" Typo="Typo.h4">Novus - Config</MudText>
         <div class="name">
-            <MudTextField T="string" @bind-value="CurrentSelectedNodeName" Label="Selected Node:" HelperText="Change the Node Name" HelperTextOnFocus="true" Variant="Variant.Text" />
+            <MudTextField T="string" @bind-value="CurrentSelectedNodeName" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.DriveFileRenameOutline" HelperText="Change the Node Name" HelperTextOnFocus="true" Variant="Variant.Text" />
         </div>
         <div class="sidebarCustomContent" >
             @if (DynNodeUIType is not null)
@@ -20,7 +20,7 @@
             }
         </div>
     </MudTabPanel>
-    <div style="display: flex; justify-content: space-between; align-items: center;">            
+    <div style="padding-top:10px; display: flex; justify-content: space-between; align-items: center;">            
         <MudButton Onclick="SaveSettings" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save">Save</MudButton>
         <MudButton Onclick="CancelSettings" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Close">Cancel</MudButton>
     </div>
@@ -42,18 +42,6 @@
     /// Represents the type of the dynamic component to be rendered.
     /// </summary>
     private Type DynNodeUIType;
-
-    // /// <summary>
-    // /// Invoked after the component has been rendered.
-    // /// </summary>
-    // /// <param name="firstRender">Indicates whether this is the first time the component has been rendered.</param>
-    // protected override async void OnAfterRender(bool firstRender)
-    // {
-    //     if (firstRender)
-    //     {
-    //         await JS.InvokeVoidAsync("GJSInitSettingsSideBar");
-    //     }
-    // }
 
     /// <summary>
     /// Saves the settings of the currently selected node.
