@@ -221,9 +221,7 @@ namespace NovusNodo.Components.Pages
 
                     await AddPorts(node);
                 }
-
                 await DrawLinks();
-
             }
         }
 

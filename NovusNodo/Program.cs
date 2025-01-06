@@ -42,6 +42,7 @@ namespace NovusNodo
                 app.UseHsts();
             }
 
+            app.MapStaticAssets();
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
