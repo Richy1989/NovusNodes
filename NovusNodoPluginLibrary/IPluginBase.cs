@@ -9,7 +9,11 @@ namespace NovusNodoPluginLibrary
     /// </summary>
     public interface IPluginBase
     {
+        /// <summary>
+        /// Gets or sets the function to save settings asynchronously.
+        /// </summary>
         Func<Task> SaveSettings { get; set; }
+
         /// <summary>
         /// Gets or sets the logger instance for the plugin.
         /// </summary>
@@ -61,6 +65,12 @@ namespace NovusNodoPluginLibrary
         /// </summary>
         IDictionary<string, Func<JsonObject, Task<JsonObject>>> WorkTasks { get; }
 
+        /// <summary>
+        /// Gets or sets the callback function to execute JavaScript code.
+        /// </summary>
+        /// <value>
+        /// A function that takes a string and a <see cref="JsonObject"/> as parameters and returns a <see cref="Task{JsonObject}"/>.
+        /// </value>
         Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
     }
 }

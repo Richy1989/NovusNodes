@@ -18,9 +18,19 @@ namespace NovusNodoPluginLibrary
             WorkTasks = new Dictionary<string, Func<JsonObject, Task<JsonObject>>>();
         }
 
+        /// <summary>
+        /// Gets or sets the function to save settings asynchronously.
+        /// </summary>
         public Func<Task> SaveSettings { get; set; }
 
+        /// <summary>
+        /// Gets or sets the callback function to execute JavaScript code.
+        /// </summary>
         public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
+
+        /// <summary>
+        /// Gets or sets the function to update the debug log.
+        /// </summary>
         public Func<string, JsonObject, Task> UpdateDebugLog { get; set; }
 
         /// <summary>
@@ -39,7 +49,7 @@ namespace NovusNodoPluginLibrary
         public abstract string ID { get; }
 
         /// <summary>
-        /// Gets the name of the plugin.
+        /// Gets or sets the name of the plugin.
         /// </summary>
         public abstract string Name { get; set; }
 

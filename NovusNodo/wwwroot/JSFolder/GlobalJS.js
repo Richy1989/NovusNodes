@@ -2,16 +2,22 @@
  * A reference to the Novus object.
  * @type {any}
  */
-let NovusReference = undefined;
+let NovusUIManagementRef = undefined;
+let NovusHomeRef = undefined;
 
 /**
- * Sets the NovusReference to the provided value.
+ * Sets the NovusUIManagementRef to the provided value.
  * @param {any} novusReference - The reference to set.
  */
-function GJSSetNovusReference(novusReference) {
-    console.log("Setting NovusReference to " + novusReference);
-    NovusReference = novusReference;
+function GJSSetNovusUIManagementRef(novusReference) {
+    console.log("Setting NovusUIManagementRef to " + novusReference);
+    NovusUIManagementRef = novusReference;
 }
+
+function GJSSetNovusHomeNetRef(novusReference) {
+    NovusHomeRef = novusReference;
+}
+
 
 /**
  * Reloads the current page.

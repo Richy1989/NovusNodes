@@ -93,15 +93,14 @@ function JJSCreatePaper(paperContainerName) {
     // Notify the .NET code when an element is moved
     graph.on('change:position', (element, newPosition) =>
     {
-        DotNet.invokeMethodAsync('NovusNodo', 'ElementMoved', element.id, newPosition.x, newPosition.y);
+        NovusHomeRef.invokeMethodAsync("NovusHome.ElementMoved", element.id, newPosition.x, newPosition.y);
     });
 
     // Notify the .NET code when a link is connected
     paper.on('link:connect', (linkView, evt, elementViewConnected) =>
     {
-        DotNet.invokeMethodAsync(
-            'NovusNodo',
-            'LinkAdded',
+        NovusHomeRef.invokeMethodAsync(
+            'NovusHome.LinkAdded',
             linkView.model.attributes.source.id,
             linkView.model.attributes.source.port,
             linkView.model.attributes.target.id,
@@ -145,7 +144,7 @@ function JJSCreatePaper(paperContainerName) {
     // Highlight the selected cell
     paper.on('element:pointerdblclick', (cellView) => {
         console.log('Element double clicked:', cellView.model.id);
-        NovusReference.invokeMethodAsync("NovusUIManagement.CellDoubleClick", cellView.model.id);
+        NovusUIManagementRef.invokeMethodAsync("NovusUIManagement.CellDoubleClick", cellView.model.id);
     });
 }
 
@@ -212,7 +211,7 @@ function ResetAll() {
 function ElementDeleted(elementId) {
     console.log('Element deleted:', elementId);
 
-    DotNet.invokeMethodAsync('NovusNodo', 'ElementRemoved', elementId);
+    NovusHomeRef.invokeMethodAsync('NovusHome.ElementRemoved', elementId);
 }
 
 /**
@@ -356,10 +355,40 @@ function JJSCreateNodeElement(id, color, text, x, y) {
     graph.addCell(node);
 }
 
+/**
+ * Changes the label of a node element.
+ * @param {string} nodeId - The ID of the node.
+ * @param {string} text - The new text for the node label.
+ */
 function JJSChangeNodeLabel(nodeId, text) {
     var node = graph.getCell(nodeId);
     node.attr('headerLabel/text', text);
+    autosize(node);
 }
+
+/**
+ * Automatically resizes the element to fit its content.
+ * @param {joint.dia.Element} element - The element to resize.
+ */
+function autosize(element) {
+    var view = paper.findViewByModel(element);
+    var text = view.selectors.headerLabel;
+
+    if (text) {
+        var padding = 50;
+        // Use bounding box without transformations so that our auto-sizing works
+        // even on e.g. rotated element.
+        var bbox = text.getBBox();
+        // Give the element some padding on the right/bottom.
+
+        var width = bbox.width + padding;
+        var height = element.size().height;
+        element.resize(width, height);
+
+        NovusHomeRef.invokeMethodAsync("NovusHome.ElementResized", element.id, width, height);
+    }
+}
+
 
 /**
  * Adds an input port to the specified node.
@@ -438,9 +467,8 @@ function LinkDeleted(link) {
     console.log('Link deleted source:', link.attributes.source);
     console.log('Link deleted target:', link.attributes.target);
 
-    DotNet.invokeMethodAsync(
-        'NovusNodo',
-        'LinkRemoved',
+    NovusHomeRef.invokeMethodAsync(
+        'NovusHome.LinkRemoved',
         link.attributes.source.id,
         link.attributes.source.port,
         link.attributes.target.id,

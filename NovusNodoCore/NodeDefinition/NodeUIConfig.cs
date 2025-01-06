@@ -1,14 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NovusNodoCore.NodeDefinition
+﻿namespace NovusNodoCore.NodeDefinition
 {
+    /// <summary>
+    /// Represents the configuration for the UI of a node.
+    /// </summary>
     public class NodeUIConfig
     {
+        /// <summary>
+        /// Gets or sets the X coordinate of the node.
+        /// Default value is -1.
+        /// </summary>
         public double X { get; set; } = -1;
+
+        /// <summary>
+        /// Gets or sets the Y coordinate of the node.
+        /// Default value is -1.
+        /// </summary>
         public double Y { get; set; } = -1;
+
+        /// <summary>
+        /// Gets or sets the width of the node.
+        /// Default value is -1.
+        /// </summary>
+        public double Width { get; set; } = -1;
+
+        /// <summary>
+        /// Gets or sets the height of the node.
+        /// Default value is -1.
+        /// </summary>
+        public double Height { get; set; } = -1;
     }
 }

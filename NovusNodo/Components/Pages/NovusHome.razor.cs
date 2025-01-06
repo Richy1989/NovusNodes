@@ -12,7 +12,7 @@ namespace NovusNodo.Components.Pages
     {
         // To detect redundant calls
         private bool _disposedValue;
-
+        private DotNetObjectReference<NovusHome> novusHomeRef;
         /// <summary>
         /// Delegate for the redraw connections action.
         /// </summary>
@@ -34,8 +34,6 @@ namespace NovusNodo.Components.Pages
             {
                 ExecutionManager.NewConnection(sourceId, sourcePortId, targetId, targetPortId);
             });
-            
-//            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -52,8 +50,6 @@ namespace NovusNodo.Components.Pages
             {
                 ExecutionManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
             });
-            
-            //await Task.CompletedTask;
         }
 
         /// <summary>
@@ -67,7 +63,6 @@ namespace NovusNodo.Components.Pages
             {
                 ExecutionManager.ElementRemoved(elementId);
             });
-            //await Task.CompletedTask;
         }
 
         /// <summary>
@@ -88,6 +83,10 @@ namespace NovusNodo.Components.Pages
             ExecutionManager.AvailableNodesUpdated += NodesAdded;
         }
 
+        /// <summary>
+        /// Sets the color palette for JointJS based on the current UI theme.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task SetJointJSColors()
         {
             if (NovusUIManagement.IsDarkMode)
@@ -107,12 +106,31 @@ namespace NovusNodo.Components.Pages
         /// <param name="x">The new x-coordinate of the element.</param>
         /// <param name="y">The new y-coordinate of the element.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        [JSInvokable]
-        public static async Task ElementMoved(string id, double x, double y)
+        [JSInvokable("NovusHome.ElementMoved")]
+        public async Task ElementMoved(string id, double x, double y)
         {
-            items[id].UIConfig.X = x;
-            items[id].UIConfig.Y = y;
-            await Task.CompletedTask;
+            await InvokeAsync(() =>
+            {
+                items[id].UIConfig.X = x;
+                items[id].UIConfig.Y = y;
+            });
+        }
+
+        /// <summary>
+        /// Invokable method to handle the resizing of an element.
+        /// </summary>
+        /// <param name="id">The identifier of the element.</param>
+        /// <param name="width">The new width of the element.</param>
+        /// <param name="height">The new height of the element.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        [JSInvokable("NovusHome.ElementResized")]
+        public async Task ElementResized(string id, double width, double height)
+        {
+            await InvokeAsync(() =>
+            {
+                items[id].UIConfig.Width = width;
+                items[id].UIConfig.Height = height;
+            });
         }
 
         /// <summary>
@@ -123,10 +141,13 @@ namespace NovusNodo.Components.Pages
         /// <param name="targetId">The target node identifier.</param>
         /// <param name="targetPortId">The target port identifier.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        [JSInvokable]
-        public static async Task LinkAdded(string sourceID, string sourcePortId, string targetId, string targetPortId)
+        [JSInvokable("NovusHome.LinkAdded")]
+        public async Task LinkAdded(string sourceID, string sourcePortId, string targetId, string targetPortId)
         {
-            await FunctionAddNewConnectionAsync.Invoke(sourceID, sourcePortId, targetId, targetPortId);
+            await InvokeAsync(() =>
+            {
+                ExecutionManager.NewConnection(sourceID, sourcePortId, targetId, targetPortId);
+            });
         }
 
         /// <summary>
@@ -137,10 +158,13 @@ namespace NovusNodo.Components.Pages
         /// <param name="targetId">The target node identifier.</param>
         /// <param name="targetPortId">The target port identifier.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        [JSInvokable]
-        public static async Task LinkRemoved(string sourceId, string sourcePortId, string targetId, string targetPortId)
+        [JSInvokable("NovusHome.LinkRemoved")]
+        public async Task LinkRemoved(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
-            await FunctionRemovedConnectionAsync(sourceId, sourcePortId, targetId, targetPortId);
+            await InvokeAsync(() =>
+            {
+                ExecutionManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
+            });
         }
 
         /// <summary>
@@ -148,10 +172,13 @@ namespace NovusNodo.Components.Pages
         /// </summary>
         /// <param name="elementId">The identifier of the element to be deleted.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        [JSInvokable]
-        public static async Task ElementRemoved(string elementId)
+        [JSInvokable("NovusHome.ElementRemoved")]
+        public async Task ElementRemoved(string elementId)
         {
-            await FunctionElementRemovedAsync(elementId);
+            await InvokeAsync(() =>
+            {
+                ExecutionManager.ElementRemoved(elementId);
+            });
         }
 
         /// <summary>
@@ -175,6 +202,9 @@ namespace NovusNodo.Components.Pages
         {
             if (firstRender)
             {
+                novusHomeRef = DotNetObjectReference.Create(this);
+                await JS.InvokeVoidAsync("GJSSetNovusHomeNetRef", novusHomeRef);
+
                 await SetJointJSColors();
                 await JS.InvokeVoidAsync("JJSCreatePaper", "main");
 

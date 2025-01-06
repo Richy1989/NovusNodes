@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using System.Text.Json.Nodes;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NovusNodoCore.Managers;
 using NovusNodoPluginLibrary;
@@ -47,11 +41,22 @@ namespace NovusNodoCore.NodeDefinition
         public Dictionary<string, OutputPort> OutputPorts { get; set; }
 
         /// <summary>
+        /// Gets or sets the UI type for the node.
+        /// </summary>
+        public Type UI { get => PluginBase.UI; set => PluginBase.UI = value; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the node is enabled.
+        /// </summary>
+        public bool IsEnabled { get; set; } = true;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="NodeBase"/> class.
         /// </summary>
         /// <param name="basedPlugin">The plugin base instance.</param>
         /// <param name="Logger">The logger instance.</param>
-        /// <param name="jSRuntime">The JavaScript runtime instance.</param>
+        /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager instance.</param>
+        /// <param name="updateDebugFunction">The function to update the debug log.</param>
         /// <param name="token">The cancellation token.</param>
         public NodeBase(IPluginBase basedPlugin, ILogger Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, Func<string, JsonObject, Task> updateDebugFunction, CancellationToken token)
         {
@@ -63,13 +68,17 @@ namespace NovusNodoCore.NodeDefinition
             Init(basedPlugin);
         }
 
+        /// <summary>
+        /// Initializes the node with the provided plugin base.
+        /// </summary>
+        /// <param name="basedPlugin">The plugin base instance.</param>
         public void Init(IPluginBase basedPlugin)
         {
             this.PluginBase.Logger = Logger;
             PluginBase.ExecuteJavaScriptCodeCallback = ExecuteJavaScriptCode;
 
             InputPort = new InputPort(this);
-            OutputPorts = [];
+            OutputPorts = new Dictionary<string, OutputPort>();
 
             for (int i = 0; i < basedPlugin.WorkTasks.Count; i++)
             {
@@ -83,7 +92,7 @@ namespace NovusNodoCore.NodeDefinition
                 {
                     try
                     {
-                        await ExecuteNode([]).ConfigureAwait(false);
+                        await ExecuteNode(new JsonObject()).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
@@ -95,15 +104,8 @@ namespace NovusNodoCore.NodeDefinition
         }
 
         /// <summary>
-        /// Gets or sets the UI type for the node.
+        /// Gets or sets the function to save settings.
         /// </summary>
-        public Type UI { get => PluginBase.UI; set => PluginBase.UI = value; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the node is enabled.
-        /// </summary>
-        public bool IsEnabled { get; set; } = true;
-
         public Func<Task> SaveSettings { get => PluginBase.SaveSettings; set => PluginBase.SaveSettings = value; }
 
         /// <summary>
@@ -161,55 +163,6 @@ namespace NovusNodoCore.NodeDefinition
         }
 
         /// <summary>
-        /// Executes the provided JavaScript code with the given parameters.
-        /// </summary>
-        /// <param name="code">The JavaScript code to execute.</param>
-        /// <param name="parameters">The parameters to pass to the JavaScript code.</param>
-        /// <returns>A task that represents the asynchronous operation, containing the result of the JavaScript execution.</returns>
-        public async Task<JsonObject> ExecuteJavaScriptCode(string code, JsonObject parameters)
-        {
-            int tries = 0;
-
-            while (tries < 3)
-            {
-                try
-                {
-                    //ToDo: Add c#-javascript API
-                    JsonObject value = nodeJSEnvironmentManager.RunUserCode(code, parameters);
-                    return await Task.FromResult(value).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, $"Error executing JavaScript code. This was try {tries} / 3");
-                    tries++;
-                    await Task.Delay(50).ConfigureAwait(false);
-                }
-            }
-            Logger.LogError("Failed to execute JavaScript code after 3 tries.");
-            return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Triggers the execution of the next nodes in the sequence.
-        /// </summary>
-        /// <param name="outputPort">The output port to trigger the next nodes from.</param>
-        /// <param name="jsonData">The JSON data to be passed to the next nodes.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        private async Task TriggerNextNodes(OutputPort outputPort, JsonObject jsonData)
-        {
-            if (token.IsCancellationRequested) await Task.CompletedTask;
-
-            foreach (var nextNode in outputPort.NextNodes)
-            {
-                nextNode.Value.ParentNode = this;
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                nextNode.Value.ExecuteNode(jsonData);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            }
-            await Task.CompletedTask;
-        }
-
-        /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
         public IPluginBase ParentNode { get => PluginBase.ParentNode; set => PluginBase.ParentNode = value; }
@@ -256,6 +209,55 @@ namespace NovusNodoCore.NodeDefinition
         public async Task PrepareWorkloadAsync()
         {
             await PluginBase.PrepareWorkloadAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Executes the provided JavaScript code with the given parameters.
+        /// </summary>
+        /// <param name="code">The JavaScript code to execute.</param>
+        /// <param name="parameters">The parameters to pass to the JavaScript code.</param>
+        /// <returns>A task that represents the asynchronous operation, containing the result of the JavaScript execution.</returns>
+        public async Task<JsonObject> ExecuteJavaScriptCode(string code, JsonObject parameters)
+        {
+            int tries = 0;
+
+            while (tries < 3)
+            {
+                try
+                {
+                    //ToDo: Add c#-javascript API
+                    JsonObject value = nodeJSEnvironmentManager.RunUserCode(code, parameters);
+                    return await Task.FromResult(value).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, $"Error executing JavaScript code. This was try {tries} / 3");
+                    tries++;
+                    await Task.Delay(50).ConfigureAwait(false);
+                }
+            }
+            Logger.LogError("Failed to execute JavaScript code after 3 tries.");
+            return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Triggers the execution of the next nodes in the sequence.
+        /// </summary>
+        /// <param name="outputPort">The output port to trigger the next nodes from.</param>
+        /// <param name="jsonData">The JSON data to be passed to the next nodes.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        private async Task TriggerNextNodes(OutputPort outputPort, JsonObject jsonData)
+        {
+            if (token.IsCancellationRequested) await Task.CompletedTask;
+
+            foreach (var nextNode in outputPort.NextNodes)
+            {
+                nextNode.Value.ParentNode = this;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                nextNode.Value.ExecuteNode(jsonData);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            }
+            await Task.CompletedTask;
         }
     }
 }
