@@ -11,7 +11,6 @@ namespace NovusNodo.Components.Layout
     /// </summary>
     public partial class MainLayout : LayoutComponentBase, IDisposable
     {
-        private bool _drawerOpen = true;
         private MudTheme _theme = null;
         private DotNetObjectReference<NovusUIManagement> novusUIManagementRef;
         private ElementReference debugScrollDiv;
@@ -56,7 +55,16 @@ namespace NovusNodo.Components.Layout
         /// </summary>
         private void DrawerToggle()
         {
-            _drawerOpen = !_drawerOpen;
+            NovusUIManagement.DrawerOpen = !NovusUIManagement.DrawerOpen;
+        }
+
+
+        /// <summary>
+        /// Toggles the state of the drawer.
+        /// </summary>
+        private void SettingsDrawerToggle()
+        {
+            NovusUIManagement.SettingsDrawerOpen = !NovusUIManagement.SettingsDrawerOpen;
         }
 
         /// <summary>

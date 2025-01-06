@@ -63,7 +63,8 @@ namespace NovusNodo.Management
         /// <summary>
         /// Gets or sets a value indicating whether the drawer settings are open.
         /// </summary>
-        public bool DrawerSettingsOpen { get; set; } = true;
+        public bool SettingsDrawerOpen { get; set; } = true;
+        public bool DrawerOpen { get; set; } = true;
 
         /// <summary>
         /// Gets the light palette.
