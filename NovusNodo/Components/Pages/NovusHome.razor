@@ -11,11 +11,11 @@
 @inject NovusNodo.Management.NovusUIManagement NovusUIManagement
 @inject IJSRuntime JS
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Nodes</PageTitle>
 
-<div class="main" id="main">
-</div>
-
-@code {
-   
-}
+<MudContainer Style="height:100%; padding:10px;" MaxWidth="MaxWidth.False">
+    <MudContainer id="main_container" Class="overflow-auto" Style=" margin-left: 0; padding:0px; margin-right: 0; height:100%;" MaxWidth="MaxWidth.False">
+        <MudContainer id="main" Style="height:100%; padding:0px;" MaxWidth="MaxWidth.False">
+        </MudContainer>
+    </MudContainer>
+</MudContainer>

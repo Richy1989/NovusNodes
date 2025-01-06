@@ -4,6 +4,8 @@
  */
 let graph = undefined;
 
+let containerName = undefined;
+let paperResizer = undefined;
 /**
  * The paper object for the JointJS diagram.
  * @type {joint.dia.Paper}
@@ -38,11 +40,50 @@ function JJSSetColorPalette(backgroundColor, strokeColor, linkColor) {
     console.log('Setting color palette:', BackgroundColor, StrokeColor, LinkColor);
 }
 
+// Function to find the furthest elements in x and y directions
+function findFurthestElements() {
+    var elements = graph.getElements();
+    var furthestXElement = null;
+    var furthestYElement = null;
+    var maxX = -Infinity;
+    var maxY = -Infinity;
+
+    elements.forEach(function (element) {
+        var position = element.position();
+        if (position.x > maxX) {
+            maxX = position.x;
+            furthestXElement = element;
+        }
+        if (position.y > maxY) {
+            maxY = position.y;
+            furthestYElement = element;
+        }
+    });
+
+    return {
+        furthestXElement: furthestXElement,
+        furthestYElement: furthestYElement
+    };
+}
+
+function ResizePaper() {
+    var container = document.getElementById("main_container");
+
+    var furthest = findFurthestElements();
+
+    let width = Math.max(container.offsetWidth, furthest.furthestXElement.position().x + furthest.furthestXElement.size().width + 10);
+    let height = Math.max(container.offsetHeight, furthest.furthestYElement.position().y + furthest.furthestYElement.size().height + 10);
+
+    //console.log('Resizing paper to fit container:', width, height);
+    paper.setDimensions(width, height);
+}
+
 /**
  * Creates a JointJS paper and attaches it to the specified container.
  * @param {string} paperContainerName - The ID of the container element.
  */
 function JJSCreatePaper(paperContainerName) {
+    containerName = paperContainerName;
     const container = document.getElementById(paperContainerName);
 
     // Create the graph
@@ -87,8 +128,11 @@ function JJSCreatePaper(paperContainerName) {
 
     // Resize the paper when the container size changes
     window.addEventListener('resize', () => {
-        paper.setDimensions(container.offsetWidth, container.offsetHeight);
+        ResizePaper();
     });
+
+    //// Resize the paper when the container size changes
+    //paperResizer = new ResizeObserver(ResizePaper).observe(container);
 
     // Notify the .NET code when an element is moved
     graph.on('change:position', (element, newPosition) =>

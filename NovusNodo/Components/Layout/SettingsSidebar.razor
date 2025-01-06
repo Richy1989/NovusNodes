@@ -14,7 +14,6 @@
                 <header class="header">Novus - Config</header>
                 <div class="name">
                     <MudTextField T="string" @bind-value="CurrentSelectedNodeName" Label="Selected Node:" HelperText="Change the Node Name" HelperTextOnFocus="true" Variant="Variant.Text" />
-                    @* <MudChip T="string" @bind-value="CurrentSelectedNodeName" Label="true"></MudChip> *@
                 </div>
                 <div class="sidebarCustomContent" >
                     @if (DynNodeUIType is not null)
@@ -66,6 +65,14 @@
     /// Represents the type of the dynamic component to be rendered.
     /// </summary>
     private Type DynNodeUIType;
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("GJSInitSettingsSideBar");
+        }
+    }
 
     /// <summary>
     /// Saves the settings of the currently selected node.

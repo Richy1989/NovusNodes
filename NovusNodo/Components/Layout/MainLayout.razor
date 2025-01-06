@@ -21,25 +21,24 @@
         <NavMenu />
     </MudDrawer>
     <MudDrawer @bind-Open="NovusUIManagement.DrawerSettingsOpen" Class="custom-drawer" Width="440px" Anchor="Anchor.End" ClipMode="DrawerClipMode.Docked" Variant="DrawerVariant.Persistent" Elevation="2">
-       
+
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">Settings</MudText>
         </MudDrawerHeader>
         <div @ref="debugScrollDiv" class="scrollable-drawer-content">
             <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" MinimumTabWidth="20px" PanelClass="pa-4">
                 <MudTabPanel Icon="@Icons.Material.Filled.History">
-    @*                 <textarea style="background-color:@GetCurrentPalette().BackgroundGray; color:@GetCurrentPalette().TextPrimary" class="debugarea"> </textarea>*@
-                <MudNavMenu>
-                    @* <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBox">Profile</MudNavLink>
+                    <MudNavMenu>
+                        @* <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBox">Profile</MudNavLink>
                     <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ShoppingCart">Orders</MudNavLink>
                     <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.History">Order History</MudNavLink> *@
-                   
-                    @foreach(var debug in ExecutionManager.DebugLog)
-                    {
-                        <DebugEntry Timestamp="DateTime.Now" MessageID="@debug.Key" Tag="Info" Message="@debug.Value"></DebugEntry>
-                    }
 
-                </MudNavMenu>
+                        @foreach (var debug in ExecutionManager.DebugLog)
+                        {
+                            <DebugEntry Timestamp="DateTime.Now" MessageID="@debug.Key" Tag="Info" Message="@debug.Value"></DebugEntry>
+                        }
+
+                    </MudNavMenu>
 
                 </MudTabPanel>
                 <MudTabPanel Icon="@Icons.Material.Filled.Settings">
@@ -53,13 +52,9 @@
                 </MudTabPanel>
             </MudTabs>
         </div>
-        
-        
-   
     </MudDrawer>
-    <MudMainContent Class="mt-16 pa-4">
-        <SettingsSidebar InitWidth="440"></SettingsSidebar>
-            @Body
+    <MudMainContent Style="height: 100vh">
+        @Body
     </MudMainContent>
 </MudLayout>
 
@@ -68,4 +63,3 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
-
