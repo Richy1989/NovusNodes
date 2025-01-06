@@ -89,13 +89,13 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="pluginBase">The plugin base to create the node from.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task CreateNode(IPluginBase pluginBase)
+        public async Task<NodeBase> CreateNode(IPluginBase pluginBase)
         {
             var instance = Activator.CreateInstance(pluginBase.GetType());
 
             if (instance == null)
             {
-                return;
+                return null;
             }
 
             var plugin = (IPluginBase)instance;
@@ -106,7 +106,9 @@ namespace NovusNodoCore.Managers
                 NodeBase node = new(plugin, logger, NodeJSEnvironmentManager, OnDebugLogUpdated, token);
                 AvailableNodes.Add(node.ID, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
+                return node;
             }
+            return null;
         }
 
         /// <summary>

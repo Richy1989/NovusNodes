@@ -422,6 +422,29 @@ function JJSCreateNodeElement(id, color, text, width, height, x, y) {
     graph.addCell(node);
 }
 
+function JJSDisableNode(nodeId) {
+    var node = graph.getCell(nodeId);
+    // Read the current 'root/class' attribute
+    let currentClasses = node.attr('root/class') || '';
+
+    // Check if 'disabled-node' is not already in the class list
+    if (!currentClasses.includes('disabled-node')) {
+        // Append the 'disabled-node' class
+        const updatedClasses = currentClasses + ' disabled-node';
+        node.attr('root/class', updatedClasses.trim());
+    }
+}
+
+function JJSEnableNode(nodeId) {
+    var node = graph.getCell(nodeId);
+    // Read the current 'root/class' attribute
+    let currentClasses = node.attr('root/class') || '';
+
+    // Remove the 'disabled-node' class if it exists
+    const updatedClasses = currentClasses.replace('disabled-node', '').trim();
+    node.attr('root/class', updatedClasses);
+}
+
 /**
  * Changes the label of a node element.
  * @param {string} nodeId - The ID of the node.

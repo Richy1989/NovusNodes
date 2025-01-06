@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System.ComponentModel;
+using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using NovusNodoCore.Managers;
@@ -10,12 +12,14 @@ namespace NovusNodoCore.NodeDefinition
     /// Represents the base class for all nodes in the system.
     /// </summary>
     /// <typeparam name="ConfigType">The type of the configuration object.</typeparam>
-    public class NodeBase : INodeBase
+    public class NodeBase : INodeBase, INotifyPropertyChanged
     {
         private readonly CancellationToken token;
         private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
         private bool isInitialized = false;
         private NodeJSEnvironmentManager nodeJSEnvironmentManager;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         // Callback for executing JavaScript code
         public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
@@ -48,7 +52,8 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets a value indicating whether the node is enabled.
         /// </summary>
-        public bool IsEnabled { get; set; } = true;
+        private bool isEnabled = true;
+        public bool IsEnabled { get { return isEnabled; } set { isEnabled = value; OnPropertyChanged(); } }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NodeBase"/> class.
@@ -185,7 +190,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets the name of the node.
         /// </summary>
-        public string Name { get => PluginBase.Name; set => PluginBase.Name = value; }
+        public string Name { get => PluginBase.Name; set { PluginBase.Name = value; OnPropertyChanged(); } }
 
         /// <summary>
         /// Gets the background color of the node.
@@ -258,6 +263,11 @@ namespace NovusNodoCore.NodeDefinition
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
             await Task.CompletedTask;
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
