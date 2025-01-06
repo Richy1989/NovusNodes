@@ -10,65 +10,15 @@ namespace NovusNodo.Components.Pages
     /// </summary>
     public partial class NovusHome : ComponentBase, IDisposable
     {
-        // To detect redundant calls
+        /// <summary>
+        /// Indicates whether the object has been disposed.
+        /// </summary>
         private bool _disposedValue;
+
+        /// <summary>
+        /// A reference to the current instance of the NovusHome component for JavaScript interop.
+        /// </summary>
         private DotNetObjectReference<NovusHome> novusHomeRef;
-        /// <summary>
-        /// Delegate for the redraw connections action.
-        /// </summary>
-        private static Func<string, string, string, string, Task> FunctionAddNewConnectionAsync;
-        private static Func<string, string, string, string, Task> FunctionRemovedConnectionAsync;
-        private static Func<string, Task> FunctionElementRemovedAsync;
-
-        /// <summary>
-        /// Redraws the connections asynchronously.
-        /// </summary>
-        /// <param name="sourceId">The source node identifier.</param>
-        /// <param name="sourcePortId">The source port identifier.</param>
-        /// <param name="targetId">The target node identifier.</param>
-        /// <param name="targetPortId">The target port identifier.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        private async Task LocalFunctionAddNewConnectionAsync(string sourceId, string sourcePortId, string targetId, string targetPortId)
-        {
-            await InvokeAsync(() =>
-            {
-                ExecutionManager.NewConnection(sourceId, sourcePortId, targetId, targetPortId);
-            });
-        }
-
-        /// <summary>
-        /// Removes the connection asynchronously.
-        /// </summary>
-        /// <param name="sourceId">The source node identifier.</param>
-        /// <param name="sourcePortId">The source port identifier.</param>
-        /// <param name="targetId">The target node identifier.</param>
-        /// <param name="targetPortId">The target port identifier.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        private async Task LocalFunctionRemovedConnectionAsync(string sourceId, string sourcePortId, string targetId, string targetPortId)
-        {
-            await InvokeAsync(() =>
-            {
-                ExecutionManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
-            });
-        }
-
-        /// <summary>
-        /// Handles the removal of an element asynchronously.
-        /// </summary>
-        /// <param name="elementId">The identifier of the element to be removed.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        private async Task LocalFunctionElementRemovedAsync(string elementId)
-        {
-            await InvokeAsync(() =>
-            {
-                ExecutionManager.ElementRemoved(elementId);
-            });
-        }
-
-        /// <summary>
-        /// Dictionary to hold the available nodes.
-        /// </summary>
-        private static IDictionary<string, INodeBase> items = new Dictionary<string, INodeBase>();
 
         /// <summary>
         /// Method called when the component is initialized.
@@ -76,10 +26,6 @@ namespace NovusNodo.Components.Pages
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            FunctionAddNewConnectionAsync = LocalFunctionAddNewConnectionAsync;
-            FunctionRemovedConnectionAsync = LocalFunctionRemovedConnectionAsync;
-            FunctionElementRemovedAsync = LocalFunctionElementRemovedAsync;
-            items = ExecutionManager.AvailableNodes;
             ExecutionManager.AvailableNodesUpdated += NodesAdded;
         }
 
@@ -111,8 +57,8 @@ namespace NovusNodo.Components.Pages
         {
             await InvokeAsync(() =>
             {
-                items[id].UIConfig.X = x;
-                items[id].UIConfig.Y = y;
+                ExecutionManager.AvailableNodes[id].UIConfig.X = x;
+                ExecutionManager.AvailableNodes[id].UIConfig.Y = y;
             });
         }
 
@@ -128,8 +74,8 @@ namespace NovusNodo.Components.Pages
         {
             await InvokeAsync(() =>
             {
-                items[id].UIConfig.Width = width;
-                items[id].UIConfig.Height = height;
+                ExecutionManager.AvailableNodes[id].UIConfig.Width = width;
+                ExecutionManager.AvailableNodes[id].UIConfig.Height = height;
             });
         }
 
@@ -188,8 +134,7 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task NodesAdded(INodeBase node)
         {
-            items = ExecutionManager.AvailableNodes;
-            await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}"]);
+            await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{Helper.Helper.ConvertColorToCSSColor(node.Background)}", $"{node.Name}", node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y]);
             await AddPorts(node);
         }
 
@@ -208,18 +153,9 @@ namespace NovusNodo.Components.Pages
                 await SetJointJSColors();
                 await JS.InvokeVoidAsync("JJSCreatePaper", "main");
 
-                foreach (var node in items.Values)
+                foreach (var node in ExecutionManager.AvailableNodes.Values)
                 {
-                    if (node.UIConfig.X > 0 && node.UIConfig.Y > 0)
-                    {
-                        await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}", $"{node.UIConfig.X}", $"{node.UIConfig.Y}"]);
-                    }
-                    else
-                    {
-                        await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{ConvertColorToCSSColor(node.Background)}", $"{node.Name}"]);
-                    }
-
-                    await AddPorts(node);
+                    await NodesAdded(node);
                 }
                 await DrawLinks();
             }
@@ -231,7 +167,7 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task DrawLinks()
         {
-            foreach (var node in items.Values)
+            foreach (var node in ExecutionManager.AvailableNodes.Values)
             {
                 foreach (var port in node.OutputPorts.Values)
                 {
@@ -244,16 +180,6 @@ namespace NovusNodo.Components.Pages
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Converts a System.Drawing.Color to a CSS color string.
-        /// </summary>
-        /// <param name="color">The color to convert.</param>
-        /// <returns>The CSS color string.</returns>
-        public static string ConvertColorToCSSColor(System.Drawing.Color color)
-        {
-            return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
         }
 
         /// <summary>
@@ -295,7 +221,7 @@ namespace NovusNodo.Components.Pages
             {
                 if (disposing)
                 {
-                    FunctionAddNewConnectionAsync = null;
+                    novusHomeRef?.Dispose();
                 }
 
                 _disposedValue = true;

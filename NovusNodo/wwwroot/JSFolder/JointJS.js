@@ -136,7 +136,6 @@ function JJSCreatePaper(paperContainerName) {
     paper.on('element:pointerclick', (cellView) =>
     {
         ResetAll();
-        
         selectedCell = cellView;
         cellView.highlight(); // Highlight the new selection
     });
@@ -210,7 +209,6 @@ function ResetAll() {
  */
 function ElementDeleted(elementId) {
     console.log('Element deleted:', elementId);
-
     NovusHomeRef.invokeMethodAsync('NovusHome.ElementRemoved', elementId);
 }
 
@@ -222,13 +220,13 @@ function ElementDeleted(elementId) {
 * @param {number} x - The x-coordinate of the node's position.
 * @param {number} y - The y-coordinate of the node's position.
 */
-function JJSCreateNodeElement(id, color, text, x, y) {
+function JJSCreateNodeElement(id, color, text, width, height, x, y) {
 
-    console.log('Creating node element:', id, color, text, x, y);
+    console.log('Creating node element:', id, color, text, width, height, x, y);
 
     joint.shapes.custom = {};
     joint.shapes.custom.NovusNode = joint.dia.Element.define('custom.NovusNode', {
-        size: { width: 120, height: 40 },
+        size: { width: parseFloat(width), height: parseFloat(height) },
         attrs: {
             body: {
                 refWidth: '100%',
@@ -338,7 +336,7 @@ function JJSCreateNodeElement(id, color, text, x, y) {
 
     const node = new joint.shapes.custom.NovusNode({
         id: id,
-        position: { x: parseFloat(x) || 100, y: parseFloat(y) || 100 },
+        position: { x: parseFloat(x), y: parseFloat(y) },
         attrs: {
             headerLabel: {
                 text: text,
@@ -361,6 +359,7 @@ function JJSCreateNodeElement(id, color, text, x, y) {
  * @param {string} text - The new text for the node label.
  */
 function JJSChangeNodeLabel(nodeId, text) {
+    console.log('Changing node label:', nodeId, text);
     var node = graph.getCell(nodeId);
     node.attr('headerLabel/text', text);
     autosize(node);
@@ -396,6 +395,7 @@ function autosize(element) {
  * @param {string} portId - The ID of the input port to be added.
  */
 function JJSAddInputPort(nodeId, portId) {
+    console.log('Adding input port:', nodeId, portId);
     var node = graph.getCell(nodeId);
 
     node.addPorts([
