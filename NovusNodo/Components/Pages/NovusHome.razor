@@ -88,14 +88,6 @@
     /// Flag indicating whether the state has changed.
     /// </summary>
     bool _stateHasChanged;
-    /// <summary>
-    /// Flag indicating whether the close icon should be shown.
-    /// </summary>
-    bool _showCloseIcon = false;
-    /// <summary>
-    /// Label of the tab with a togglable close icon.
-    /// </summary>
-    string _closeToggableTab = "Tab B";
 
     /// <summary>
     /// Restores the user tabs from the execution manager.
@@ -137,17 +129,6 @@
                 await JS.InvokeVoidAsync("JJSSetSelectedPaperTabId", UserTabs[UserIndex].Id.ToString());
             }
         }
-    }
-
-    /// <summary>
-    /// Toggles the visibility of the close icon for a specific tab.
-    /// </summary>
-    /// <param name="show">Indicates whether the close icon should be shown.</param>
-    private void ToggleShowCloseIcon(bool show)
-    {
-        var tab = UserTabs?.SingleOrDefault(t => t.Label.Equals(_closeToggableTab));
-        if (tab is not null) tab.ShowCloseIcon = show;
-        _showCloseIcon = show;
     }
 
     /// <summary>

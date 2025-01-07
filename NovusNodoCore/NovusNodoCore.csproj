@@ -19,8 +19,4 @@
     <PackageReference Include="Microsoft.JavaScript.NodeApi.Generator" Version="0.8.16" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="SaveData\" />
-  </ItemGroup>
-
 </Project>

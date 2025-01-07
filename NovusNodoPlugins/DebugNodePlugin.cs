@@ -61,9 +61,14 @@ namespace NovusNodoPlugins
             return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Recursively prints the variables in the JSON object.
+        /// </summary>
+        /// <param name="jsonObject">The JSON object to be printed.</param>
+        /// <returns>A string representation of the JSON object.</returns>
         private async Task<string> PrintVariableRecursive(JsonObject jsonObject)
         {
-            if(jsonObject == null)
+            if (jsonObject == null)
             {
                 return "";
             }

@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using System.Text.Json.Nodes;
-using Microsoft.JSInterop;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoUIPlugins.JSFunctionNode
