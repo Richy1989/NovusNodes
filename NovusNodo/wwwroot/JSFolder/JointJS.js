@@ -9,8 +9,6 @@ class JointJSPage {
     }
 }
 
-let currentlyMovingElement = null;
-
 let jointJSPages = {};
 
 //Joint JS Paper Component Reference Dictionary
@@ -155,11 +153,11 @@ function JJSCreatePaper(paperContainerName, reference) {
         ResizePaper();
     });
 
-    // Notify the .NET code when an element is moved
-    graph.on('change:position', (element, newPosition) =>
-    {
-        //jointJSPages[selectedPaperTabId].netReference.invokeMethodAsync("NovusHome.ElementMoved", element.id, newPosition.x, newPosition.y);
-    });
+    //// Notify the .NET code when an element is moved
+    //graph.on('change:position', (element, newPosition) =>
+    //{
+    //    //jointJSPages[selectedPaperTabId].netReference.invokeMethodAsync("NovusHome.ElementMoved", element.id, newPosition.x, newPosition.y);
+    //});
 
     paper.on('element:pointerdown', function (elementView, evt, x, y) {
         console.log('Element mousedown at', x, y);

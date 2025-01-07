@@ -14,13 +14,14 @@
         <div class="name">
             <MudTextField T="string" @bind-value="CurrentSelectedNodeName" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.DriveFileRenameOutline" HelperText="Change the Node Name" HelperTextOnFocus="true" Variant="Variant.Text" />
         </div>
-        <MudSwitch @bind-Value="@IsNodeEnabled" Label="Info" Color="Color.Info">
+        <MudSwitch @bind-Value="@IsNodeEnabled" Color="Color.Success">
             @if (NovusUIManagement.CurrentlySelectedNode != null)
             {
-                if (NovusUIManagement.CurrentlySelectedNode.IsEnabled)
+                @if (NovusUIManagement.CurrentlySelectedNode.IsEnabled)
                 {
                     <a>Enabled</a>
                 }
+                else
                 {
                     <a>Disabled</a>
                 }
@@ -88,7 +89,14 @@
         if (NovusUIManagement.CurrentlySelectedNode != null)
         {
             NovusUIManagement.CurrentlySelectedNode.Name = CurrentSelectedNodeName;
-            await JS.InvokeVoidAsync("JJSChangeNodeLabel", [$"{NovusUIManagement.CurrentlySelectedNode.ID}", $"{CurrentSelectedNodeName}"]);
+            try
+            {
+                await JS.InvokeVoidAsync("JJSChangeNodeLabel", [$"{NovusUIManagement.CurrentlySelectedNode.ID}", $"{CurrentSelectedNodeName}"]);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to change node label.");
+            }
         }
     }
 

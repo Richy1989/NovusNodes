@@ -55,6 +55,15 @@ namespace NovusNodo.Components.Layout
             NovusUIManagement.DrawerOpen = !NovusUIManagement.DrawerOpen;
         }
 
+        public async Task ClearDebugLog()
+        {
+            ExecutionManager.DebugLog.Clear();
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        }
+
         /// <summary>
         /// Toggles the state of the settings drawer.
         /// </summary>

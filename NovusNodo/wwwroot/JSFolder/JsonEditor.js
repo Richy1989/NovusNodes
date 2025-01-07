@@ -1,4 +1,4 @@
-﻿import { createJSONEditor } from 'https://cdn.jsdelivr.net/npm/vanilla-jsoneditor@2/standalone.js';
+﻿import { createJSONEditor } from './vanilla-jsoneditor.min.js';
 
 export function JsonEditorCreateEditor(editorElementId, contentIn) {
 
@@ -33,6 +33,7 @@ export function JsonEditorCreateEditor(editorElementId, contentIn) {
         props: {
             mainMenuBar: false,
             content,
+            mode: 'tree',
             /*onChange: handleChange,*/
         },
     });
