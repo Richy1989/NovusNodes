@@ -28,6 +28,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         /// <returns>A task that represents the asynchronous operation.</returns>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
             {
                 // Initialize CodeMirror

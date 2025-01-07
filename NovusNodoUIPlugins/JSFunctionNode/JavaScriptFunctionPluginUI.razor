@@ -6,14 +6,10 @@
 @inherits NovusUIPluginBase
 @inject IJSRuntime JS
 
+
 <div class="settings-node">
     <h3>JavaScript Settings Node</h3>
-     
-    @* <MudTextField T="string" Label="JS Code" Variant="Variant.Outlined" Lines="20" Class="settings-textarea" @bind-Value="PluginConfig" AutoGrow HelperText="Java script code to be executed." /> *@
-
-    <div class="settings-textarea" id="CodeEditor" style="height: 300px; border: 1px solid #ccc;"></div>
-    
-    @* <MudButton Onclick="SaveSettings" Variant="Variant.Filled" Color="Color.Primary" Class="save-button">Save</MudButton> *@
+    <div class="settings-textarea" id="CodeEditor"></div>
 </div>
 
 <style>
@@ -23,36 +19,25 @@
     }
 
     .settings-node {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    /* width: 100%; */
-    /* 
-    padding: 20px 20px 20px 20px;
-    margin: 20px 20px 20px 20px; */
-/*     border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        height: 100%;
+        width: 100%;
     }
 
     .settings-node h3 {
-    margin: 10px 10px 10px;
-    font-size: 1.2rem;
-    /* color: #333; */
+        margin: 10px 10px 10px;
+        font-size: 1.2rem;
     }
 
     .settings-textarea {
-    width: 100%;
-     height: 100%; 
-    resize: none;
-    font-size: 1rem;
-    font-family: monospace;
-/*     color: #333;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-    background-color: #fff; */
+        height: 100%;
+        width:100%;
+        min-height: 100%;
+        font-size: 1rem;
+        font-family: monospace;
+        min-height: 100%;
     }
 </style>

@@ -8,8 +8,9 @@
 @inject IJSRuntime JS
 
 
-<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" MinimumTabWidth="20px" PanelClass="pa-4">
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" Style="height:100%; width:100%;" MinimumTabWidth="20px" PanelClass="pa-4 flex-grow-1">
     <MudTabPanel Icon="@Icons.Material.Filled.Code">
+        <MudPaper Class="d-flex flex-column flex-grow-1" Style="padding:0px; height:100%;" Elevation="0">
         <MudText Style="text-align:center;" Typo="Typo.h4">Config</MudText>
         <div class="name">
             <MudTextField T="string" @bind-value="CurrentSelectedNodeName" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.DriveFileRenameOutline" HelperText="Change the Node Name" HelperTextOnFocus="true" Variant="Variant.Text" />
@@ -27,17 +28,20 @@
                 }
             }
         </MudSwitch>
-        <div class="sidebarCustomContent" >
+            <MudContainer Class="d-flex flex-column flex-grow-1" Style="height:100%; width:100%; padding:0px;" MaxWidth="MaxWidth.False">
             @if (DynNodeUIType is not null)
             {
                 <DynamicComponent Type="DynNodeUIType" Parameters="Parameters" />
             }
-        </div>
+                <div style="padding-top:10px; padding-bottom:10px; display: flex; justify-content: space-between; align-items: center;">
+                <MudButton Onclick="SaveSettings" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save">Save</MudButton>
+                <MudButton Onclick="CancelSettings" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Close">Cancel</MudButton>
+            </div>
+        </MudContainer>
+        </MudPaper>
+        
     </MudTabPanel>
-    <div style="padding-top:10px; display: flex; justify-content: space-between; align-items: center;">            
-        <MudButton Onclick="SaveSettings" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save">Save</MudButton>
-        <MudButton Onclick="CancelSettings" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Close">Cancel</MudButton>
-    </div>
+    
 </MudTabs>
 
 @code
