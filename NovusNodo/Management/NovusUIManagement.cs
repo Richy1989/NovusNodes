@@ -12,6 +12,7 @@ namespace NovusNodo.Management
     public class NovusUIManagement : IDisposable
     {
         public INodeBase CurrentlySelectedNode { get; set; }
+        public string CurrentlyOpenedPage { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="NovusUIManagement"/> class with the specified execution manager.
         /// </summary>
@@ -145,9 +146,9 @@ namespace NovusNodo.Management
         /// <param name="id">The ID of the node.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         [JSInvokable("NovusUIManagement.CellDoubleClick")]
-        public async Task JJSNodeDoubleClicked(string id)
+        public async Task JJSNodeDoubleClicked(string pageid, string id)
         {
-            CurrentlySelectedNode = ExecutionManager.AvailableNodes[id];
+            CurrentlySelectedNode = ExecutionManager.NodePages[pageid].AvailableNodes[id];
 
             if (CurrentlySelectedNode != null && CurrentlySelectedNode.UI != null)
             {

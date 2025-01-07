@@ -6,26 +6,194 @@
 @using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
 @using NovusNodo.Components.Layout
+@using NovusNodoCore.Managers
 @using NovusNodoCore.NodeDefinition
 @using NovusNodoPluginLibrary
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 @inject NovusNodo.Management.NovusUIManagement NovusUIManagement
 @inject IJSRuntime JS
+@inject ILogger<NovusHome> Logger
 
 <PageTitle>Nodes</PageTitle>
 
 <MudContainer Class="d-flex align-start flex-grow-1 gap-4" Style="height:100%; padding:0px;" MaxWidth="MaxWidth.False">
     <div class="container">
         <main>
-            <JointJSPaper></JointJSPaper>
+            <MudDynamicTabs @ref="@DynamicTabs" @bind-ActivePanelIndex="@UserIndex" @bind-ActivePanelIndex:after="this.OnTabIndexChanged"
+            AddTab="@AddTab" CloseTab="@RemoveTab" Style="height:100%;"
+            AddIconToolTip="Click to add a new tab" CloseIconToolTip="Close tab. All data will be lost"
+            PanelClass="pa-6 flex-grow-1 overflow-x-auto" Elevation="4" Rounded ApplyEffectsToContainer>
+
+                <MudContainer Style="height:100%; padding:0px;" MaxWidth="MaxWidth.False">
+                    <MudContainer id="main_container" Class="overflow-auto" Style="margin-left: 0; padding:0px; margin-right: 0; height:100%;" MaxWidth="MaxWidth.False">
+                        @foreach (var tab in UserTabs)
+                        {
+                            <MudTabPanel ID="@tab.Id" Text="@tab.Label" ShowCloseIcon="@tab.ShowCloseIcon">
+                                <JointJSPaper TabID="@tab.Id.ToString()"></JointJSPaper>
+                            </MudTabPanel>
+                        }
+                    </MudContainer>
+                </MudContainer>
+            </MudDynamicTabs>
         </main>
         <div class="resize-handle--x" data-target="aside"></div>
-        <aside id="resizableSideBar" style="width:0px">
-           <SettingsSidebar></SettingsSidebar>
+        <aside id="resizableSideBar" style="width:0px;">
+            <SettingsSidebar></SettingsSidebar>
         </aside>
     </div>
 </MudContainer>
 
 @code {
 
+    /// <summary>
+    /// Represents a view model for a tab.
+    /// </summary>
+    public class TabView
+    {
+        /// <summary>
+        /// Gets or sets the label of the tab.
+        /// </summary>
+        public string Label { get; set; }
+        /// <summary>
+        /// Gets or sets the content of the tab.
+        /// </summary>
+        public string Content { get; set; }
+        /// <summary>
+        /// Gets or sets the unique identifier of the tab.
+        /// </summary>
+        public Guid Id { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether the close icon should be shown.
+        /// </summary>
+        public bool ShowCloseIcon { get; set; } = true;
+    }
+
+    /// <summary>
+    /// Reference to the dynamic tabs component.
+    /// </summary>
+    public MudDynamicTabs DynamicTabs;
+    /// <summary>
+    /// List of user tabs.
+    /// </summary>
+    public List<TabView> UserTabs = new();
+    /// <summary>
+    /// Index of the currently active user tab.
+    /// </summary>
+    public int UserIndex = 0;
+    /// <summary>
+    /// Manager for the current node page.
+    /// </summary>
+    public NodePageManager currentNodePageManager;
+    /// <summary>
+    /// Flag indicating whether the state has changed.
+    /// </summary>
+    bool _stateHasChanged;
+    /// <summary>
+    /// Flag indicating whether the close icon should be shown.
+    /// </summary>
+    bool _showCloseIcon = false;
+    /// <summary>
+    /// Label of the tab with a togglable close icon.
+    /// </summary>
+    string _closeToggableTab = "Tab B";
+
+    /// <summary>
+    /// Restores the user tabs from the execution manager.
+    /// </summary>
+    void RestoreUserTabs()
+    {
+        foreach (var tab in ExecutionManager.NodePages)
+        {
+            UserTabs.Add(new TabView { Id = new Guid(tab.Value.PageID), Label = tab.Value.PageName });
+        }
+        _stateHasChanged = true;
+    }
+
+    /// <summary>
+    /// Initializes the component.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        RestoreUserTabs();
+    }
+
+    /// <summary>
+    /// Called after the component has rendered.
+    /// </summary>
+    /// <param name="firstRender">Indicates whether this is the first render.</param>
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (_stateHasChanged)
+        {
+            _stateHasChanged = false;
+            StateHasChanged();
+
+            if (UserTabs.Count > 0)
+            {
+                currentNodePageManager = ExecutionManager.NodePages[UserTabs[UserIndex].Id.ToString()];
+                NovusUIManagement.CurrentlyOpenedPage = UserTabs[UserIndex].Id.ToString();
+                await JS.InvokeVoidAsync("JJSSetSelectedPaperTabId", UserTabs[UserIndex].Id.ToString());
+            }
+        }
+    }
+
+    /// <summary>
+    /// Toggles the visibility of the close icon for a specific tab.
+    /// </summary>
+    /// <param name="show">Indicates whether the close icon should be shown.</param>
+    private void ToggleShowCloseIcon(bool show)
+    {
+        var tab = UserTabs?.SingleOrDefault(t => t.Label.Equals(_closeToggableTab));
+        if (tab is not null) tab.ShowCloseIcon = show;
+        _showCloseIcon = show;
+    }
+
+    /// <summary>
+    /// Adds a new tab.
+    /// </summary>
+    public void AddTab()
+    {
+        var tab = ExecutionManager.AddNewTab();
+        UserTabs.Add(new TabView { Id = new Guid(tab.PageID), Label = tab.PageName });
+        UserIndex = UserTabs.Count - 1; // Automatically switch to the new tab.
+        _stateHasChanged = true;
+        Logger.LogDebug($"Added a new tab with ID: {tab.PageID}");
+    }
+
+    /// <summary>
+    /// Removes a tab.
+    /// </summary>
+    /// <param name="panel">The tab panel to remove.</param>
+    public async Task RemoveTab(MudTabPanel panel)
+    {
+        var id = (Guid)panel.ID;
+        var tabView = UserTabs.SingleOrDefault((t) => Equals(t.Id, id));
+        if (tabView is not null)
+        {
+            Logger.LogDebug($"Removing tab with ID: {id}");
+            await JS.InvokeVoidAsync("JJSCloseAndRemovePaper", tabView.Id.ToString());
+            ExecutionManager.RemoveTab(tabView.Id.ToString());
+            UserTabs.Remove(tabView);
+            _stateHasChanged = true;
+        }
+    }
+
+    /// <summary>
+    /// Called when the active tab index changes.
+    /// </summary>
+    private async Task OnTabIndexChanged()
+    {
+        if (UserIndex < 0)
+        {
+            AddTab();
+            UserIndex = 0;
+        }
+
+        currentNodePageManager = ExecutionManager.NodePages[UserTabs[UserIndex].Id.ToString()];
+        NovusUIManagement.CurrentlyOpenedPage = UserTabs[UserIndex].Id.ToString();
+        await JS.InvokeVoidAsync("JJSSetSelectedPaperTabId", UserTabs[UserIndex].Id.ToString());
+        Logger.LogDebug($"Switched to tab with ID: {UserTabs[UserIndex].Id}");
+    }
 }

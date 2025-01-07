@@ -14,7 +14,7 @@
         <div class="name">
             <MudTextField T="string" @bind-value="CurrentSelectedNodeName" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.DriveFileRenameOutline" HelperText="Change the Node Name" HelperTextOnFocus="true" Variant="Variant.Text" />
         </div>
-        <MudSwitch @bind-Value="@IsNodeEnabled" @bind-Value:after="View" Label="Info" Color="Color.Info">
+        <MudSwitch @bind-Value="@IsNodeEnabled" Label="Info" Color="Color.Info">
             @if (NovusUIManagement.CurrentlySelectedNode != null)
             {
                 if (NovusUIManagement.CurrentlySelectedNode.IsEnabled)
@@ -60,14 +60,6 @@
         }
     }
 
-   // private bool IsNodeEnabled { get; set; }
-
-    private async Task View()
-    {
-        //invoke some function.
-        string a = "";
-    }
-    
     /// <summary>
     /// Represents the name of the currently selected node.
     /// </summary>

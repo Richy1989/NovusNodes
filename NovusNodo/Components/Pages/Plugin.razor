@@ -1,6 +1,7 @@
 ﻿@using NovusNodoCore.NodeDefinition
 @using NovusNodoPluginLibrary
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
+@inject NovusNodo.Management.NovusUIManagement NovusUIManagement
 @inject ILoggerFactory LoggerFactory
 @inject IJSRuntime JS
 
@@ -60,7 +61,7 @@
     {
         if (PluginBase != null)
         {    
-            var node =await ExecutionManager.CreateNode(PluginBase);
+            var node = await ExecutionManager.NodePages[NovusUIManagement.CurrentlyOpenedPage].CreateNode(PluginBase);
             node.PropertyChanged += async (sender, args) =>
             {
                 if (args.PropertyName == "IsEnabled")

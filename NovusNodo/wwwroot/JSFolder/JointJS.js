@@ -1,25 +1,24 @@
-﻿/**
- * The graph object for the JointJS diagram.
- * @type {joint.dia.Graph}
- */
-let graph = undefined;
+﻿// Define a class
+class JointJSPage {
+    // Constructor method to initialize properties
+    constructor(graph, paper, paperId, netReference) {
+        this.graph = graph;
+        this.paper = paper;
+        this.paperId = paperId;
+        this.netReference = netReference;
+    }
+}
 
-/**
- * The name of the container element.
- * @type {string}
- */
-let containerName = undefined;
+let jointJSPages = {};
 
-/**
- * The paper resizer object for the JointJS diagram.
- * @type {ResizeObserver}
- */
-let paperResizer = undefined;
-/**
- * The paper object for the JointJS diagram.
- * @type {joint.dia.Paper}
- */
-let paper = undefined;
+//Joint JS Paper Component Reference Dictionary
+//let jointJSComponentRefdictionary = {};
+let selectedPaperTabId = null;
+
+function JJSSetSelectedPaperTabId(id) {
+    console.log("Setting SelectedPaperTabId to " + id);
+    selectedPaperTabId = id;
+}
 
 /**
  * The currently selected cell in the JointJS diagram.
@@ -33,10 +32,6 @@ let selectedCell = null;
  */
 let selectedLink = null;
 
-/**
-* Creates a JointJS paper and attaches it to the specified container.
-* @param {string} paperContainerName - The ID of the container element.
-*/
 
 let BackgroundColor = 'white';
 let StrokeColor = 'black';
@@ -60,7 +55,7 @@ function JJSSetColorPalette(backgroundColor, strokeColor, linkColor) {
  * @returns {Object} An object containing the furthest elements along the x and y axes.
  */
 function findFurthestElements() {
-    var elements = graph.getElements();
+    var elements = jointJSPages[selectedPaperTabId].graph.getElements();
     var furthestXElement = null;
     var furthestYElement = null;
     var maxX = -Infinity;
@@ -88,6 +83,9 @@ function findFurthestElements() {
  * Resizes the JointJS paper to fit the container and the furthest elements.
  */
 function ResizePaper() {
+
+    console.log('Resizing paper to fit the container and the furthest elements.');
+
     var container = document.getElementById("main_container");
 
     var furthest = findFurthestElements();
@@ -99,23 +97,22 @@ function ResizePaper() {
         width = Math.max(width, furthest.furthestXElement.position().x + furthest.furthestXElement.size().width + 10);
         height = Math.max(height, furthest.furthestYElement.position().y + furthest.furthestYElement.size().height + 10);
     }
-
-    paper.setDimensions(width, height);
+    console.log('Resizing paper to:', width, height);
+    jointJSPages[selectedPaperTabId].paper.setDimensions(width, height);
 }
 
 /**
  * Creates a JointJS paper and attaches it to the specified container.
  * @param {string} paperContainerName - The ID of the container element.
  */
-function JJSCreatePaper(paperContainerName) {
-    containerName = paperContainerName;
+function JJSCreatePaper(paperContainerName, reference) {
     const container = document.getElementById(paperContainerName);
 
     // Create the graph
-    graph = new joint.dia.Graph();
+    const graph = new joint.dia.Graph();
 
     // Dynamically set paper size to fit the container
-    paper = new joint.dia.Paper({
+    const paper = new joint.dia.Paper({
         el: container,
         model: graph,
         width: container.offsetWidth,
@@ -156,19 +153,16 @@ function JJSCreatePaper(paperContainerName) {
         ResizePaper();
     });
 
-    //// Resize the paper when the container size changes
-    //paperResizer = new ResizeObserver(ResizePaper).observe(container);
-
     // Notify the .NET code when an element is moved
     graph.on('change:position', (element, newPosition) =>
     {
-        JointJSPaperComponentRef.invokeMethodAsync("NovusHome.ElementMoved", element.id, newPosition.x, newPosition.y);
+        jointJSPages[selectedPaperTabId].netReference.invokeMethodAsync("NovusHome.ElementMoved", element.id, newPosition.x, newPosition.y);
     });
 
     // Notify the .NET code when a link is connected
     paper.on('link:connect', (linkView, evt, elementViewConnected) =>
     {
-        JointJSPaperComponentRef.invokeMethodAsync(
+        jointJSPages[selectedPaperTabId].netReference.invokeMethodAsync(
             'NovusHome.LinkAdded',
             linkView.model.attributes.source.id,
             linkView.model.attributes.source.port,
@@ -212,8 +206,11 @@ function JJSCreatePaper(paperContainerName) {
     // Highlight the selected cell
     paper.on('element:pointerdblclick', (cellView) => {
         console.log('Element double clicked:', cellView.model.id);
-        NovusUIManagementRef.invokeMethodAsync("NovusUIManagement.CellDoubleClick", cellView.model.id);
+        NovusUIManagementRef.invokeMethodAsync("NovusUIManagement.CellDoubleClick", selectedPaperTabId, cellView.model.id);
     });
+
+    const jointjspaper = new JointJSPage(graph, paper, paperContainerName, reference);
+    jointJSPages[paperContainerName] = jointjspaper;
 }
 
 // Handle the Delete key press
@@ -237,7 +234,9 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-function ResetAll() {
+function ResetAll()
+{
+    const paper = jointJSPages[selectedPaperTabId].paper;
 
     if (selectedCell) {
         selectedCell.unhighlight(); // Unhighlight the previous selection
@@ -278,7 +277,7 @@ function ResetAll() {
  */
 function ElementDeleted(elementId) {
     console.log('Element deleted:', elementId);
-    JointJSPaperComponentRef.invokeMethodAsync('NovusHome.ElementRemoved', elementId);
+    jointJSPages[selectedPaperTabId].netReference.invokeMethodAsync('NovusHome.ElementRemoved', elementId);
 }
 
 /**
@@ -419,11 +418,11 @@ function JJSCreateNodeElement(id, color, text, width, height, x, y) {
         }
     });
 
-    graph.addCell(node);
+    jointJSPages[selectedPaperTabId].graph.addCell(node);
 }
 
 function JJSDisableNode(nodeId) {
-    var node = graph.getCell(nodeId);
+    var node = jointJSPages[selectedPaperTabId].graph.getCell(nodeId);
     // Read the current 'root/class' attribute
     let currentClasses = node.attr('root/class') || '';
 
@@ -436,7 +435,7 @@ function JJSDisableNode(nodeId) {
 }
 
 function JJSEnableNode(nodeId) {
-    var node = graph.getCell(nodeId);
+    var node = jointJSPages[selectedPaperTabId].graph.getCell(nodeId);
     // Read the current 'root/class' attribute
     let currentClasses = node.attr('root/class') || '';
 
@@ -452,7 +451,7 @@ function JJSEnableNode(nodeId) {
  */
 function JJSChangeNodeLabel(nodeId, text) {
     console.log('Changing node label:', nodeId, text);
-    var node = graph.getCell(nodeId);
+    var node = jointJSPages[selectedPaperTabId].graph.getCell(nodeId);
     node.attr('headerLabel/text', text);
     autosize(node);
 }
@@ -462,7 +461,7 @@ function JJSChangeNodeLabel(nodeId, text) {
  * @param {joint.dia.Element} element - The element to resize.
  */
 function autosize(element) {
-    var view = paper.findViewByModel(element);
+    var view = jointJSPages[selectedPaperTabId].paper.findViewByModel(element);
     var text = view.selectors.headerLabel;
 
     if (text) {
@@ -476,7 +475,7 @@ function autosize(element) {
         var height = element.size().height;
         element.resize(width, height);
 
-        JointJSPaperComponentRef.invokeMethodAsync("NovusHome.ElementResized", element.id, width, height);
+        jointJSPages[selectedPaperTabId].netReference.invokeMethodAsync("NovusHome.ElementResized", element.id, width, height);
     }
 }
 
@@ -488,7 +487,7 @@ function autosize(element) {
  */
 function JJSAddInputPort(nodeId, portId) {
     console.log('Adding input port:', nodeId, portId);
-    var node = graph.getCell(nodeId);
+    var node = jointJSPages[selectedPaperTabId].graph.getCell(nodeId);
 
     node.addPorts([
         {
@@ -508,7 +507,7 @@ function JJSAddOutputPort(nodeId, portId) {
 
     console.log('Adding output port:', nodeId, portId);
 
-    var node = graph.getCell(nodeId);
+    var node = jointJSPages[selectedPaperTabId].graph.getCell(nodeId);
 
     node.addPorts([
         {
@@ -530,8 +529,8 @@ function JJSCreateLink(sourceID, sourcePortID, targetID, targetPortID) {
 
     console.log('Creating link:', sourceID, sourcePortID, targetID, targetPortID);
 
-    source = graph.getCell(sourceID);
-    target = graph.getCell(targetID);
+    source = jointJSPages[selectedPaperTabId].graph.getCell(sourceID);
+    target = jointJSPages[selectedPaperTabId].graph.getCell(targetID);
 
     const link = new joint.shapes.standard.Link({
         source: { id: sourceID, port: sourcePortID },
@@ -547,7 +546,7 @@ function JJSCreateLink(sourceID, sourcePortID, targetID, targetPortID) {
         }
     });
 
-    link.addTo(graph);
+    link.addTo(jointJSPages[selectedPaperTabId].graph);
 }
 
 /**
@@ -559,10 +558,28 @@ function LinkDeleted(link) {
     console.log('Link deleted source:', link.attributes.source);
     console.log('Link deleted target:', link.attributes.target);
 
-    JointJSPaperComponentRef.invokeMethodAsync(
+    jointJSPages[selectedPaperTabId].netReference.invokeMethodAsync(
         'NovusHome.LinkRemoved',
         link.attributes.source.id,
         link.attributes.source.port,
         link.attributes.target.id,
         link.attributes.target.port);
+}
+
+// Function to close and remove the paper
+function JJSCloseAndRemovePaper(pageid) {
+    const paper = jointJSPages[pageid].paper;
+    const graph = jointJSPages[pageid].graph;
+
+    // Unbind all events on the paper and graph
+    paper.off();  // Unbinds all events from the paper
+    graph.off();  // Unbinds all events from the graph
+
+    // If necessary, clear the graph to remove all elements
+    graph.clear();
+
+    // Remove a key-value pair
+    delete jointJSPages.pageid;
+
+    console.log('Paper and graph have been cleaned up and removed.');
 }

@@ -4,6 +4,7 @@
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 @inject IJSRuntime JS
 @inject ILoggerFactory LoggerFactory
+@inject IScrollManager ScrollManager
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="NovusUIManagement.IsDarkMode" />
 <MudPopoverProvider />
@@ -26,21 +27,16 @@
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">Settings</MudText>
         </MudDrawerHeader>
-        <div @ref="debugScrollDiv" class="scrollable-drawer-content">
+        
+        @* <div @ref="@debugScrollDiv" class="scrollable-drawer-content"> *@
             <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" MinimumTabWidth="20px" PanelClass="pa-4">
                 <MudTabPanel Icon="@Icons.Material.Filled.History">
-                    <MudNavMenu>
-                        @* <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBox">Profile</MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ShoppingCart">Orders</MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.History">Order History</MudNavLink> *@
-
+                    <MudPaper Class="scrollable-drawer-content d-flex flex-column flex-grow-1 gap-4 overflow-x-auto" Elevation="0" Height="100vh">
                         @foreach (var debug in ExecutionManager.DebugLog)
                         {
                             <DebugEntry Timestamp="DateTime.Now" MessageID="@debug.Key" Tag="Info" Message="@debug.Value"></DebugEntry>
                         }
-
-                    </MudNavMenu>
-
+                    </MudPaper>
                 </MudTabPanel>
                 <MudTabPanel Icon="@Icons.Material.Filled.Settings">
                     <MudText>Content Two</MudText>
@@ -52,7 +48,7 @@
                     <MudText>Content Disabled</MudText>
                 </MudTabPanel>
             </MudTabs>
-        </div>
+        @* </div> *@
     </MudDrawer>
     <MudMainContent Style="height: 100vh">
         @Body

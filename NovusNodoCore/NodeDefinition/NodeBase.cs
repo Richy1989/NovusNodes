@@ -62,7 +62,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="Logger">The logger instance.</param>
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager instance.</param>
         /// <param name="updateDebugFunction">The function to update the debug log.</param>
-        /// <param name="token">The cancellation token.</param>
+        /// <param name="token">The cancellation Token.</param>
         public NodeBase(IPluginBase basedPlugin, ILogger Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, Func<string, JsonObject, Task> updateDebugFunction, CancellationToken token)
         {
             this.PluginBase = basedPlugin;
@@ -150,6 +150,10 @@ namespace NovusNodoCore.NodeDefinition
                             try
                             {
                                 result = await task(jsonData).ConfigureAwait(false);
+                                
+                                if(token.IsCancellationRequested)
+                                    break;
+
                                 await TriggerNextNodes(OutputPorts.Values.ElementAt(i), result).ConfigureAwait(false);
                             }
                             catch (Exception ex)
@@ -259,7 +263,8 @@ namespace NovusNodoCore.NodeDefinition
             {
                 nextNode.Value.ParentNode = this;
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                nextNode.Value.ExecuteNode(jsonData);
+                if (!token.IsCancellationRequested)
+                    nextNode.Value.ExecuteNode(jsonData);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
             await Task.CompletedTask;

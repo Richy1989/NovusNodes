@@ -3,7 +3,8 @@
  * @type {any}
  */
 let NovusUIManagementRef = undefined;
-let JointJSPaperComponentRef = undefined;
+
+/*let JointJSPaperComponentRef = undefined;*/
 
 /**
  * Sets the NovusUIManagementRef to the provided value.
@@ -12,10 +13,6 @@ let JointJSPaperComponentRef = undefined;
 function GJSSetNovusUIManagementRef(novusReference) {
     console.log("Setting NovusUIManagementRef to " + novusReference);
     NovusUIManagementRef = novusReference;
-}
-
-function GJSSetJointJSPaperComponentRef(novusReference) {
-    JointJSPaperComponentRef = novusReference;
 }
 
 
@@ -100,6 +97,10 @@ function setCodeMirrorValue(newValue) {
     }
 }
 
-window.scrollToBottom = (element) => {
+//window.scrollToBottom = (element) => {
+//    element.scrollTop = element.scrollHeight;
+//};
+
+function scrollToBottom(element) {
     element.scrollTop = element.scrollHeight;
-};
+}

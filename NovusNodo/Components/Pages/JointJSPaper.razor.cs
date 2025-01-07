@@ -9,6 +9,12 @@ namespace NovusNodo.Components.Pages
 {
     public partial class JointJSPaper : ComponentBase, IDisposable
     {
+        private bool isInitialized = false;
+        [Parameter]
+        public string TabID { get; set; }
+
+        public NodePageManager NodePageManager { get; set; }
+
         /// <summary>
         /// Indicates whether the object has been disposed.
         /// </summary>
@@ -25,7 +31,8 @@ namespace NovusNodo.Components.Pages
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            ExecutionManager.AvailableNodesUpdated += NodesAdded;
+            NodePageManager = ExecutionManager.NodePages[TabID];
+            NodePageManager.AvailableNodesUpdated += NodesAdded;
         }
 
         /// <summary>
@@ -54,10 +61,11 @@ namespace NovusNodo.Components.Pages
         [JSInvokable("NovusHome.ElementMoved")]
         public async Task ElementMoved(string id, double x, double y)
         {
+            //Logger.LogDebug($"Element Moved {id} to {x}, {y} in {TabID}");
             await InvokeAsync(() =>
             {
-                ExecutionManager.AvailableNodes[id].UIConfig.X = x;
-                ExecutionManager.AvailableNodes[id].UIConfig.Y = y;
+                NodePageManager.AvailableNodes[id].UIConfig.X = x;
+                NodePageManager.AvailableNodes[id].UIConfig.Y = y;
             });
         }
 
@@ -71,10 +79,11 @@ namespace NovusNodo.Components.Pages
         [JSInvokable("NovusHome.ElementResized")]
         public async Task ElementResized(string id, double width, double height)
         {
+            Logger.LogDebug($"Element Resized {id} {width} {height} in {TabID}");
             await InvokeAsync(() =>
             {
-                ExecutionManager.AvailableNodes[id].UIConfig.Width = width;
-                ExecutionManager.AvailableNodes[id].UIConfig.Height = height;
+                NodePageManager.AvailableNodes[id].UIConfig.Width = width;
+                NodePageManager.AvailableNodes[id].UIConfig.Height = height;
             });
         }
 
@@ -89,9 +98,10 @@ namespace NovusNodo.Components.Pages
         [JSInvokable("NovusHome.LinkAdded")]
         public async Task LinkAdded(string sourceID, string sourcePortId, string targetId, string targetPortId)
         {
+            Logger.LogDebug($"Link Added {sourceID} {sourcePortId} {targetId} {targetPortId} to {TabID}");
             await InvokeAsync(() =>
             {
-                ExecutionManager.NewConnection(sourceID, sourcePortId, targetId, targetPortId);
+                NodePageManager.NewConnection(sourceID, sourcePortId, targetId, targetPortId);
             });
         }
 
@@ -106,9 +116,10 @@ namespace NovusNodo.Components.Pages
         [JSInvokable("NovusHome.LinkRemoved")]
         public async Task LinkRemoved(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
+            Logger.LogDebug($"Link Removed {sourceId} {sourcePortId} {targetId} {targetPortId} from {TabID}");
             await InvokeAsync(() =>
             {
-                ExecutionManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
+                NodePageManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
             });
         }
 
@@ -120,9 +131,10 @@ namespace NovusNodo.Components.Pages
         [JSInvokable("NovusHome.ElementRemoved")]
         public async Task ElementRemoved(string elementId)
         {
+            Logger.LogDebug($"Element Removed {elementId} from {TabID}");
             await InvokeAsync(() =>
             {
-                ExecutionManager.ElementRemoved(elementId);
+                NodePageManager.ElementRemoved(elementId);
             });
         }
 
@@ -133,6 +145,7 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task NodesAdded(INodeBase node)
         {
+            Logger.LogDebug($"Adding node {node.ID} to JointJS paper {TabID}");
             await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{Helper.Helper.ConvertColorToCSSColor(node.Background)}", $"{node.Name}", node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y]);
             await AddPorts(node);
         }
@@ -144,17 +157,23 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            base.OnAfterRender(firstRender);
             if (firstRender)
             {
                 jointJSPaperComponentRef = DotNetObjectReference.Create(this);
-                await JS.InvokeVoidAsync("GJSSetJointJSPaperComponentRef", jointJSPaperComponentRef);
-
+                
                 await SetJointJSColors();
-                await JS.InvokeVoidAsync("JJSCreatePaper", "main");
 
-                foreach (var node in ExecutionManager.AvailableNodes.Values)
+                Logger.LogDebug("Creating JointJS paper for tab {TabID}", TabID);
+
+                await JS.InvokeVoidAsync("JJSCreatePaper", [TabID, jointJSPaperComponentRef]);
+                if (!isInitialized)
                 {
-                    await NodesAdded(node);
+                    isInitialized = true;
+                    foreach (var node in NodePageManager.AvailableNodes.Values)
+                    {
+                        await NodesAdded(node);
+                    }
                 }
                 await DrawLinks();
             }
@@ -166,7 +185,7 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task DrawLinks()
         {
-            foreach (var node in ExecutionManager.AvailableNodes.Values)
+            foreach (var node in NodePageManager.AvailableNodes.Values)
             {
                 foreach (var port in node.OutputPorts.Values)
                 {
@@ -221,6 +240,8 @@ namespace NovusNodo.Components.Pages
                 if (disposing)
                 {
                     jointJSPaperComponentRef?.Dispose();
+                    NodePageManager.AvailableNodesUpdated -= NodesAdded;
+
                 }
 
                 _disposedValue = true;

@@ -2,7 +2,6 @@
 using Microsoft.JSInterop;
 using MudBlazor;
 using NovusNodo.Management;
-using NovusNodoCore.NodeDefinition;
 
 namespace NovusNodo.Components.Layout
 {
@@ -13,16 +12,14 @@ namespace NovusNodo.Components.Layout
     {
         private MudTheme _theme = null;
         private DotNetObjectReference<NovusUIManagement> novusUIManagementRef;
-        private ElementReference debugScrollDiv;
-        // To detect redundant calls
         private bool _disposedValue;
+
         /// <summary>
         /// Initializes the component.
         /// </summary>
         protected override void OnInitialized()
         {
             base.OnInitialized();
-
 
             ExecutionManager.DebugLogChanged += ExecutionManager_DebugLogChanged;
 
@@ -34,20 +31,20 @@ namespace NovusNodo.Components.Layout
             };
         }
 
+        /// <summary>
+        /// Handles the DebugLogChanged event from the ExecutionManager.
+        /// </summary>
+        /// <param name="arg">The argument containing the debug log information.</param>
         private async Task ExecutionManager_DebugLogChanged((string, System.Text.Json.Nodes.JsonObject) arg)
         {
-
             await InvokeAsync(() =>
             {
-                base.StateHasChanged();
+                StateHasChanged();
             });
-            await ScrollToBottom();
-        }
-
-
-        private async Task ScrollToBottom()
-        {
-            await JS.InvokeVoidAsync("scrollToBottom", debugScrollDiv);
+            await InvokeAsync(async () =>
+            {
+                await ScrollManager.ScrollToBottomAsync(".scrollable-drawer-content", ScrollBehavior.Smooth);
+            });
         }
 
         /// <summary>
@@ -58,9 +55,8 @@ namespace NovusNodo.Components.Layout
             NovusUIManagement.DrawerOpen = !NovusUIManagement.DrawerOpen;
         }
 
-
         /// <summary>
-        /// Toggles the state of the drawer.
+        /// Toggles the state of the settings drawer.
         /// </summary>
         private void SettingsDrawerToggle()
         {
@@ -73,7 +69,10 @@ namespace NovusNodo.Components.Layout
         private async Task DarkModeToggle()
         {
             NovusUIManagement.IsDarkMode = !NovusUIManagement.IsDarkMode;
-            await NovusUIManagement.ReloadPage().ConfigureAwait(false);
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
 
         /// <summary>
@@ -95,7 +94,7 @@ namespace NovusNodo.Components.Layout
             if (firstRender)
             {
                 NovusUIManagement.JS = JS;
-                
+
                 novusUIManagementRef = DotNetObjectReference.Create(NovusUIManagement);
                 await JS.InvokeVoidAsync("GJSSetNovusUIManagementRef", novusUIManagementRef);
             }
@@ -121,15 +120,11 @@ namespace NovusNodo.Components.Layout
                 if (disposing)
                 {
                     novusUIManagementRef?.Dispose();
+                    ExecutionManager.DebugLogChanged -= ExecutionManager_DebugLogChanged;
                 }
 
                 _disposedValue = true;
             }
-        }
-
-        private Palette GetCurrentPalette()
-        {
-            return NovusUIManagement.GetCurrentPalette();
         }
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System.Text.Json.Nodes;
-using Microsoft.Extensions.Logging;
-using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.Managers
@@ -16,29 +14,14 @@ namespace NovusNodoCore.Managers
         private readonly NodeJSEnvironmentManager NodeJSEnvironmentManager;
 
         /// <summary>
-        /// The logger factory.
+        /// The service provider.
         /// </summary>
-        private readonly ILoggerFactory loggerFactory;
-
-        /// <summary>
-        /// The cancellation token source used to cancel operations.
-        /// </summary>
-        private readonly CancellationTokenSource cts;
-
-        /// <summary>
-        /// The cancellation token used to observe cancellation requests.
-        /// </summary>
-        private readonly CancellationToken token;
+        private readonly IServiceProvider serviceProvider;
 
         /// <summary>
         /// The plugin loader responsible for loading plugins.
         /// </summary>
         private readonly PluginLoader pluginLoader;
-
-        /// <summary>
-        /// Event fired when AvailableNodes is updated.
-        /// </summary>
-        public event Func<INodeBase, Task> AvailableNodesUpdated;
 
         /// <summary>
         /// Event fired when DebugLog is updated.
@@ -51,9 +34,9 @@ namespace NovusNodoCore.Managers
         public IDictionary<string, IPluginBase> AvailablePlugins { get; set; } = new Dictionary<string, IPluginBase>();
 
         /// <summary>
-        /// Gets or sets the available nodes.
+        /// Gets or sets the available nodes per Tab page.
         /// </summary>
-        public IDictionary<string, INodeBase> AvailableNodes { get; set; } = new Dictionary<string, INodeBase>();
+        public IDictionary<string, NodePageManager> NodePages { get; set; } = new Dictionary<string, NodePageManager>();
 
         /// <summary>
         /// Gets or sets the debug log.
@@ -63,18 +46,18 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
         /// </summary>
-        /// <param name="loggerFactory">The logger factory.</param>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="pluginLoader">The plugin loader.</param>
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager.</param>
-        public ExecutionManager(ILoggerFactory loggerFactory, PluginLoader pluginLoader, NodeJSEnvironmentManager nodeJSEnvironmentManager)
+        public ExecutionManager(IServiceProvider serviceProvider, PluginLoader pluginLoader, NodeJSEnvironmentManager nodeJSEnvironmentManager)
         {
-            cts = new CancellationTokenSource();
-            token = cts.Token;
-
-            this.loggerFactory = loggerFactory;
+            this.serviceProvider = serviceProvider;
             this.pluginLoader = pluginLoader;
 
             NodeJSEnvironmentManager = nodeJSEnvironmentManager;
             NodeJSEnvironmentManager.Initialize();
+
+            LoadSavedData();
         }
 
         /// <summary>
@@ -87,95 +70,43 @@ namespace NovusNodoCore.Managers
         }
 
         /// <summary>
-        /// Creates a new node from the specified plugin.
+        /// Loads saved data and adds a new tab.
         /// </summary>
-        /// <param name="pluginBase">The plugin base to create the node from.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task<NodeBase> CreateNode(IPluginBase pluginBase)
+        public void LoadSavedData()
         {
-            var instance = Activator.CreateInstance(pluginBase.GetType());
-
-            if (instance == null)
-            {
-                return null;
-            }
-
-            var plugin = (IPluginBase)instance;
-
-            if (plugin != null)
-            {
-                var logger = loggerFactory.CreateLogger(typeof(NodeBase));
-                NodeBase node = new(plugin, logger, NodeJSEnvironmentManager, OnDebugLogUpdated, token);
-                AvailableNodes.Add(node.ID, node);
-                await OnAvailableNodesUpdated(node).ConfigureAwait(false);
-                return node;
-            }
-            return null;
+            AddNewTab();
         }
 
         /// <summary>
-        /// Creates a new connection between two nodes.
+        /// Adds a new tab and returns the created <see cref="NodePageManager"/>.
         /// </summary>
-        /// <param name="sourceId">The ID of the source node.</param>
-        /// <param name="sourcePortId">The ID of the source port.</param>
-        /// <param name="targetId">The ID of the target node.</param>
-        /// <param name="targetPortId">The ID of the target port.</param>
-        public void NewConnection(string sourceId, string sourcePortId, string targetId, string targetPortId)
+        /// <returns>The created <see cref="NodePageManager"/>.</returns>
+        public NodePageManager AddNewTab()
         {
-            if (AvailableNodes.TryGetValue(sourceId, out var sourceNode) && AvailableNodes.TryGetValue(targetId, out var targetNode))
-            {
-                sourceNode.OutputPorts[sourcePortId].AddConnection(targetPortId, targetNode);
-            }
+            var nodePage = (NodePageManager)serviceProvider.GetService(typeof(NodePageManager));
+            nodePage.DebugLogChanged = OnDebugLogUpdated;
+            nodePage.PageID = Guid.NewGuid().ToString();
+            nodePage.PageName = "Nodes";
+            NodePages.Add(nodePage.PageID, nodePage);
+            return nodePage;
         }
 
         /// <summary>
-        /// Removes the connection between the specified source and target nodes.
+        /// Removes the tab with the specified page ID.
         /// </summary>
-        /// <param name="sourceId">The ID of the source node.</param>
-        /// <param name="sourcePortId">The ID of the source port.</param>
-        /// <param name="targetId">The ID of the target node.</param>
-        /// <param name="targetPortId">The ID of the target port.</param>
-        public void RemoveConnection(string sourceId, string sourcePortId, string targetId, string targetPortId)
+        /// <param name="pageID">The ID of the page to remove.</param>
+        public void RemoveTab(string pageID)
         {
-            if (AvailableNodes.TryGetValue(sourceId, out var sourceNode))
+            var nodePage = NodePages[pageID];
+            nodePage.CancellationTokenSource.Cancel();
+            NodePages.Remove(pageID);
+
+            foreach (var node in nodePage.AvailableNodes)
             {
-                sourceNode.OutputPorts[sourcePortId].RemoveConnection(targetPortId);
+                node.Value.OutputPorts.Clear();
+                node.Value.OutputPorts = null;
+                node.Value.InputPort = null;
             }
-        }
-
-        /// <summary>
-        /// Removes the specified node and all its connections.
-        /// </summary>
-        /// <param name="id">The ID of the node to remove.</param>
-        public void ElementRemoved(string id)
-        {
-            if (AvailableNodes.TryGetValue(id, out var node))
-            {
-                AvailableNodes.Remove(id);
-
-                // Remove connections from output ports
-                foreach (var outputPort in node.OutputPorts)
-                {
-                    outputPort.Value.RemoveAllConnections();
-                }
-
-                // Remove connections from input port
-                node.InputPort.RemoveAllConnections();
-            }
-        }
-
-        /// <summary>
-        /// Invokes the AvailableNodesUpdated event.
-        /// </summary>
-        /// <param name="nodeBase">The node that was updated.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        private async Task OnAvailableNodesUpdated(INodeBase nodeBase)
-        {
-            if (AvailableNodesUpdated == null)
-            {
-                await Task.CompletedTask;
-            }
-            await AvailableNodesUpdated.Invoke(nodeBase).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -188,7 +119,8 @@ namespace NovusNodoCore.Managers
         {
             string dID = Guid.NewGuid().ToString();
             DebugLog.Add(dID, message);
-            await DebugLogChanged.Invoke((dID, message)).ConfigureAwait(false);
+            if (DebugLogChanged.Invoke != null)
+                await DebugLogChanged.Invoke((dID, message)).ConfigureAwait(false);
         }
     }
 }

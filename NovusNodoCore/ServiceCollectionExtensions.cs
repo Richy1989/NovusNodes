@@ -19,6 +19,7 @@ namespace NovusNodoCore
             services.AddSingleton<ExecutionManager>();
             services.AddSingleton<NodeJSEnvironmentManager>();
             services.AddSingleton<PluginLoader>();
+            services.AddTransient<NodePageManager>();
 
             return services;
         }
