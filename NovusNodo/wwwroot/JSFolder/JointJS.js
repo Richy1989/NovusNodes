@@ -162,13 +162,13 @@ function JJSCreatePaper(paperContainerName) {
     // Notify the .NET code when an element is moved
     graph.on('change:position', (element, newPosition) =>
     {
-        NovusHomeRef.invokeMethodAsync("NovusHome.ElementMoved", element.id, newPosition.x, newPosition.y);
+        JointJSPaperComponentRef.invokeMethodAsync("NovusHome.ElementMoved", element.id, newPosition.x, newPosition.y);
     });
 
     // Notify the .NET code when a link is connected
     paper.on('link:connect', (linkView, evt, elementViewConnected) =>
     {
-        NovusHomeRef.invokeMethodAsync(
+        JointJSPaperComponentRef.invokeMethodAsync(
             'NovusHome.LinkAdded',
             linkView.model.attributes.source.id,
             linkView.model.attributes.source.port,
@@ -278,7 +278,7 @@ function ResetAll() {
  */
 function ElementDeleted(elementId) {
     console.log('Element deleted:', elementId);
-    NovusHomeRef.invokeMethodAsync('NovusHome.ElementRemoved', elementId);
+    JointJSPaperComponentRef.invokeMethodAsync('NovusHome.ElementRemoved', elementId);
 }
 
 /**
@@ -476,7 +476,7 @@ function autosize(element) {
         var height = element.size().height;
         element.resize(width, height);
 
-        NovusHomeRef.invokeMethodAsync("NovusHome.ElementResized", element.id, width, height);
+        JointJSPaperComponentRef.invokeMethodAsync("NovusHome.ElementResized", element.id, width, height);
     }
 }
 
@@ -559,7 +559,7 @@ function LinkDeleted(link) {
     console.log('Link deleted source:', link.attributes.source);
     console.log('Link deleted target:', link.attributes.target);
 
-    NovusHomeRef.invokeMethodAsync(
+    JointJSPaperComponentRef.invokeMethodAsync(
         'NovusHome.LinkRemoved',
         link.attributes.source.id,
         link.attributes.source.port,

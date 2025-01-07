@@ -65,14 +65,15 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="loggerFactory">The logger factory.</param>
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager.</param>
-        public ExecutionManager(ILoggerFactory loggerFactory, NodeJSEnvironmentManager nodeJSEnvironmentManager)
+        public ExecutionManager(ILoggerFactory loggerFactory, PluginLoader pluginLoader, NodeJSEnvironmentManager nodeJSEnvironmentManager)
         {
-            this.loggerFactory = loggerFactory;
             cts = new CancellationTokenSource();
             token = cts.Token;
-            pluginLoader = new PluginLoader(this);
 
-            this.NodeJSEnvironmentManager = nodeJSEnvironmentManager;
+            this.loggerFactory = loggerFactory;
+            this.pluginLoader = pluginLoader;
+
+            NodeJSEnvironmentManager = nodeJSEnvironmentManager;
             NodeJSEnvironmentManager.Initialize();
         }
 
@@ -81,6 +82,7 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public void Initialize()
         {
+            pluginLoader.Initialize(this);
             pluginLoader.LoadPlugins();
         }
 

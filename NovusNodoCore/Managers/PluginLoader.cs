@@ -1,30 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using NovusNodoCore.NodeDefinition;
+﻿using System.Reflection;
+using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.Managers
 {
-    internal class PluginLoader(ExecutionManager executionManager)
+    /// <summary>
+    /// Responsible for loading plugins from specified directories.
+    /// </summary>
+    public class PluginLoader
     {
-        private readonly ExecutionManager executionManager = executionManager;
-        private readonly List<string> paths = [];
+        private ExecutionManager executionManager;
+        private ILogger<PluginLoader> logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PluginLoader"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance.</param>
+        public PluginLoader(ILogger<PluginLoader> logger)
+        {
+            this.logger = logger;
+        }
+
+        /// <summary>
+        /// Initializes the plugin loader with the specified execution manager.
+        /// </summary>
+        /// <param name="executionManager">The execution manager instance.</param>
+        public void Initialize(ExecutionManager executionManager)
+        {
+            this.executionManager = executionManager;
+        }
+
+        /// <summary>
+        /// Loads plugins from the specified directories and adds them to the execution manager.
+        /// </summary>
         public void LoadPlugins()
         {
-            paths.Add("C:\\Users\\richy\\SoftwarewDevelopment\\NodiAutomati\\NovusNodo\\NovusNodoPlugins\\bin\\Debug\\net9.0");
-            paths.Add("C:\\Users\\richy\\SoftwarewDevelopment\\NodiAutomati\\NovusNodo\\NovusNodoUIPlugins\\bin\\Debug\\net9.0");
-
-            foreach (var path in paths)
+            foreach (var path in GetLibPaths())
             {
-
-                var files = Directory.GetFiles(path, "*.dll");
+                string[] files;
+                try
+                {
+                    files = Directory.GetFiles(path, "*.dll");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error loading plugins from path: {0}", path);
+                    continue;
+                }
 
                 foreach (var file in files)
                 {
@@ -46,11 +68,25 @@ namespace NovusNodoCore.Managers
                                 IPluginBase plugin = (IPluginBase)instance;
 
                                 executionManager.AvailablePlugins.Add(plugin.ID, plugin);
+                                logger.LogInformation("Loaded plugin: {0}", plugin.Name);
                             }
                         }
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the list of library paths to search for plugins.
+        /// </summary>
+        /// <returns>A list of library paths.</returns>
+        private List<string> GetLibPaths()
+        {
+            List<string> paths = new();
+            string executingDir = Directory.GetCurrentDirectory();
+            paths.Add(Path.Combine(executingDir, "../", "NovusNodoPlugins", "bin", "Debug", "net9.0"));
+            paths.Add(Path.Combine(executingDir, "../", "NovusNodoUIPlugins", "bin", "Debug", "net9.0"));
+            return paths;
         }
     }
 }

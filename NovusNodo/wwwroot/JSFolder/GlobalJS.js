@@ -3,7 +3,7 @@
  * @type {any}
  */
 let NovusUIManagementRef = undefined;
-let NovusHomeRef = undefined;
+let JointJSPaperComponentRef = undefined;
 
 /**
  * Sets the NovusUIManagementRef to the provided value.
@@ -14,8 +14,8 @@ function GJSSetNovusUIManagementRef(novusReference) {
     NovusUIManagementRef = novusReference;
 }
 
-function GJSSetNovusHomeNetRef(novusReference) {
-    NovusHomeRef = novusReference;
+function GJSSetJointJSPaperComponentRef(novusReference) {
+    JointJSPaperComponentRef = novusReference;
 }
 
 

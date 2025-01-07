@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using NovusNodo.Management;
+using NovusNodoCore.Managers;
 using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodo.Components.Pages
 {
-    /// <summary>
-    /// Represents the home component for the Novus application.
-    /// </summary>
-    public partial class NovusHome : ComponentBase, IDisposable
+    public partial class JointJSPaper : ComponentBase, IDisposable
     {
         /// <summary>
         /// Indicates whether the object has been disposed.
@@ -16,9 +15,9 @@ namespace NovusNodo.Components.Pages
         private bool _disposedValue;
 
         /// <summary>
-        /// A reference to the current instance of the NovusHome component for JavaScript interop.
+        /// A reference to the current instance of the JointJS Paper component for JavaScript interop.
         /// </summary>
-        private DotNetObjectReference<NovusHome> novusHomeRef;
+        private DotNetObjectReference<JointJSPaper> jointJSPaperComponentRef;
 
         /// <summary>
         /// Method called when the component is initialized.
@@ -147,8 +146,8 @@ namespace NovusNodo.Components.Pages
         {
             if (firstRender)
             {
-                novusHomeRef = DotNetObjectReference.Create(this);
-                await JS.InvokeVoidAsync("GJSSetNovusHomeNetRef", novusHomeRef);
+                jointJSPaperComponentRef = DotNetObjectReference.Create(this);
+                await JS.InvokeVoidAsync("GJSSetJointJSPaperComponentRef", jointJSPaperComponentRef);
 
                 await SetJointJSColors();
                 await JS.InvokeVoidAsync("JJSCreatePaper", "main");
@@ -221,7 +220,7 @@ namespace NovusNodo.Components.Pages
             {
                 if (disposing)
                 {
-                    novusHomeRef?.Dispose();
+                    jointJSPaperComponentRef?.Dispose();
                 }
 
                 _disposedValue = true;

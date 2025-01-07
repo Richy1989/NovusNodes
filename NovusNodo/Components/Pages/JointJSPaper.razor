@@ -1,0 +1,23 @@
+﻿@rendermode InteractiveServer
+
+@using System.Collections.Generic
+@using System.Linq;
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@using NovusNodo.Components.Layout
+@using NovusNodoCore.NodeDefinition
+@using NovusNodoPluginLibrary
+@inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
+@inject NovusNodo.Management.NovusUIManagement NovusUIManagement
+@inject IJSRuntime JS
+
+<MudContainer Style="height:100%; padding:10px;" MaxWidth="MaxWidth.False">
+    <MudContainer id="main_container" Class="overflow-auto" Style="margin-left: 0; padding:0px; margin-right: 0; height:100%;" MaxWidth="MaxWidth.False">
+        <MudContainer id="main" Style="height:100%; padding:0px;" MaxWidth="MaxWidth.False">
+        </MudContainer>
+    </MudContainer>
+</MudContainer>
+
+@code {
+
+}
