@@ -31,7 +31,10 @@
         @* <div @ref="@debugScrollDiv" class="scrollable-drawer-content"> *@
             <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" MinimumTabWidth="20px" PanelClass="pa-4">
                 <MudTabPanel Icon="@Icons.Material.Filled.History">
-                <MudButton Onclick="ClearDebugLog" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ClearAll" Color="Color.Primary" FullWidth="true">Clear Debug Log</MudButton>
+                <div style="display: flex; flex-direction: row;  justify-content: space-around; ">
+                    <MudButton Onclick="ClearDebugLog" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ClearAll" Color="Color.Primary" FullWidth="true">Clear Debug Log</MudButton>
+                    <MudSwitch @bind-Value="autoScrollDebugWindow" Style="padding-left:10px;" Color="Color.Primary" Label="Auto Scroll" UncheckedColor="Color.Warning"/>
+                </div>
                     <MudPaper Class="scrollable-drawer-content d-flex flex-column flex-grow-1 gap-4 overflow-x-auto" Elevation="0" Height="100vh">
                         @foreach (var debug in ExecutionManager.DebugLog)
                         {

@@ -13,7 +13,7 @@ namespace NovusNodo.Components.Layout
         private MudTheme _theme = null;
         private DotNetObjectReference<NovusUIManagement> novusUIManagementRef;
         private bool _disposedValue;
-
+        private bool autoScrollDebugWindow = true;
         /// <summary>
         /// Initializes the component.
         /// </summary>
@@ -43,7 +43,8 @@ namespace NovusNodo.Components.Layout
             });
             await InvokeAsync(async () =>
             {
-                await ScrollManager.ScrollToBottomAsync(".scrollable-drawer-content", ScrollBehavior.Smooth);
+                if(autoScrollDebugWindow)
+                    await ScrollManager.ScrollToBottomAsync(".scrollable-drawer-content", ScrollBehavior.Smooth);
             });
         }
 
