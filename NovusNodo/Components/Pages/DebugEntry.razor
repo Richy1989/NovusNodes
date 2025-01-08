@@ -2,8 +2,8 @@
 @using System.Text.Json.Nodes
 @using System.Text.Json
 @inject IJSRuntime JS
+@inject ILogger<DebugEntry> Logger
 
-@* <MudCard Class="mb-2"> *@
 <MudPaper Width="100%">
     <MudCardContent>
         <MudText Typo="Typo.subtitle2">@Timestamp.ToString("g")</MudText>
@@ -13,16 +13,15 @@
 
     </MudCardContent>
 </MudPaper>
-@* </MudCard> *@
 
 <style>
 
 
     @string.Format("#{0}", MessageID)
     {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
     }
 </style>
 
@@ -37,8 +36,14 @@
         if (firstRender)
         {
             var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
-            await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
+            try
+            {
+                await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, $"Error in creting the Json Editor for debug entry {MessageID}");
+            }
         }
     }
-
 }

@@ -40,5 +40,4 @@ export function JsonEditorCreateEditor(editorElementId, contentIn) {
 
     // use methods get, set, update, and onChange to get data in or out of the editor.
     // Use updateProps to update properties.
-
 }

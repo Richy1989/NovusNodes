@@ -7,24 +7,36 @@
 @inject IJSRuntime JS
 
 
-<div class="settings-node">
-    <h3>JavaScript Settings Node</h3>
-    <div class="settings-textarea" id="CodeEditor"></div>
+<h3>JavaScript Settings Node</h3>
+<div class="CodemMirrorContainer">
+    <div class="CodeMirror" id="CodeEditor"></div>
 </div>
 
 <style>
+    
+    .cm-editor
+    {
+        overflow: auto;
+    }
 
     .save-button {
         margin-top: 10px;
     }
 
-    .settings-node {
+    .CodemMirrorContainer {
         display: flex;
-        flex-direction: column;
+         flex-direction: column;
         align-items: flex-start;
         justify-content: flex-start;
         height: 100%;
         width: 100%;
+    }
+
+    .CodeMirror {
+        border: 1px solid #eee;
+        height: 100%;
+        width: 100%;
+        overflow: auto;
     }
 
     .settings-node h3 {
@@ -32,12 +44,12 @@
         font-size: 1.2rem;
     }
 
-    .settings-textarea {
+    /* .settings-textarea {
         height: 100%;
         width:100%;
         min-height: 100%;
         font-size: 1rem;
         font-family: monospace;
         min-height: 100%;
-    }
+    } */
 </style>
