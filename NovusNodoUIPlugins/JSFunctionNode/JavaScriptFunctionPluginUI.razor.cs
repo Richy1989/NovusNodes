@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
 
 namespace NovusNodoUIPlugins.JSFunctionNode
 {
@@ -8,32 +7,16 @@ namespace NovusNodoUIPlugins.JSFunctionNode
     /// </summary>
     public partial class JavaScriptFunctionPluginUI
     {
+        string text = "";
         /// <summary>
         /// Saves the settings asynchronously.
         /// </summary>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         public override async Task SaveSettings()
         {
-            // Get the code from CodeMirror
-            PluginConfig = await JS.InvokeAsync<string>("getCodeMirrorValue").ConfigureAwait(false);
-
             PluginBase.JsonConfig = PluginConfig;
             Logger.LogInformation($"Plugin Info - New JS Code is: \n{PluginConfig}");
-        }
-
-        /// <summary>
-        /// Method invoked after the component has been rendered.
-        /// </summary>
-        /// <param name="firstRender">Indicates whether this is the first time the component has been rendered.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            await base.OnAfterRenderAsync(firstRender);
-            if (firstRender)
-            {
-                // Initialize CodeMirror
-                await JS.InvokeVoidAsync("initializeCodeMirror", "CodeEditor", PluginConfig).ConfigureAwait(false);
-            }
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         /// <summary>

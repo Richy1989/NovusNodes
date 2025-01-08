@@ -5,20 +5,21 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-  </PropertyGroup>
+	 <EnableDynamicLoading>true</EnableDynamicLoading>
+ </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="GaelJ.BlazorCodeMirror6" Version="0.9.1" />
     <PackageReference Include="MudBlazor" Version="7.15.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NovusNodoPluginLibrary\NovusNodoPluginLibrary.csproj" />
+	  <ProjectReference Include="..\NovusNodoPluginLibrary\NovusNodoPluginLibrary.csproj">
+	  </ProjectReference>
   </ItemGroup>
-
-
 
 </Project>

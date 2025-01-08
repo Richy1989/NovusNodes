@@ -49,6 +49,8 @@
 
     public string EnableDisableSwitch { get; set; } = "Enabled";
 
+   
+
     public bool IsNodeEnabled
     {
         get
@@ -126,6 +128,7 @@
     /// </summary>
     protected override void OnInitialized()
     {
+        
         Parameters = PrepareParameters(NovusUIManagement.SideBarUI);
 
         DynNodeUIType = NovusUIManagement.SideBarUI;

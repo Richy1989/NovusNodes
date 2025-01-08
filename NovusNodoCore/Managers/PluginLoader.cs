@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
 
@@ -9,6 +10,7 @@ namespace NovusNodoCore.Managers
     /// </summary>
     public class PluginLoader
     {
+        public static List<Assembly> loadedAssemblies = [];
         private ExecutionManager executionManager;
         private ILogger<PluginLoader> logger;
 
@@ -50,26 +52,27 @@ namespace NovusNodoCore.Managers
 
                 foreach (var file in files)
                 {
-                    if (file.EndsWith("Plugins.dll"))
+                    Console.WriteLine($"Loaded File Name: {file}");
+                    var assembly = Assembly.LoadFile(file);
+                    loadedAssemblies.Add(assembly);
+                    Console.WriteLine($"Loaded Assembly Name: {assembly.GetName()}");
+                    var types = assembly.GetTypes();
+                    foreach (var type in types)
                     {
-                        var assembly = Assembly.LoadFile(file);
-                        var types = assembly.GetTypes();
-                        foreach (var type in types)
+                        if (type.GetInterfaces().Contains(typeof(IPluginBase)))
                         {
-                            if (type.GetInterfaces().Contains(typeof(IPluginBase)))
+                            var instance = Activator.CreateInstance(type);
+
+                            if (instance == null)
                             {
-                                var instance = Activator.CreateInstance(type);
-
-                                if (instance == null)
-                                {
-                                    continue;
-                                }
-
-                                IPluginBase plugin = (IPluginBase)instance;
-
-                                executionManager.AvailablePlugins.Add(plugin.ID, plugin);
-                                logger.LogInformation("Loaded plugin: {0}", plugin.Name);
+                                continue;
                             }
+
+                            IPluginBase plugin = (IPluginBase)instance;
+
+                            executionManager.AvailablePlugins.Add(plugin.ID, plugin);
+                            logger.LogInformation("Loaded plugin: {0}", plugin.Name);
+
                         }
                     }
                 }

@@ -72,7 +72,7 @@ function GJSInitSettingsSideBar() {
     resizer.addEventListener("mousedown", mousedownListener);
 }
 
-let codeMirrorInstance;
+/*let codeMirrorInstance;*/
 
 function initializeCodeMirror(elementId, initialCode) {
     const element = document.getElementById(elementId);
@@ -87,15 +87,15 @@ function initializeCodeMirror(elementId, initialCode) {
     }
 }
 
-function getCodeMirrorValue() {
-    return codeMirrorInstance ? codeMirrorInstance.getValue() : "";
-}
+//function getCodeMirrorValue() {
+//    return codeMirrorInstance ? codeMirrorInstance.getValue() : "";
+//}
 
-function setCodeMirrorValue(newValue) {
-    if (codeMirrorInstance) {
-        codeMirrorInstance.setValue(newValue);
-    }
-}
+//function setCodeMirrorValue(newValue) {
+//    if (codeMirrorInstance) {
+//        codeMirrorInstance.setValue(newValue);
+//    }
+//}
 
 //window.scrollToBottom = (element) => {
 //    element.scrollTop = element.scrollHeight;
