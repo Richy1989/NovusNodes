@@ -43,7 +43,7 @@ namespace NovusNodo.Components.Layout
             });
             await InvokeAsync(async () =>
             {
-                if(autoScrollDebugWindow)
+                if (autoScrollDebugWindow)
                     await ScrollManager.ScrollToBottomAsync(".scrollable-drawer-content", ScrollBehavior.Smooth);
             });
         }

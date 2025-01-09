@@ -4,25 +4,22 @@
 @inject IJSRuntime JS
 @inject ILogger<DebugEntry> Logger
 
-<MudPaper Width="100%">
-    <MudCardContent>
-        <MudText Typo="Typo.subtitle2">@Timestamp.ToString("g")</MudText>
-        <MudText Typo="Typo.body2" Color="Color.Secondary">@Tag</MudText>
 
-        <div id="@string.Format("{0}", MessageID)"></div>
-
-    </MudCardContent>
-</MudPaper>
+<MudContainer>
+    <MudText Typo="Typo.subtitle2">@Timestamp.ToString("g")</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary">@Tag</MudText>
+    <div id="@string.Format("{0}", MessageID)" style="min-height:200px;"></div>
+</MudContainer>
 
 <style>
 
 
-    @string.Format("#{0}", MessageID)
+    /* @string.Format("#{0}", MessageID)
     {
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    }
+    } */
 </style>
 
 @code {
@@ -31,19 +28,32 @@
     [Parameter] public string MessageID { get; set; }
     [Parameter] public JsonObject Message { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
+        try
+        {
+            await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error in creating the Json Editor for debug entry {MessageID}");
+        }
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
-            try
-            {
-                await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, $"Error in creting the Json Editor for debug entry {MessageID}");
-            }
-        }
+        // if (firstRender)
+        // {
+        //     var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
+        //     try
+        //     {
+        //         await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Logger.LogError(ex, $"Error in creting the Json Editor for debug entry {MessageID}");
+        //     }
+        // }
     }
 }

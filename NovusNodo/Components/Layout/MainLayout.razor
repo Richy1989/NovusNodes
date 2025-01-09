@@ -23,35 +23,28 @@
         <NavMenu />
     </MudDrawer>
     <MudDrawer @bind-Open="NovusUIManagement.SettingsDrawerOpen" Class="custom-drawer" Width="440px" Anchor="Anchor.End" ClipMode="DrawerClipMode.Docked" Variant="DrawerVariant.Persistent" Elevation="2">
-
-        <MudDrawerHeader>
-            <MudText Typo="Typo.h6">Settings</MudText>
-        </MudDrawerHeader>
-        
-            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" MinimumTabWidth="20px" PanelClass="pa-4">
-                <MudTabPanel Icon="@Icons.Material.Filled.History">
-                <div style="display: flex; flex-direction: row;  justify-content: space-around; ">
-                    <MudButton Onclick="ClearDebugLog" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ClearAll" Color="Color.Primary" FullWidth="true">Clear Debug Log</MudButton>
-                    <MudSwitch @bind-Value="autoScrollDebugWindow" Style="padding-left:10px;" Color="Color.Primary" Label="Auto Scroll" UncheckedColor="Color.Warning"/>
-                </div>
-                    <MudPaper Class="scrollable-drawer-content d-flex flex-column flex-grow-1 gap-4 overflow-x-auto"  Elevation="0" Height="100vh" >
-                        @foreach (var debug in ExecutionManager.DebugLog)
-                        {
-                            <DebugEntry Timestamp="DateTime.Now" MessageID="@debug.Key" Tag="Info" Message="@debug.Value"></DebugEntry>
-                        }
-                    </MudPaper>
-                </MudTabPanel>
-                <MudTabPanel Icon="@Icons.Material.Filled.Settings">
-                    <MudText>Content Two</MudText>
-                </MudTabPanel>
-                <MudTabPanel Icon="@Icons.Material.Filled.History">
-                    <MudText>Content Three</MudText>
-                </MudTabPanel>
-                <MudTabPanel Icon="@Icons.Material.Filled.AccountBox" Disabled="true">
-                    <MudText>Content Disabled</MudText>
-                </MudTabPanel>
-            </MudTabs>
+        <MudContainer Class="pa-0 d-flex align-start flex-grow-1" Style="width: 100%; height:100%;" MaxWidth="MaxWidth.False">
+            <MudContainer Class="pa-0" style="width:100%; height:100%">
+                <MudTabs Rounded="true" PanelClass="pa-0 flex-grow-1 overflow-x-auto" MinimumTabWidth="20px" Style="height:100%;">
+                    <MudTabPanel Icon="@Icons.Material.Filled.History">
+                        <MudContainer Class="pa-0 d-flex flex-column flex-grow-1" Style="width: 100%; height:100%;" MaxWidth="MaxWidth.False">
+                            <div style="display: flex; flex-direction: row;  justify-content: space-around; ">
+                                <MudButton Onclick="ClearDebugLog" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ClearAll" Color="Color.Primary" FullWidth="true">Clear Debug Log</MudButton>
+                                <MudSwitch @bind-Value="autoScrollDebugWindow" Style="padding-left:10px;" Color="Color.Primary" Label="Auto Scroll" UncheckedColor="Color.Warning" />
+                            </div>
+                            <MudContainer Class="scrollable-drawer-content pa-0 d-flex flex-column overflow-x-auto" Style="width: 100%; height:100%;" MaxWidth="MaxWidth.False">
+                                @foreach (var debug in ExecutionManager.DebugLog)
+                                {
+                                    <DebugEntry Timestamp="DateTime.Now" MessageID="@debug.Key" Tag="Info" Message="@debug.Value"></DebugEntry>
+                                }
+                            </MudContainer>
+                        </MudContainer>
+                    </MudTabPanel>
+                </MudTabs>
+            </MudContainer>
+        </MudContainer>
     </MudDrawer>
+
     <MudMainContent Style="height: 100vh">
         @Body
     </MudMainContent>

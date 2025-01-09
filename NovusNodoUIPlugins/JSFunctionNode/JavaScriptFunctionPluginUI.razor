@@ -17,23 +17,18 @@
                         @bind-Doc=@PluginConfig
                         Theme=@Theme
                         Language=@CodeMirrorLanguage.Javascript
-                        AllowHorizontalResize=true
-                        AllowVerticalResize=true
-                        EmbedUploadsAsDataUrls
-                        Height="50em" />
+                        AllowHorizontalResize=false
+                        AllowVerticalResize=false
+                        MaxHeight="35em"
+                        Width="100%">
+                    </CodeMirror6Wrapper>
     </div>
 
 <style>
-    
-    .settings-node h3 {
-        margin: 10px 10px 10px;
-        font-size: 1.2rem;
-    }
-
     .containerForCodeMirror
     {
-        width: 100%;
-        overflow:auto;
+       /*  height:calc(100% - 40px); */
+        background:purple;
     }
 
 </style>
