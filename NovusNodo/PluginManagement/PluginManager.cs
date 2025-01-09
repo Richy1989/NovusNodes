@@ -5,6 +5,7 @@ namespace NovusNodo.PluginManagement
 {
     public static class PluginManager
     {
+        public static string PluginPath { get; } = Path.Combine(Directory.GetCurrentDirectory(), "plugins");
         /// <summary>
         /// Adds plugin components to the service collection.
         /// </summary>
@@ -12,7 +13,12 @@ namespace NovusNodo.PluginManagement
         /// <returns>The updated service collection.</returns>
         public static IServiceCollection AddPluginComponents(this IServiceCollection services)
         {
-            foreach (var dir in Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), "plugins")))
+            if (!Directory.Exists(PluginPath))
+            {
+                Directory.CreateDirectory(PluginPath);
+            }
+
+            foreach (var dir in Directory.GetDirectories(PluginPath))
             {
                 var pluginFile = Path.Combine(dir, Path.GetFileName(dir) + ".dll");
 
@@ -80,10 +86,8 @@ namespace NovusNodo.PluginManagement
         /// </summary>
         public static IServiceCollection LoadStaticFilesOfPlugins(this IServiceCollection services)
         {
-            string executingDir = Directory.GetCurrentDirectory();
-            string path = Path.Combine(executingDir, "plugins");
-
-            foreach (var pluginDirs in Directory.GetDirectories(path))
+            var executingDir = Directory.GetCurrentDirectory();
+            foreach (var pluginDirs in Directory.GetDirectories(PluginPath))
             {
                 var staticFileDir = Directory.GetDirectories(pluginDirs, "wwwroot");
 

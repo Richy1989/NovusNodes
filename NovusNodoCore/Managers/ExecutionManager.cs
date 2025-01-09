@@ -53,7 +53,7 @@ namespace NovusNodoCore.Managers
         }
 
         /// <summary>
-        /// Initializes the execution manager by loading plugins and creating test nodes.
+        /// Initializes the execution manager by loading available plugins and saved data.
         /// </summary>
         public void Initialize()
         {
@@ -65,7 +65,7 @@ namespace NovusNodoCore.Managers
                 // Get all types in the assembly
                 var types = assembly.GetTypes();
 
-                // Find types that are subclasses of TBase
+                // Find types that are subclasses of PluginBase
                 var derivedTypes = types.Where(t => t.IsSubclassOf(typeof(PluginBase)) && !t.IsAbstract);
 
                 foreach (var type in derivedTypes)
