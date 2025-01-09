@@ -7,7 +7,6 @@ namespace NovusNodoUIPlugins.JSFunctionNode
     /// </summary>
     public partial class JavaScriptFunctionPluginUI
     {
-        string text = "";
         /// <summary>
         /// Saves the settings asynchronously.
         /// </summary>

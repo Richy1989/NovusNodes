@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.Loader;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
@@ -10,8 +11,7 @@ namespace NovusNodoCore.Managers
     /// </summary>
     public class PluginLoader
     {
-        public static List<Assembly> loadedAssemblies = [];
-        private ExecutionManager executionManager;
+        public List<Assembly> LoadedAssemblies { get; set; } = [];
         private ILogger<PluginLoader> logger;
 
         /// <summary>
@@ -20,16 +20,53 @@ namespace NovusNodoCore.Managers
         /// <param name="logger">The logger instance.</param>
         public PluginLoader(ILogger<PluginLoader> logger)
         {
+            //Add Novus Core services
             this.logger = logger;
         }
 
-        /// <summary>
-        /// Initializes the plugin loader with the specified execution manager.
-        /// </summary>
-        /// <param name="executionManager">The execution manager instance.</param>
-        public void Initialize(ExecutionManager executionManager)
+        public void LoadUIPlugins()
         {
-            this.executionManager = executionManager;
+            string executingDir = Directory.GetCurrentDirectory();
+            string path = Path.Combine(executingDir, "plugins");
+
+            foreach (var pluginDirs in Directory.GetDirectories(path))
+            {
+                var staticFileDir = Directory.GetDirectories(pluginDirs, "wwwroot");
+                foreach (var file in Directory.GetFiles(pluginDirs, "*.dll"))
+                {
+                    var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file);
+                    var list = assembly.GetExportedTypes().Select(s => (s.FullName ?? "", s.BaseType?.Name ?? "")).ToList();
+                    
+                    LoadedAssemblies.Add(assembly);
+                }
+                if (staticFileDir.Length > 0)
+                {
+                    var staticFileContentDir = Path.Combine(staticFileDir[0], "_content");
+
+                    foreach (var dir in Directory.GetDirectories(staticFileContentDir))
+                    {
+                        if (dir.Contains("MudBlazor"))
+                        {
+                            continue;
+                        }
+
+                        string PluginStaticFilesDirName = Path.GetFileName(Path.TrimEndingDirectorySeparator(dir));
+                        string localwwwRootPath = Path.Combine(executingDir, "wwwroot", "_content", PluginStaticFilesDirName);
+                        //If the plugin does not exist we copy the files
+                        if (Directory.Exists(localwwwRootPath))
+                        {
+                            Directory.Delete(localwwwRootPath, true); // true indicates recursive deletion
+                        }
+
+                        Directory.CreateDirectory(localwwwRootPath);
+                        foreach (string filePath in Directory.GetFiles(dir))
+                        {
+                            string fileName = Path.GetFileName(Path.TrimEndingDirectorySeparator(filePath));
+                            File.Copy(filePath, Path.Combine(localwwwRootPath, fileName), true); // Overwrite if exists
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -53,31 +90,65 @@ namespace NovusNodoCore.Managers
                 foreach (var file in files)
                 {
                     Console.WriteLine($"Loaded File Name: {file}");
-                    var assembly = Assembly.LoadFile(file);
-                    loadedAssemblies.Add(assembly);
+                    var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file);
+
+                    GetEmbeddedResourceContent(assembly);
+                    //var assembly = Assembly.LoadFile(file);
+
+                    LoadedAssemblies.Add(assembly);
                     Console.WriteLine($"Loaded Assembly Name: {assembly.GetName()}");
-                    var types = assembly.GetTypes();
-                    foreach (var type in types)
+                }
+            }
+        }
+
+        public static void GetEmbeddedResourceContent(Assembly assembly)
+        {
+            var stream = assembly.GetManifestResourceNames();
+
+
+
+            //using var reader = new StreamReader(stream);
+            //return reader.ReadToEnd();
+        }
+
+        public void RegisterPluginsAtExecutionManager(ExecutionManager executionManager)
+        {
+            foreach (var assembly in LoadedAssemblies)
+            {
+                var types = assembly.GetTypes();
+                foreach (var type in types)
+                {
+                    //if (type.GetInterfaces().Contains(typeof(IPluginBase)))
+                    if (type.BaseType == typeof(PluginBase))
                     {
-                        if (type.GetInterfaces().Contains(typeof(IPluginBase)))
+                        var instance = Activator.CreateInstance(type);
+
+                        if (instance == null)
                         {
-                            var instance = Activator.CreateInstance(type);
-
-                            if (instance == null)
-                            {
-                                continue;
-                            }
-
-                            IPluginBase plugin = (IPluginBase)instance;
-
-                            executionManager.AvailablePlugins.Add(plugin.ID, plugin);
-                            logger.LogInformation("Loaded plugin: {0}", plugin.Name);
-
+                            continue;
                         }
+
+                        PluginBase plugin = (PluginBase)instance;
+
+                        executionManager.AvailablePlugins.Add(plugin.ID, plugin);
+                        logger.LogInformation("Loaded plugin: {0}", plugin.Name);
                     }
                 }
             }
         }
+
+        //private static void getPackageByNameAndVersion(string packageID, string version)
+        //{
+        //    IPackageRepository repo =
+        //            PackageRepositoryFactory.Default
+        //                  .CreateRepository("https://packages.nuget.org/api/v2");
+
+        //    string path = "C:/tmp_repo";
+        //    PackageManager packageManager = new PackageManager(repo, path);
+        //    Console.WriteLine("before dl pkg");
+        //    packageManager.InstallPackage(packageID, SemanticVersion.Parse(version));
+
+        //}
 
         /// <summary>
         /// Gets the list of library paths to search for plugins.
@@ -88,7 +159,7 @@ namespace NovusNodoCore.Managers
             List<string> paths = new();
             string executingDir = Directory.GetCurrentDirectory();
             paths.Add(Path.Combine(executingDir, "../", "NovusNodoPlugins", "bin", "Debug", "net9.0"));
-            paths.Add(Path.Combine(executingDir, "../", "NovusNodoUIPlugins", "bin", "Debug", "net9.0"));
+            //paths.Add(Path.Combine(executingDir, "../", "NovusNodoUIPlugins", "bin", "Debug", "net9.0"));
             return paths;
         }
     }

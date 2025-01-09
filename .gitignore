@@ -3,6 +3,8 @@
 
 # Ignore the entire folder
 libnode
+NovusNodo/plugins
+NovusNodo/wwwroot/_content
 
 ### Csharp ###
 ## Ignore Visual Studio temporary files, build results, and

@@ -49,10 +49,10 @@ namespace NovusNodoCore.Managers
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="pluginLoader">The plugin loader.</param>
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager.</param>
-        public ExecutionManager(IServiceProvider serviceProvider, PluginLoader pluginLoader, NodeJSEnvironmentManager nodeJSEnvironmentManager)
+        public ExecutionManager(IServiceProvider serviceProvider, NodeJSEnvironmentManager nodeJSEnvironmentManager)
         {
             this.serviceProvider = serviceProvider;
-            this.pluginLoader = pluginLoader;
+            //this.pluginLoader = pluginLoader;
 
             NodeJSEnvironmentManager = nodeJSEnvironmentManager;
             NodeJSEnvironmentManager.Initialize();
@@ -65,8 +65,8 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public void Initialize()
         {
-            pluginLoader.Initialize(this);
-            pluginLoader.LoadPlugins();
+            //pluginLoader.Initialize(this);
+            //pluginLoader.LoadPlugins();
         }
 
         /// <summary>

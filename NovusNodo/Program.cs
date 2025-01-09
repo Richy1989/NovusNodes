@@ -1,8 +1,13 @@
+using System.Runtime.Loader;
+using System.Reflection;
 using MudBlazor.Services;
 using NovusNodo.Components;
 using NovusNodo.Management;
 using NovusNodoCore.Managers;
 using NovusNodoCore;
+using Microsoft.Extensions.Logging;
+using NovusNodoPluginLibrary;
+using Microsoft.AspNetCore.Components;
 
 namespace NovusNodo
 {
@@ -15,8 +20,6 @@ namespace NovusNodo
             // Add logging to console
             builder.Logging.AddConsole();
 
-            //Add Novus Core services
-            builder.Services.AddSingleton<ExecutionManager>();
             builder.Services.AddSingleton<NovusUIManagement>();
 
             builder.Services.AddNovusCoreComponents();
@@ -32,7 +35,12 @@ namespace NovusNodo
 
             //Initialize Novus Core
             ExecutionManager executionManager = app.Services.GetRequiredService<ExecutionManager>();
-            Task.Run(() => executionManager.Initialize());
+            executionManager.Initialize();
+
+            PluginLoader pluginLoader = app.Services.GetRequiredService<PluginLoader>();
+            pluginLoader.LoadPlugins();
+            pluginLoader.LoadUIPlugins();
+            pluginLoader.RegisterPluginsAtExecutionManager(executionManager);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

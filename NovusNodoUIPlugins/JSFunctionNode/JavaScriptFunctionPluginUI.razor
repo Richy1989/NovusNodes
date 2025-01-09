@@ -11,8 +11,18 @@
 @inject IJSRuntime JS
 
 
- <h3>JavaScript Settings Node</h3>
-<div class="containerForCodeMirror"><CodeMirror6Wrapper Placeholder="Enter your code.... (2)" @bind-Doc=@text /></div>
+<h3>JavaScript Settings Node</h3>
+    <div class="containerForCodeMirror">
+    <CodeMirror6Wrapper Placeholder="Enter your code.... (2)"
+                        @bind-Doc=@PluginConfig
+                        Theme=@Theme
+                        Language=@CodeMirrorLanguage.Javascript
+                        AllowHorizontalResize=true
+                        AllowVerticalResize=true
+                        EmbedUploadsAsDataUrls
+                        Height="50em" />
+    </div>
+
 <style>
     
     .settings-node h3 {
@@ -23,7 +33,12 @@
     .containerForCodeMirror
     {
         width: 100%;
-        height: 400px;
+        overflow:auto;
     }
 
 </style>
+
+@code
+{
+    private ThemeMirrorTheme Theme = ThemeMirrorTheme.OneDark;
+}

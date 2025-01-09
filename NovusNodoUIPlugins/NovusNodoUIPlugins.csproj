@@ -1,20 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>disable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-	 <EnableDynamicLoading>true</EnableDynamicLoading>
- </PropertyGroup>
+	<TargetFramework>net9.0</TargetFramework>
+	<Nullable>disable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+	 <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+	<FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GaelJ.BlazorCodeMirror6" Version="0.9.1" />
-    <PackageReference Include="MudBlazor" Version="7.15.0" />
+		<PackageReference Include="GaelJ.BlazorCodeMirror6" Version="0.9.1" />
+		<PackageReference Include="MudBlazor" Version="7.15.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,4 +22,8 @@
 	  </ProjectReference>
   </ItemGroup>
 
+  <ItemGroup>
+	<Folder Include="wwwroot\" />
+	<Folder Include="Properties\PublishProfiles\" />
+  </ItemGroup>	
 </Project>

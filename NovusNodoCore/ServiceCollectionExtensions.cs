@@ -1,4 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.ComponentModel;
+using System.Reflection;
+using System.Runtime.Loader;
+using System.Runtime.Serialization;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 using NovusNodoCore.Managers;
 
 namespace NovusNodoCore
@@ -18,10 +23,11 @@ namespace NovusNodoCore
             // Register your services, components, etc., here.
             services.AddSingleton<ExecutionManager>();
             services.AddSingleton<NodeJSEnvironmentManager>();
-            services.AddSingleton<PluginLoader>();
             services.AddTransient<NodePageManager>();
-
+            services.AddTransient<PluginLoader>();
+           
             return services;
         }
     }
+
 }
