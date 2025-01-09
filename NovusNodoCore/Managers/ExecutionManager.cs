@@ -19,11 +19,6 @@ namespace NovusNodoCore.Managers
         private readonly IServiceProvider serviceProvider;
 
         /// <summary>
-        /// The plugin loader responsible for loading plugins.
-        /// </summary>
-        private readonly PluginLoader pluginLoader;
-
-        /// <summary>
         /// Event fired when DebugLog is updated.
         /// </summary>
         public event Func<(string, JsonObject), Task> DebugLogChanged;
@@ -52,12 +47,9 @@ namespace NovusNodoCore.Managers
         public ExecutionManager(IServiceProvider serviceProvider, NodeJSEnvironmentManager nodeJSEnvironmentManager)
         {
             this.serviceProvider = serviceProvider;
-            //this.pluginLoader = pluginLoader;
 
             NodeJSEnvironmentManager = nodeJSEnvironmentManager;
             NodeJSEnvironmentManager.Initialize();
-
-            LoadSavedData();
         }
 
         /// <summary>
@@ -65,8 +57,30 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public void Initialize()
         {
-            //pluginLoader.Initialize(this);
-            //pluginLoader.LoadPlugins();
+            // Get all loaded assemblies in the current application domain
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            foreach (var assembly in assemblies)
+            {
+                // Get all types in the assembly
+                var types = assembly.GetTypes();
+
+                // Find types that are subclasses of TBase
+                var derivedTypes = types.Where(t => t.IsSubclassOf(typeof(PluginBase)) && !t.IsAbstract);
+
+                foreach (var type in derivedTypes)
+                {
+                    var instance = Activator.CreateInstance(type);
+                    if (instance == null)
+                    {
+                        continue;
+                    }
+                    PluginBase plugin = (PluginBase)instance;
+                    AvailablePlugins.Add(plugin.ID, plugin);
+                }
+            }
+
+            LoadSavedData();
         }
 
         /// <summary>

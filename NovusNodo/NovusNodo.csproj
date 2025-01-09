@@ -7,6 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="plugins\**" />
+    <Compile Remove="wwwroot\_content\**" />
+    <Content Remove="plugins\**" />
+    <Content Remove="wwwroot\_content\**" />
+    <EmbeddedResource Remove="plugins\**" />
+    <EmbeddedResource Remove="wwwroot\_content\**" />
+    <None Remove="plugins\**" />
+    <None Remove="wwwroot\_content\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Components\Pages\Node.razor" />
   </ItemGroup>
 
@@ -17,6 +28,8 @@
 
   <ItemGroup>
     <PackageReference Include="Blazor.JsonEditor" Version="1.1.0" />
+    <PackageReference Include="McMaster.NETCore.Plugins" Version="2.0.0" />
+    <PackageReference Include="McMaster.NETCore.Plugins.Mvc" Version="2.0.0" />
     <PackageReference Include="MudBlazor" Version="7.*" />
   </ItemGroup>
 
@@ -30,7 +43,5 @@
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="if exist &quot;$(ProjectDir)wwwroot\_content&quot; rmdir /S /Q &quot;$(ProjectDir)wwwroot\_content&quot;" />
   </Target>
-
-
 
 </Project>
