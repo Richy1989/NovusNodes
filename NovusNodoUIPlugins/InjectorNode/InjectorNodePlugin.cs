@@ -4,8 +4,9 @@ using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
 using NovusNodoPluginLibrary.Helper;
+using NovusNodoUIPlugins.JSFunctionNode;
 
-namespace NovusNodoPlugins
+namespace NovusNodoUIPlugins.InjectorNode
 {
     /// <summary>
     /// Plugin class for injecting nodes with specific configurations and workloads.
@@ -21,6 +22,7 @@ namespace NovusNodoPlugins
         /// </summary>
         public InjectorNodePlugin()
         {
+            UI = typeof(InjectorNodeUI);
             JsonConfig = "{\"Interval\": 1000}";
             AddWorkTask(Workload);
 

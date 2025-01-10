@@ -26,9 +26,9 @@
         <MudContainer Class="pa-0 d-flex align-start flex-grow-1" Style="width: 100%; height:100%;" MaxWidth="MaxWidth.False">
             <MudContainer Class="pa-0" style="width:100%; height:100%">
                 <MudTabs Rounded="true" PanelClass="pa-0 flex-grow-1 overflow-x-auto" MinimumTabWidth="20px" Style="height:100%;">
-                    <MudTabPanel Icon="@Icons.Material.Filled.History">
+                    <MudTabPanel Icon="fas fa-bug">
                         <MudContainer Class="pa-0 d-flex flex-column flex-grow-1" Style="width: 100%; height:100%;" MaxWidth="MaxWidth.False">
-                            <div style="display: flex; flex-direction: row; justify-content: space-around; margin-bottom:5px;">
+                            <div style="display: flex; flex-direction: row; justify-content: space-around; margin:5px 0px 5px 0px;">
                                 <MudButton Onclick="ClearDebugLog" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ClearAll" Color="Color.Primary" FullWidth="true">Clear Debug Log</MudButton>
                                 <MudSwitch @bind-Value="autoScrollDebugWindow" Style="padding-left:10px;" Color="Color.Primary" Label="Auto Scroll" UncheckedColor="Color.Warning" />
                             </div>

@@ -1,0 +1,44 @@
+﻿@using MudBlazor
+@using NovusNodoPluginLibrary.Enums
+
+<MudGrid>
+    <MudItem xs="1" Class="d-flex justify-center align-center">
+        <MudText>msg.</MudText>
+    </MudItem>
+    <MudItem xs="2">
+        <MudTextField T="string" @bind-Value="@Item.Variable" Variant="Variant.Text" Margin="Margin.Dense" Label="Variable"></MudTextField>
+    </MudItem>
+    <MudItem xs="1" Class="d-flex justify-center align-center">
+        <MudText>=</MudText>
+    </MudItem>
+    <MudItem xs="2">
+        <MudSelect T="PossibleTypesEnum" @bind-Value="@Item.SelectedType" Label="Standard" Variant="Variant.Text" Margin="Margin.Dense">
+            @foreach (var name in Enum.GetNames<PossibleTypesEnum>())
+            {
+                <MudSelectItem Value="@name"></MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="5">
+        <MudTextField T="string" @bind-Value="@Item.Value" Variant="Variant.Text" Margin="Margin.Dense" Label="Value"></MudTextField>
+    </MudItem>
+    <MudItem xs="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(async () => await RemoveButton(Item.ID))"></MudIconButton>
+    </MudItem>
+</MudGrid>
+
+
+<style>
+    .mud-input,
+    .mud-input-control > .mud-input-control-input-container > .mud-input-label-inputcontrol {
+    font-size: 0.875rem; /* 1 rem is default */
+    }
+</style>
+
+@code
+{
+    [Parameter] public Item Item { get; set; }
+    [Parameter] public Func<string, Task> RemoveButton { get; set; }
+
+    private static string variable = "msg.";
+}

@@ -1,0 +1,130 @@
+﻿@using NovusNodoPluginLibrary
+@inherits NovusUIPluginBase
+
+@using MudBlazor
+@using NovusNodoPluginLibrary.Enums
+
+<MudContainer Class="pa-0" MaxWidth="MaxWidth.ExtraLarge">
+    <MudPaper Elevation="4" Class="pa-0">
+
+        <MudContainer Class="d-flex align-center justify-space-between">
+            <MudItem>
+                <MudText Typo="Typo.h5" Align="Align.Center">Injector Node Configuration</MudText>
+            </MudItem>
+            <MudItem>
+                <MudIconButton OnClick="AddNewEntry" Icon="@Icons.Material.Filled.Add"></MudIconButton>
+            </MudItem>
+        </MudContainer>
+
+        <MudDivider Class="my-2" />
+        <MudTable Items="@Entries" Hover="true" Breakpoint="Breakpoint.Sm">
+            <RowTemplate>
+                <MudTd Class="pa-1"><DataRowEntry Item="@context" RemoveButton="RemoveButton"></DataRowEntry></MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+
+    <MudSelect SelectedValuesChanged="InjectionModeChanged" @bind-Value="selectedInjectionMode" T="string" Label="Repeat" Variant="Variant.Outlined" Margin="Margin.Dense">
+        <MudSelectItem Value='"None"' />
+        <MudSelectItem Value='"Interval"' />
+    </MudSelect>
+
+
+    @if (isIntervalSelectionVisible)
+    {
+        <MudGrid Class="d-flex align-items-center">
+            <!-- Text "Every" -->
+            <MudItem>
+                <MudText Class="align-center">Every</MudText>
+            </MudItem>
+
+            <!-- Input for a value -->
+            <MudItem Class="ml-2">
+                <MudTextField T="double" @bind-Value="selectedInjectionIntervalValue" Variant="Variant.Outlined" Placeholder="Value" Margin="Margin.Dense" />
+            </MudItem>
+
+            <!-- Selection for "Seconds, Minutes, Hours" -->
+            <MudItem Class="ml-2">
+                <MudSelect T="string" Variant="Variant.Outlined" @bind-Value="selectedInjectionInterval" Margin="Margin.Dense">
+                    <MudSelectItem Value="@("Milliseconds")"></MudSelectItem>
+                    <MudSelectItem Value="@("Seconds")"></MudSelectItem>
+                    <MudSelectItem Value="@("Minutes")"></MudSelectItem>
+                    <MudSelectItem Value="@("Hours")"></MudSelectItem>
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+    }
+</MudContainer>
+
+@code {
+
+    private bool isIntervalSelectionVisible = false;
+    private string selectedInjectionMode = "None";
+    private string selectedInjectionInterval = "Seconds";
+    private double selectedInjectionIntervalValue = 5;
+
+
+    /// <summary>
+    /// Gets or sets the collection of entries.
+    /// </summary>
+    public IEnumerable<Item> Entries { get; set; } = new List<Item>();
+
+    /// <summary>
+    /// Method invoked when the component is initialized.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        FillItems();
+        base.OnInitialized();
+    }
+
+    /// <summary>
+    /// Fills the initial items in the Entries collection.
+    /// </summary>
+    private void FillItems()
+    {
+        AddNewEntry();
+    }
+
+    /// <summary>
+    /// Removes an item from the Entries collection based on the provided ID.
+    /// </summary>
+    /// <param name="id">The ID of the item to remove.</param>
+    private async Task RemoveButton(string id)
+    {
+        // Remove the item from the list
+        Entries = Entries.Where(x => x.ID != id).ToList();
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+    /// <summary>
+    /// Adds a new entry to the Entries collection.
+    /// </summary>
+    private void AddNewEntry()
+    {
+        Item newItem = new Item
+            {
+                Variable = "payload",
+                Value = "",
+                SelectedType = PossibleTypesEnum.DateTime
+            };
+        // Add the new item to the list
+        Entries = Entries.Append(newItem);
+    }
+
+    private void InjectionModeChanged(IEnumerable<string> values)
+    {
+        selectedInjectionMode = values.FirstOrDefault("none");
+        if (selectedInjectionMode == "Interval")
+        {
+            isIntervalSelectionVisible = true;
+        }
+        else
+        {
+            isIntervalSelectionVisible = false;
+        }
+    }   
+}

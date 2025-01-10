@@ -10,6 +10,7 @@ namespace NovusNodo.Components.Pages
     public partial class JointJSPaper : ComponentBase, IDisposable
     {
         private bool isInitialized = false;
+
         [Parameter]
         public string TabID { get; set; }
 

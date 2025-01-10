@@ -2,6 +2,8 @@
 
 @using NovusNodo.Components.Pages
 @using NovusNodo.Helper
+@using NovusNodoCore.NodeDefinition
+@implements IDisposable
 @inject NovusNodo.Management.NovusUIManagement NovusUIManagement
 @inject ILogger<SettingsSidebar> Logger
 @inject ILoggerFactory LoggerFactory
@@ -15,7 +17,7 @@
             <div class="name">
                 <MudTextField T="string" @bind-value="CurrentSelectedNodeName" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.DriveFileRenameOutline" HelperText="Change the Node Name" HelperTextOnFocus="true" Variant="Variant.Text" />
             </div>
-            <MudSwitch @bind-Value="@IsNodeEnabled" Color="Color.Success">
+            <MudSwitch @bind-Value="@IsNodeEnabled" Color="Color.Success" Style="padding-bottom:5px;">
                 @if (NovusUIManagement.CurrentlySelectedNode != null)
                 {
                     @if (NovusUIManagement.CurrentlySelectedNode.IsEnabled)
@@ -28,6 +30,7 @@
                     }
                 }
             </MudSwitch>
+            
             <MudContainer Class="d-flex flex-column flex-grow-1" Style="height:100%; width:100%; padding:0px;" MaxWidth="MaxWidth.False">
                 @if (DynNodeUIType is not null)
                 {
@@ -46,6 +49,10 @@
 
 @code
 {
+    /// <summary>
+    /// Indicates whether the object has been disposed.
+    /// </summary>
+    private bool _disposedValue;
 
     public string EnableDisableSwitch { get; set; } = "Enabled";
 
@@ -136,39 +143,41 @@
         if (NovusUIManagement.CurrentlySelectedNode != null)
             CurrentSelectedNodeName = NovusUIManagement.CurrentlySelectedNode.Name;
 
-        NovusUIManagement.NodeDoubleClicked += async (node) =>
+        NovusUIManagement.NodeDoubleClicked += OnNodeDoubleClicked;
+    }
+
+    private async Task OnNodeDoubleClicked(INodeBase node)
+    {
+        Type ui = null;
+        if (node.UI != null)
         {
-            Type ui = null;
-            if (node.UI != null)
-            {
-                ui = node.UI;
-            }
-            else
-            {
-                ui = typeof(BlankConfig);
-            }
+            ui = node.UI;
+        }
+        else
+        {
+            ui = typeof(BlankConfig);
+        }
 
-            Parameters = PrepareParameters(ui);
+        Parameters = PrepareParameters(ui);
 
-            if (DynNodeUIType == ui && DynNodeUIType != null)
-            {
-                DynNodeUIType = null;
-                await InvokeAsync(() =>
-                {
-                    base.StateHasChanged();
-                });
-            }
-            DynNodeUIType = ui;
-
-            CurrentSelectedNodeName = node.Name;
-
-            await JS.InvokeVoidAsync("SetResizableSidebarWidth", "400px");
-
+        if (DynNodeUIType == ui && DynNodeUIType != null)
+        {
+            DynNodeUIType = null;
             await InvokeAsync(() =>
             {
                 base.StateHasChanged();
             });
-        };
+        }
+        DynNodeUIType = ui;
+
+        CurrentSelectedNodeName = node.Name;
+
+        await JS.InvokeVoidAsync("SetResizableSidebarWidth", "900px");
+
+        await InvokeAsync(() =>
+        {
+            base.StateHasChanged();
+        });
     }
 
     /// <summary>
@@ -188,5 +197,31 @@
         }
 
         return parameters;
+    }
+
+    /// <summary>
+    /// Public implementation of Dispose pattern callable by consumers.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Protected implementation of Dispose pattern.
+    /// </summary>
+    /// <param name="disposing">Indicates whether the method is called from Dispose.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                NovusUIManagement.NodeDoubleClicked -= OnNodeDoubleClicked;
+            }
+
+            _disposedValue = true;
+        }
     }
 }
