@@ -69,6 +69,14 @@ namespace NovusNodo.Components.Pages
             });
         }
 
+        [JSInvokable("NovusHome.InjectorElementClicked")]
+        public async Task InjectorElementClicked(string id)
+        {
+            Logger.LogDebug($"Injector Element Clicked {id} in Tab: {TabID}");
+            await NodePageManager.AvailableNodes[id].TriggerManualExecute();
+
+        }
+
         /// <summary>
         /// Invokable method to handle the resizing of an element.
         /// </summary>
@@ -146,7 +154,7 @@ namespace NovusNodo.Components.Pages
         private async Task NodesAdded(INodeBase node)
         {
             Logger.LogDebug($"Adding node {node.ID} to JointJS paper {TabID}");
-            await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{Helper.Helper.ConvertColorToCSSColor(node.Background)}", $"{node.Name}", node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y]);
+            await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{Helper.Helper.ConvertColorToCSSColor(node.Background)}", $"{node.Name}", node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y, ((double)(node.NodeType))]);
             await AddPorts(node);
         }
 

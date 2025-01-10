@@ -18,65 +18,64 @@ namespace NovusNodoPluginLibrary
             WorkTasks = new Dictionary<string, Func<JsonObject, Task<JsonObject>>>();
         }
 
-        /// <summary>
-        /// Gets or sets the function to save settings asynchronously.
-        /// </summary>
+        /// <inheritdoc/>
         public Func<Task> SaveSettings { get; set; }
 
-        /// <summary>
-        /// Gets or sets the callback function to execute JavaScript code.
-        /// </summary>
+        /// <inheritdoc/>
         public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
 
-        /// <summary>
-        /// Gets or sets the function to update the debug log.
-        /// </summary>
+        /// <inheritdoc/>
         public Func<string, JsonObject, Task> UpdateDebugLog { get; set; }
 
-        /// <summary>
-        /// Gets or sets the logger instance for the plugin.
-        /// </summary>
-        public ILogger Logger { get; set; }
-
-        /// <summary>
-        /// Gets or sets the UI type associated with the plugin.
-        /// </summary>
-        public Type UI { get; set; }
-
-        /// <summary>
-        /// Gets the unique identifier for the plugin.
-        /// </summary>
-        public abstract string ID { get; }
-
-        /// <summary>
-        /// Gets or sets the name of the plugin.
-        /// </summary>
-        public abstract string Name { get; set; }
-
-        /// <summary>
-        /// Gets the background color of the plugin.
-        /// </summary>
-        public abstract Color Background { get; }
-
-        /// <summary>
-        /// Gets the type of the node.
-        /// </summary>
-        public abstract NodeType NodeType { get; }
-
-        /// <summary>
-        /// Gets or sets the JSON configuration.
-        /// </summary>
-        public string JsonConfig { get; set; } = "";
-
-        /// <summary>
-        /// Gets or sets the parent node.
-        /// </summary>
+        /// <inheritdoc/>
         public IPluginBase ParentNode { get; set; }
 
+        /// <inheritdoc/>
+        public ILogger Logger { get; set; }
+
+        /// <inheritdoc/>
+        public Type UI { get; set; }
+
+        /// <inheritdoc/>
+        public abstract string ID { get; }
+
+        /// <inheritdoc/>
+        public abstract string Name { get; set; }
+
+        /// <inheritdoc/>
+        public abstract Color Background { get; }
+
+        /// <inheritdoc/>
+        public abstract NodeType NodeType { get; }
+
+        private string jsonConfig = "";
+        /// <inheritdoc/>
+        public string JsonConfig
+        {
+            get { return jsonConfig; }
+            set
+            {
+                jsonConfig = value;
+                Task.Run(async () =>
+                {
+                    if (ConfigUpdated != null)
+                        await ConfigUpdated().ConfigureAwait(false);
+                });
+            }
+        }
+
         /// <summary>
-        /// Gets the dictionary of work tasks.
+        /// Event triggered when the configuration is updated.
         /// </summary>
+        protected Func<Task> ConfigUpdated;
+
+        /// <inheritdoc/>
         public IDictionary<string, Func<JsonObject, Task<JsonObject>>> WorkTasks { get; } = new Dictionary<string, Func<JsonObject, Task<JsonObject>>>();
+
+        /// <summary>
+        /// Function triggered when the starter node is triggered.
+        /// </summary>
+        public Func<Task> StarterNodeTriggered = () => { throw new Exception("Only starter nodes are allowed to trigger this"); };
 
         /// <summary>
         /// Adds a work task to the dictionary.
@@ -87,10 +86,7 @@ namespace NovusNodoPluginLibrary
             WorkTasks.Add(Guid.NewGuid().ToString(), task);
         }
 
-        /// <summary>
-        /// Prepares the workload asynchronously.
-        /// </summary>
-        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <inheritdoc/>
         public virtual Task PrepareWorkloadAsync()
         {
             return Task.CompletedTask;

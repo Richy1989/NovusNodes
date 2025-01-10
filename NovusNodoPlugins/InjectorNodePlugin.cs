@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
 using NovusNodoPluginLibrary.Helper;
 
@@ -11,7 +12,9 @@ namespace NovusNodoPlugins
     /// </summary>
     public class InjectorNodePlugin : PluginBase
     {
-        private TimeSpan interval = TimeSpan.FromMilliseconds(5000);
+        private CancellationTokenSource _cancellationTokenSource;
+        private Task _task;
+        private TimeSpan _interval = TimeSpan.FromSeconds(5);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InjectorNodePlugin"/> class.
@@ -20,6 +23,16 @@ namespace NovusNodoPlugins
         {
             JsonConfig = "{\"Interval\": 1000}";
             AddWorkTask(Workload);
+
+            Task.Run(async () =>
+            {
+                await Start().ConfigureAwait(false);
+            });
+
+            ConfigUpdated = async () =>
+            {
+                await PrepareWorkloadAsync().ConfigureAwait(false);
+            };
         }
 
         /// <summary>
@@ -54,9 +67,9 @@ namespace NovusNodoPlugins
             {
                 Console.WriteLine($"Interval: {intervalValue} ({intervalValue?.GetType().Name})");
 
-                if(intervalValue != null)
+                if (intervalValue != null)
                 {
-                    interval = TimeSpan.FromMilliseconds((double)intervalValue);
+                    _interval = TimeSpan.FromMilliseconds((double)intervalValue + 30000);
                 }
             }
         }
@@ -64,20 +77,67 @@ namespace NovusNodoPlugins
         /// <summary>
         /// Defines the workload to be executed by the node.
         /// </summary>
+        /// <param name="jsonData">The JSON data to process.</param>
         /// <returns>A function that represents the asynchronous operation.</returns>
         public async Task<JsonObject> Workload(JsonObject jsonData)
         {
             var time = new { DateTime = DateTime.UtcNow.ToString("O") };
-
             JsonObject jsonObject = JsonSerializer.Deserialize<JsonObject>(JsonSerializer.Serialize(time));
-
-            //var jsonObject = new JsonObject
-            //{
-            //    ["currentDateTime"] = DateTime.UtcNow.ToString("O")
-            //};
-
-            await Task.Delay(interval).ConfigureAwait(false);
             return await Task.FromResult(jsonObject).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Starts the plugin and prepares the workload.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task Start()
+        {
+            await PrepareWorkloadAsync().ConfigureAwait(false);
+
+            if (_task != null && !_task.IsCompleted)
+            {
+                Logger.LogDebug($"Task is already running. {ID}");
+                return;
+            }
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            _task = Task.Run(async () =>
+            {
+                while (!_cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    await Task.Delay(_interval, _cancellationTokenSource.Token).ConfigureAwait(false);
+
+                    if (_cancellationTokenSource.Token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    await StarterNodeTriggered().ConfigureAwait(false);
+                }
+            }, _cancellationTokenSource.Token);
+        }
+
+        /// <summary>
+        /// Stops the plugin and cancels the running task.
+        /// </summary>
+        public void Stop()
+        {
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+                _task.Wait(); // Optionally wait for the task to complete
+                _cancellationTokenSource.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Restarts the plugin by stopping and starting it again.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task Restart()
+        {
+            Stop();
+            await Start().ConfigureAwait(false);
         }
     }
 }

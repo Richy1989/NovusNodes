@@ -14,12 +14,10 @@ namespace NovusNodoCore.NodeDefinition
     /// <typeparam name="ConfigType">The type of the configuration object.</typeparam>
     public class NodeBase : INodeBase, INotifyPropertyChanged
     {
-        private readonly CancellationToken token;
-        private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
-        private bool isInitialized = false;
-        private NodeJSEnvironmentManager nodeJSEnvironmentManager;
-
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private readonly CancellationToken token;
+        private readonly NodeJSEnvironmentManager nodeJSEnvironmentManager;
 
         // Callback for executing JavaScript code
         public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
@@ -27,7 +25,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets the plugin base instance.
         /// </summary>
-        public IPluginBase PluginBase { get; }
+        public PluginBase PluginBase { get; }
 
         /// <summary>
         /// Gets or sets the logger instance for the plugin.
@@ -49,11 +47,25 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public Type UI { get => PluginBase.UI; set => PluginBase.UI = value; }
 
+        /// <summary>Auto Reset event to ensure only one node is executed at a time</summary>
+        private AutoResetEvent autoResetEvent = new(true);
+
         /// <summary>
         /// Gets or sets a value indicating whether the node is enabled.
         /// </summary>
         private bool isEnabled = true;
-        public bool IsEnabled { get { return isEnabled; } set { isEnabled = value; OnPropertyChanged(); } }
+        public bool IsEnabled
+        {
+            get
+            {
+                return isEnabled;
+            }
+            set
+            {
+                isEnabled = value;
+                OnPropertyChanged();
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NodeBase"/> class.
@@ -65,47 +77,48 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="token">The cancellation Token.</param>
         public NodeBase(IPluginBase basedPlugin, ILogger Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, Func<string, JsonObject, Task> updateDebugFunction, CancellationToken token)
         {
-            this.PluginBase = basedPlugin;
+            this.PluginBase = basedPlugin as PluginBase;
             (this.PluginBase as PluginBase).UpdateDebugLog = updateDebugFunction;
             this.Logger = Logger;
             this.token = token;
             this.nodeJSEnvironmentManager = nodeJSEnvironmentManager;
-            Init(basedPlugin);
+            Init();
         }
 
         /// <summary>
         /// Initializes the node with the provided plugin base.
         /// </summary>
-        /// <param name="basedPlugin">The plugin base instance.</param>
-        public void Init(IPluginBase basedPlugin)
+        public void Init()
         {
-            this.PluginBase.Logger = Logger;
+            PluginBase.Logger = Logger;
             PluginBase.ExecuteJavaScriptCodeCallback = ExecuteJavaScriptCode;
 
             InputPort = new InputPort(this);
             OutputPorts = new Dictionary<string, OutputPort>();
 
-            for (int i = 0; i < basedPlugin.WorkTasks.Count; i++)
+            for (int i = 0; i < PluginBase.WorkTasks.Count; i++)
             {
                 var outputPort = new OutputPort(this);
                 OutputPorts.Add(outputPort.ID, outputPort);
             }
 
-            if (basedPlugin.NodeType == NodeType.Starter)
+            if (PluginBase.NodeType == NodeType.Starter)
             {
-                Task executor = new(async () =>
+                (PluginBase as PluginBase).StarterNodeTriggered = async () =>
                 {
-                    try
-                    {
+                    if (IsEnabled)
                         await ExecuteNode(new JsonObject()).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, "Error executing node.");
-                    }
-                });
-                executor.Start();
+                };
             }
+        }
+
+        /// <summary>
+        /// This function is only triggered by starter nodes, when a process should be started.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        public async Task TriggerManualExecute()
+        {
+            await PluginBase.StarterNodeTriggered().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -120,55 +133,49 @@ namespace NovusNodoCore.NodeDefinition
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ExecuteNode(JsonObject jsonData)
         {
-            await semaphoreSlim.WaitAsync().ConfigureAwait(false);
-
-            try
+            autoResetEvent.WaitOne();
+            // Execute all work tasks from the plugin
+            // Then trigger all the connected nodes from the according output port
+            int i = 0;
+            foreach (var task in PluginBase.WorkTasks.Values)
             {
-                bool run = true;
-                while (run && !token.IsCancellationRequested)
+                try
                 {
-                    if (NodeType != NodeType.Starter)
-                    {
-                        run = false;
-                    }
+                    var result = await task(jsonData).ConfigureAwait(false);
 
-                    JsonObject result;
+                    if (token.IsCancellationRequested)
+                        break;
 
-                    if (IsEnabled)
-                    {
-                        if (!isInitialized)
-                        {
-                            await PrepareWorkloadAsync().ConfigureAwait(false);
-                            isInitialized = true;
-                        }
-
-                        int i = 0;
-                        // Execute all work tasks from the plugin
-                        // Then trigger all the connected nodes from the according output port
-                        foreach (var task in PluginBase.WorkTasks.Values)
-                        {
-                            try
-                            {
-                                result = await task(jsonData).ConfigureAwait(false);
-                                
-                                if(token.IsCancellationRequested)
-                                    break;
-
-                                await TriggerNextNodes(OutputPorts.Values.ElementAt(i), result).ConfigureAwait(false);
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.LogError(ex, "Error executing work task.");
-                            }
-                            i++;
-                        }
-                    }
+                    await TriggerNextNodes(OutputPorts.Values.ElementAt(i), result).ConfigureAwait(false);
                 }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Error executing work task.");
+                }
+                i++;
             }
-            finally
+            autoResetEvent.Set();
+        }
+
+        /// <summary>
+        /// Triggers the execution of the next nodes in the sequence.
+        /// </summary>
+        /// <param name="outputPort">The output port to trigger the next nodes from.</param>
+        /// <param name="jsonData">The JSON data to be passed to the next nodes.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        private async Task TriggerNextNodes(OutputPort outputPort, JsonObject jsonData)
+        {
+            if (token.IsCancellationRequested) await Task.CompletedTask;
+
+            foreach (var nextNode in outputPort.NextNodes)
             {
-                semaphoreSlim.Release();
+                nextNode.Value.ParentNode = this;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                if (!token.IsCancellationRequested)
+                    nextNode.Value.ExecuteNode(jsonData);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -250,26 +257,9 @@ namespace NovusNodoCore.NodeDefinition
         }
 
         /// <summary>
-        /// Triggers the execution of the next nodes in the sequence.
+        /// Raises the <see cref="PropertyChanged"/> event.
         /// </summary>
-        /// <param name="outputPort">The output port to trigger the next nodes from.</param>
-        /// <param name="jsonData">The JSON data to be passed to the next nodes.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        private async Task TriggerNextNodes(OutputPort outputPort, JsonObject jsonData)
-        {
-            if (token.IsCancellationRequested) await Task.CompletedTask;
-
-            foreach (var nextNode in outputPort.NextNodes)
-            {
-                nextNode.Value.ParentNode = this;
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                if (!token.IsCancellationRequested)
-                    nextNode.Value.ExecuteNode(jsonData);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            }
-            await Task.CompletedTask;
-        }
-
+        /// <param name="propertyName">The name of the property that changed.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

@@ -8,7 +8,7 @@
 <MudContainer>
     <MudText Typo="Typo.subtitle2">@Timestamp.ToString("g")</MudText>
     <MudText Typo="Typo.body2" Color="Color.Secondary">@Tag</MudText>
-    <div id="@string.Format("{0}", MessageID)" style="min-height:200px;"></div>
+    <div id="@string.Format("{0}", MessageID)" style="min-height:150px;"></div>
 </MudContainer>
 
 <style>
@@ -39,21 +39,5 @@
         {
             Logger.LogError(ex, $"Error in creating the Json Editor for debug entry {MessageID}");
         }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        // if (firstRender)
-        // {
-        //     var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
-        //     try
-        //     {
-        //         await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Logger.LogError(ex, $"Error in creting the Json Editor for debug entry {MessageID}");
-        //     }
-        // }
     }
 }

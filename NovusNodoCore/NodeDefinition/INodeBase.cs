@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Nodes;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.NodeDefinition
@@ -13,7 +11,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets the plugin base instance.
         /// </summary>
-        public IPluginBase PluginBase { get; }
+        public PluginBase PluginBase { get; }
 
         /// <summary>
         /// Gets or sets the input port of the node.
@@ -36,10 +34,10 @@ namespace NovusNodoCore.NodeDefinition
         bool IsEnabled { get; set; }
 
         /// <summary>
-        /// Executes the node with the provided JSON data.
+        /// Executes the node's workload if the node is enabled, and then triggers the execution of the next nodes.
         /// </summary>
         /// <param name="jsonData">The JSON data to be processed by the node.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         Task ExecuteNode(JsonObject jsonData);
     }
 }

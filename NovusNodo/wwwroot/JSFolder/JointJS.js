@@ -212,12 +212,34 @@ function JJSCreatePaper(paperContainerName, reference) {
         selectedLink = currentLink;
     });
 
-    // Highlight the selected cell
-    paper.on('element:pointerclick', (cellView) =>
-    {
+    //// Highlight the selected cell
+    //paper.on('element:pointerclick', (cellView) =>
+    //{
+    //    ResetAll();
+
+    //    selectedCell = cellView;
+    //    cellView.highlight(); // Highlight the new selection
+    //});
+
+    paper.on('element:pointerclick', function (elementView, evt, x, y) {
+        
         ResetAll();
-        selectedCell = cellView;
-        cellView.highlight(); // Highlight the new selection
+
+        const elementPosition = elementView.model.position();
+
+        // Calculate the relative position of the click
+        const relativeX = x - elementPosition.x;
+        const relativeY = y - elementPosition.y;
+
+        // Check if the click was in the inject button
+        if (relativeX < 0) {
+            jointJSPages[selectedPaperTabId].netReference.invokeMethodAsync('NovusHome.InjectorElementClicked', elementView.model.id);
+        }
+        else {
+
+            selectedCell = elementView;
+            elementView.highlight(); // Highlight the new selection
+        }
     });
 
     // Highlight the selected cell
@@ -297,6 +319,27 @@ function ElementDeleted(elementId) {
     jointJSPages[selectedPaperTabId].netReference.invokeMethodAsync('NovusHome.ElementRemoved', elementId);
 }
 
+
+function JJSCreateInjectorNode(id, color, text, width, height)
+{
+    // Define the custom element
+    let injectorDef = joint.dia.Element.define('custom.InjectorNode', {
+        markup: '<g class="rotatable"><g class="scalable"><rect/></g><text/><foreignObject class="inject-button-container"><body xmlns="http://www.w3.org/1999/xhtml"><button class="inject-button">Inject</button></body></foreignObject></g>',
+        defaults: joint.util.deepSupplement({
+            type: 'custom.InjectNode',
+            size: { width: 100, height: 40 },
+            attrs: {
+                'rect': { width: 100, height: 40, rx: 5, ry: 5, fill: '#f3f3f3', stroke: '#000' },
+                'text': { text: 'Inject Node', 'ref-x': 0.5, 'ref-y': 0.5, 'y-alignment': 'middle', 'x-alignment': 'middle', 'font-size': 14, 'font-family': 'Arial, helvetica, sans-serif' },
+                '.inject-button-container': { 'ref-x': -30, 'ref-y': 0.5, 'y-alignment': 'middle', width: 80, height: 40 }
+            }
+        })
+    });
+    return injectorDef;
+    
+}
+
+
 /**
 * Creates a custom node element and adds it to the graph.
 * @param {string} id - The ID of the node.
@@ -305,9 +348,14 @@ function ElementDeleted(elementId) {
 * @param {number} x - The x-coordinate of the node's position.
 * @param {number} y - The y-coordinate of the node's position.
 */
-function JJSCreateNodeElement(id, color, text, width, height, x, y) {
+function JJSCreateNodeElement(id, color, text, width, height, x, y, type) {
 
     console.log('Creating node element:', id, color, text, width, height, x, y);
+
+    let buttonWidth = 0;
+    if (type == 1)
+        buttonWidth = 40;
+
 
     joint.shapes.custom = {};
     joint.shapes.custom.NovusNode = joint.dia.Element.define('custom.NovusNode', {
@@ -338,6 +386,17 @@ function JJSCreateNodeElement(id, color, text, width, height, x, y) {
                 text: 'Node Title',
                 fontWeight: 'bold',
             },
+            button: {
+                height: parseFloat(height),
+                width: buttonWidth,
+                refX: buttonWidth * -1,
+                rx: 5,
+                ry: 5,
+                refY: 0,
+                fill: '#38761D',
+                stroke: StrokeColor,
+                strokeWidth: 1,
+            },
         },
 
     }, {
@@ -357,6 +416,10 @@ function JJSCreateNodeElement(id, color, text, width, height, x, y) {
             {
                 tagName: 'text',
                 selector: 'label',
+            },
+            {
+                tagName: 'rect',
+                selector: 'button',
             },
         ],
     });
@@ -419,21 +482,25 @@ function JJSCreateNodeElement(id, color, text, width, height, x, y) {
         }]
     };
 
-    const node = new joint.shapes.custom.NovusNode({
-        id: id,
-        position: { x: parseFloat(x), y: parseFloat(y) },
-        attrs: {
-            headerLabel: {
-                text: text,
+    let node = null;
+
+
+        node = new joint.shapes.custom.NovusNode({
+            id: id,
+            position: { x: parseFloat(x), y: parseFloat(y) },
+            attrs: {
+                headerLabel: {
+                    text: text,
+                },
             },
-        },
-        ports: {
-            groups: {
-                'in': portsIn,
-                'out': portsOut
+            ports: {
+                groups: {
+                    'in': portsIn,
+                    'out': portsOut
+                }
             }
-        }
-    });
+        });
+    
 
     jointJSPages[selectedPaperTabId].graph.addCell(node);
 }
