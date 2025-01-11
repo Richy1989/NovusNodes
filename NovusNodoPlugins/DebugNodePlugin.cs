@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
 
@@ -8,6 +7,7 @@ namespace NovusNodoPlugins
     /// <summary>
     /// Plugin class for debugging nodes.
     /// </summary>
+    [PluginId("B52F8BEC-BFAA-44D6-9AC2-D2565711A210", "Debug", "#ADD8E6")]
     public class DebugNodePlugin : PluginBase
     {
         /// <summary>
@@ -20,21 +20,6 @@ namespace NovusNodoPlugins
             //Adding the task to the list of tasks
             base.AddWorkTask(Workload);
         }
-
-        /// <summary>
-        /// Gets the unique identifier for the plugin.
-        /// </summary>
-        public override string ID { get; } = "B52F8BEC-BFAA-44D6-9AC2-D2565711A210";
-
-        /// <summary>
-        /// Gets or sets the name of the plugin.
-        /// </summary>
-        public override string Name { get; set; } = "Debug";
-
-        /// <summary>
-        /// Gets the background color of the plugin.
-        /// </summary>
-        public override Color Background { get; } = Color.FromArgb(173, 216, 230);
 
         /// <summary>
         /// Gets the type of the node.
@@ -56,7 +41,7 @@ namespace NovusNodoPlugins
             //{
             //    Logger.LogInformation($"{kvp.Key}: {kvp.Value}");
             //}
-            await UpdateDebugLog.Invoke(ID, jsonData).ConfigureAwait(false);
+            await UpdateDebugLog.Invoke(Id, jsonData).ConfigureAwait(false);
             Logger.LogInformation(message);
             return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
         }

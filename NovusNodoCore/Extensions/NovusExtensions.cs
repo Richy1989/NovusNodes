@@ -1,10 +1,9 @@
-﻿using System.IO;
+﻿using System.Reflection;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace NovusNodoCore.Extensions
 {
-    internal class JsonExtensions
+    internal static class NovusExtensions
     {
         /// <summary>
         /// Serializes an object to a JSON string asynchronously.
@@ -26,6 +25,28 @@ namespace NovusNodoCore.Extensions
             // Read the memory stream into a string
             using var reader = new StreamReader(memoryStream);
             return await reader.ReadToEndAsync();
+        }
+
+        public static T GetPropertyValue<T>(this Type t, string name)
+        {
+            if (t == null)
+                return default(T);
+
+            BindingFlags flags = BindingFlags.Static | BindingFlags.Public;
+
+            PropertyInfo info = t.GetProperty(name, flags);
+
+            if (info == null)
+            {
+                // See if we have a field;
+                FieldInfo finfo = t.GetField(name, flags);
+                if (finfo == null)
+                    return default(T);
+
+                return (T)finfo.GetValue(null);
+            }
+
+            return (T)info.GetValue(null, null);
         }
     }
 }

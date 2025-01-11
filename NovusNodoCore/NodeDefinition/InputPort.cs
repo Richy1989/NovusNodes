@@ -16,7 +16,7 @@ namespace NovusNodoCore.NodeDefinition
         {
             foreach (var outputPort in ConnectedOutputPort)
             {
-                outputPort.Value.NextNodes.Remove(ID);
+                outputPort.Value.NextNodes.Remove(Id);
             }
             ConnectedOutputPort.Clear();
         }

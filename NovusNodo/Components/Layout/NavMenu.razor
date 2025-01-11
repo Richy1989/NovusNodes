@@ -25,7 +25,7 @@
     /// <summary>
     /// Dictionary to hold the available plugins.
     /// </summary>
-    private IDictionary<string, IPluginBase> items = new Dictionary<string, IPluginBase>();
+    private IDictionary<string, (Type, PluginIdAttribute)> items = new Dictionary<string, (Type, PluginIdAttribute)>();
 
     /// <summary>
     /// Method called when the component is initialized.

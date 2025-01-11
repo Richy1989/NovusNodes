@@ -24,9 +24,11 @@
         </MudTable>
     </MudPaper>
 
-    <MudSelect SelectedValuesChanged="InjectionModeChanged" @bind-Value="selectedInjectionMode" T="string" Label="Repeat" Variant="Variant.Outlined" Margin="Margin.Dense">
-        <MudSelectItem Value='"None"' />
-        <MudSelectItem Value='"Interval"' />
+    <MudSelect @bind-Value="injectMode" @bind-SelectedValues="InjectModes" T="string" Label="Repeat" Variant="Variant.Outlined" Margin="Margin.Dense">
+        @foreach (var mode in Enum.GetNames(typeof(InjectMode)))
+        {
+            <MudSelectItem Value="@mode"></MudSelectItem>
+        }
     </MudSelect>
 
 
@@ -40,16 +42,16 @@
 
             <!-- Input for a value -->
             <MudItem Class="ml-2">
-                <MudTextField T="double" @bind-Value="selectedInjectionIntervalValue" Variant="Variant.Outlined" Placeholder="Value" Margin="Margin.Dense" />
+                <MudTextField T="double" @bind-Value="InjectIntervalValue" Variant="Variant.Outlined" Placeholder="Value" Margin="Margin.Dense" />
             </MudItem>
 
             <!-- Selection for "Seconds, Minutes, Hours" -->
             <MudItem Class="ml-2">
-                <MudSelect T="string" Variant="Variant.Outlined" @bind-Value="selectedInjectionInterval" Margin="Margin.Dense">
-                    <MudSelectItem Value="@("Milliseconds")"></MudSelectItem>
-                    <MudSelectItem Value="@("Seconds")"></MudSelectItem>
-                    <MudSelectItem Value="@("Minutes")"></MudSelectItem>
-                    <MudSelectItem Value="@("Hours")"></MudSelectItem>
+                <MudSelect T="string" Variant="Variant.Outlined" @bind-Value="injectInterval" @bind-SelectedValues="InjectIntervals" Margin="Margin.Dense">
+                    @foreach (var interval in Enum.GetNames(typeof(InjectInterval)))
+                    {
+                        <MudSelectItem Value="@interval"></MudSelectItem>
+                    }
                 </MudSelect>
             </MudItem>
         </MudGrid>
@@ -59,10 +61,9 @@
 @code {
 
     private bool isIntervalSelectionVisible = false;
-    private string selectedInjectionMode = "None";
-    private string selectedInjectionInterval = "Seconds";
-    private double selectedInjectionIntervalValue = 5;
-
+    private InjectMode InjectMode { get; set; } = InjectMode.None;
+    public InjectInterval InjectInterval { get; set; } = InjectInterval.Seconds;
+    public double InjectIntervalValue { get; set; } = 5;
 
     /// <summary>
     /// Gets or sets the collection of entries.
@@ -75,6 +76,14 @@
     protected override void OnInitialized()
     {
         FillItems();
+
+        injectInterval = InjectInterval.ToString();
+        InjectIntervals = new HashSet<string>() { injectInterval };
+
+        injectMode = InjectMode.ToString();
+        InjectModes = new HashSet<string>() { injectMode };
+
+
         base.OnInitialized();
     }
 
@@ -115,10 +124,9 @@
         Entries = Entries.Append(newItem);
     }
 
-    private void InjectionModeChanged(IEnumerable<string> values)
+    private void InjectionModeChanged()
     {
-        selectedInjectionMode = values.FirstOrDefault("none");
-        if (selectedInjectionMode == "Interval")
+        if (InjectMode == InjectMode.Interval)
         {
             isIntervalSelectionVisible = true;
         }
@@ -126,5 +134,42 @@
         {
             isIntervalSelectionVisible = false;
         }
-    }   
+    }
+
+    private string injectInterval { get; set; }
+    private IEnumerable<string> injectIntervals;
+    private IEnumerable<string> InjectIntervals
+    {
+        get { return injectIntervals; }
+        set
+        {
+            injectIntervals = value;
+            if (value.Count() > 0)
+            {
+                if (InjectInterval.ToString() != value.First())
+                {
+                    InjectInterval = (InjectInterval)Enum.Parse(typeof(InjectInterval), value.First(), true);
+                }
+            }
+        }
+    }
+
+    private string injectMode { get; set; }
+    private IEnumerable<string> injectModes;
+    private IEnumerable<string> InjectModes
+    {
+        get { return injectModes; }
+        set
+        {
+            injectModes = value;
+            if (value.Count() > 0)
+            {
+                if (InjectMode.ToString() != value.First())
+                {
+                    InjectMode = (InjectMode)Enum.Parse(typeof(InjectMode), value.First(), true);
+                    InjectionModeChanged();
+                }
+            }
+        }
+    }
 }

@@ -12,23 +12,21 @@
 
 
 <h3>JavaScript Settings Node</h3>
-    <div class="containerForCodeMirror">
+<div class="containerForCodeMirror">
     <CodeMirror6Wrapper Placeholder="Enter your code.... (2)"
-                        @bind-Doc=@PluginConfig
+                        @bind-Doc=@config
                         Theme=@Theme
                         Language=@CodeMirrorLanguage.Javascript
                         AllowHorizontalResize=false
                         AllowVerticalResize=false
                         MaxHeight="35em"
                         Width="100%">
-                    </CodeMirror6Wrapper>
-    </div>
+    </CodeMirror6Wrapper>
+</div>
 
 <style>
-    .containerForCodeMirror
-    {
-       /*  height:calc(100% - 40px); */
-        background:purple;
+    .containerForCodeMirror {
+        /*  height:calc(100% - 40px); */
     }
 
 </style>
@@ -36,4 +34,10 @@
 @code
 {
     private ThemeMirrorTheme Theme = ThemeMirrorTheme.OneDark;
+
+    private string config
+    {
+        get { return (string)PluginConfig; }
+        set { PluginConfig = value; }
+    }
 }

@@ -15,7 +15,7 @@
     /// <summary>
     /// Gets or sets the plugin base.
     /// </summary>
-    [Parameter] public IPluginBase PluginBase { get; set; }
+    [Parameter] public (Type, PluginIdAttribute) PluginBase { get; set; }
 
     /// <summary>
     /// Gets or sets the child content to be rendered inside the plugin.
@@ -37,11 +37,9 @@
     /// </summary>
     protected override void OnInitialized()
     {
-        if (PluginBase != null)
-        {
-            BackgroundColorCss = ConvertColorToCSSColor(PluginBase.Background);
-            Name = PluginBase.Name;
-        }
+
+        BackgroundColorCss = PluginBase.Item2.Background;
+        Name = PluginBase.Item2.Name;
     }
 
     /// <summary>
@@ -59,26 +57,24 @@
     /// </summary>
     private async Task AddItem()
     {
-        if (PluginBase != null)
-        {    
-            var node = await ExecutionManager.NodePages[NovusUIManagement.CurrentlyOpenedPage].CreateNode(PluginBase);
-            node.PropertyChanged += async (sender, args) =>
+
+        var node = await ExecutionManager.NodePages[NovusUIManagement.CurrentlyOpenedPage].CreateNode(PluginBase.Item1, PluginBase.Item2);
+        node.PropertyChanged += async (sender, args) =>
+        {
+            if (args.PropertyName == "IsEnabled")
             {
-                if (args.PropertyName == "IsEnabled")
+                if (sender is NodeBase node)
                 {
-                    if (sender is NodeBase node)
+                    if (node.IsEnabled)
                     {
-                        if (node.IsEnabled)
-                        {
-                            await JS.InvokeVoidAsync("JJSEnableNode", $"{node.ID}");
-                        }
-                        else
-                        {
-                            await JS.InvokeVoidAsync("JJSDisableNode", $"{node.ID}");
-                        }
+                        await JS.InvokeVoidAsync("JJSEnableNode", $"{node.Id}");
+                    }
+                    else
+                    {
+                        await JS.InvokeVoidAsync("JJSDisableNode", $"{node.Id}");
                     }
                 }
-            };
-        }
+            }
+        };
     }
 }

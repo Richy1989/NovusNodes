@@ -25,10 +25,6 @@
     <None Remove="Components\Pages\Node.razor.css" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\NovusNodoUIPlugins\InjectorNode\Component.razor" Link="Component.razor" />
-  </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Blazor.JsonEditor" Version="1.1.0" />

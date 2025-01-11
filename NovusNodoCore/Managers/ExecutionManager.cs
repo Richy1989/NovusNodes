@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Nodes;
+using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.Managers
@@ -18,6 +19,8 @@ namespace NovusNodoCore.Managers
         /// </summary>
         private readonly IServiceProvider serviceProvider;
 
+        private readonly ILogger logger;
+
         /// <summary>
         /// Event fired when DebugLog is updated.
         /// </summary>
@@ -26,7 +29,7 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Gets or sets the available plugins.
         /// </summary>
-        public IDictionary<string, IPluginBase> AvailablePlugins { get; set; } = new Dictionary<string, IPluginBase>();
+        public IDictionary<string, (Type, PluginIdAttribute)> AvailablePlugins { get; set; } = new Dictionary<string, (Type, PluginIdAttribute)>();
 
         /// <summary>
         /// Gets or sets the available nodes per Tab page.
@@ -44,8 +47,9 @@ namespace NovusNodoCore.Managers
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="pluginLoader">The plugin loader.</param>
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager.</param>
-        public ExecutionManager(IServiceProvider serviceProvider, NodeJSEnvironmentManager nodeJSEnvironmentManager)
+        public ExecutionManager(ILogger<ExecutionManager> logger, IServiceProvider serviceProvider, NodeJSEnvironmentManager nodeJSEnvironmentManager)
         {
+            this.logger = logger;
             this.serviceProvider = serviceProvider;
 
             NodeJSEnvironmentManager = nodeJSEnvironmentManager;
@@ -70,13 +74,32 @@ namespace NovusNodoCore.Managers
 
                 foreach (var type in derivedTypes)
                 {
-                    var instance = Activator.CreateInstance(type);
-                    if (instance == null)
+
+                    PluginIdAttribute baseAttribute = (PluginIdAttribute)Attribute.GetCustomAttribute(type, typeof(PluginIdAttribute));
+
+                    if(baseAttribute == null)
                     {
                         continue;
                     }
-                    PluginBase plugin = (PluginBase)instance;
-                    AvailablePlugins.Add(plugin.ID, plugin);
+                    if (baseAttribute.Id == "BASE")
+                    {
+                        logger.LogError("Cannot load Base class of plugin, or ID was not set");
+                        throw new Exception("Cannot load Base class of plugin, or ID was not set");
+                    }
+                    if(!Guid.TryParse(baseAttribute.Id, out _))
+                    {
+                        logger.LogError("Plugin ID must be a valid GUID");
+                        throw new Exception("Plugin ID must be a valid GUID");
+                    }
+
+                    //var instance = Activator.CreateInstance(type);
+                    //if (instance == null)
+                    //{
+                    //    continue;
+                    //}
+                    //PluginBase plugin = (PluginBase)instance;
+
+                    AvailablePlugins.Add(baseAttribute.Id, (type, baseAttribute));
                 }
             }
 

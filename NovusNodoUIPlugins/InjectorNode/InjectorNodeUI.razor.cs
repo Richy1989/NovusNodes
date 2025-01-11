@@ -8,10 +8,24 @@ namespace NovusNodoUIPlugins.InjectorNode
         {
             Logger?.LogDebug("InjectorNodeUI component initialized");
         }
+
         public override async Task SaveSettings()
         {
-            base.PluginBase.JsonConfig = "";
+            CreateConfig();
             await Task.CompletedTask.ConfigureAwait(false);
+        }
+
+        public void CreateConfig()
+        {
+            InjectorNodeConfig injectorNodeConfig = new InjectorNodeConfig
+            {
+                InjectInterval = InjectInterval,
+                InjectIntervalValue = InjectIntervalValue,
+                InjectMode = InjectMode,
+                InjectorEntries = Entries.ToList()
+            };
+
+            PluginBase.JsonConfig = (object)injectorNodeConfig;
         }
 
         protected override void Dispose(bool disposing)
@@ -23,15 +37,6 @@ namespace NovusNodoUIPlugins.InjectorNode
                     Logger?.LogDebug("InjectorNodeUI component disposed");
                 }
                 DisposedValue = true;
-            }
-        }
-
-        public void CreateConfig()
-        {
-            foreach (var entry in Entries)
-            {
-                //if(entry.SelectedType)
-                //base.PluginBase.JsonConfig += entry.Key + ":" + entry.Value + ",";
             }
         }
     }

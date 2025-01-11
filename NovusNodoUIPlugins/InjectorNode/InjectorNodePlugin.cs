@@ -1,21 +1,20 @@
-﻿using System.Drawing;
+﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
-using NovusNodoPluginLibrary.Helper;
-using NovusNodoUIPlugins.JSFunctionNode;
+using NovusNodoPluginLibrary.Enums;
 
 namespace NovusNodoUIPlugins.InjectorNode
 {
     /// <summary>
     /// Plugin class for injecting nodes with specific configurations and workloads.
     /// </summary>
+    [PluginId("0B8A143C-B574-4EBA-BDAF-106B1F279AA2", "Inject", "#D3D3D3")]
     public class InjectorNodePlugin : PluginBase
     {
         private CancellationTokenSource _cancellationTokenSource;
         private Task _task;
-        private TimeSpan _interval = TimeSpan.FromSeconds(5);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InjectorNodePlugin"/> class.
@@ -23,7 +22,6 @@ namespace NovusNodoUIPlugins.InjectorNode
         public InjectorNodePlugin()
         {
             UI = typeof(InjectorNodeUI);
-            JsonConfig = "{\"Interval\": 1000}";
             AddWorkTask(Workload);
 
             Task.Run(async () =>
@@ -33,48 +31,14 @@ namespace NovusNodoUIPlugins.InjectorNode
 
             ConfigUpdated = async () =>
             {
-                await PrepareWorkloadAsync().ConfigureAwait(false);
+                await Restart().ConfigureAwait(false);
             };
         }
-
-        /// <summary>
-        /// Gets the unique identifier for the plugin.
-        /// </summary>
-        public override string ID { get; } = "0B8A143C-B574-4EBA-BDAF-106B1F279AA2";
-
-        /// <summary>
-        /// Gets or sets the name of the plugin.
-        /// </summary>
-        public override string Name { get; set; } = "Injector";
-
-        /// <summary>
-        /// Gets the background color of the plugin.
-        /// </summary>
-        public override Color Background { get; } = Color.FromArgb(211, 211, 211);
 
         /// <summary>
         /// Gets the type of the node.
         /// </summary>
         public override NodeType NodeType { get; } = NodeType.Starter;
-
-        /// <summary>
-        /// Prepares the workload asynchronously.
-        /// </summary>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        public override async Task PrepareWorkloadAsync()
-        {
-            var variables = await JsonVariableExtractor.ExtractVariablesAsync(JsonConfig).ConfigureAwait(false);
-            // Inline search for the "Interval" variable
-            if (variables.TryGetValue("Interval", out var intervalValue))
-            {
-                Console.WriteLine($"Interval: {intervalValue} ({intervalValue?.GetType().Name})");
-
-                if (intervalValue != null)
-                {
-                    _interval = TimeSpan.FromMilliseconds((double)intervalValue + 30000);
-                }
-            }
-        }
 
         /// <summary>
         /// Defines the workload to be executed by the node.
@@ -83,8 +47,47 @@ namespace NovusNodoUIPlugins.InjectorNode
         /// <returns>A function that represents the asynchronous operation.</returns>
         public async Task<JsonObject> Workload(JsonObject jsonData)
         {
-            var time = new { DateTime = DateTime.UtcNow.ToString("O") };
-            JsonObject jsonObject = JsonSerializer.Deserialize<JsonObject>(JsonSerializer.Serialize(time));
+            StringBuilder jsonConfigBuilder = new();
+            InjectorNodeConfig config = InjectorNodeConfig.CreateDefault();
+
+            try
+            {
+                config = (InjectorNodeConfig)JsonConfig;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error parsing JSON configuration");
+            }
+
+            foreach (var entry in config.InjectorEntries)
+            {
+                string formattedValue = entry.SelectedType switch
+                {
+                    PossibleTypesEnum.Number => entry.Value,
+                    PossibleTypesEnum.String => $"\"{entry.Value}\"",
+                    PossibleTypesEnum.Boolean => bool.Parse(entry.Value).ToString().ToLower(),
+                    PossibleTypesEnum.DateTime => $"\"{DateTime.UtcNow.ToString("O")}\"",
+                    _ => throw new InvalidOperationException("Unknown type")
+                };
+
+                jsonConfigBuilder.Append($"\"{entry.Variable}\":{formattedValue},");
+            }
+
+            var json = "{" + jsonConfigBuilder.ToString().TrimEnd(',') + "}";
+
+            JsonObject jsonObject;
+            try
+            {
+                jsonObject = JsonSerializer.Deserialize<JsonObject>(json);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error deserializing JSON object using default check in value");
+                var time = new { DateTime = DateTime.UtcNow.ToString("O") };
+                string jsonString = JsonSerializer.Serialize(time);
+                jsonObject = JsonSerializer.Deserialize<JsonObject>(jsonString);
+            }
+
             return await Task.FromResult(jsonObject).ConfigureAwait(false);
         }
 
@@ -94,27 +97,42 @@ namespace NovusNodoUIPlugins.InjectorNode
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Start()
         {
+            InjectorNodeConfig config = InjectorNodeConfig.CreateDefault();
+            try
+            {
+                config = (InjectorNodeConfig)JsonConfig;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error parsing JSON configuration");
+            }
+
+            int injectInterval = (int)(config.InjectIntervalValue * (int)config.InjectInterval);
+
             await PrepareWorkloadAsync().ConfigureAwait(false);
 
             if (_task != null && !_task.IsCompleted)
             {
-                Logger.LogDebug($"Task is already running. {ID}");
+                Logger.LogDebug($"Task is already running.");
                 return;
             }
 
             _cancellationTokenSource = new CancellationTokenSource();
             _task = Task.Run(async () =>
             {
-                while (!_cancellationTokenSource.Token.IsCancellationRequested)
+                if (config.InjectMode == InjectMode.Interval)
                 {
-                    await Task.Delay(_interval, _cancellationTokenSource.Token).ConfigureAwait(false);
-
-                    if (_cancellationTokenSource.Token.IsCancellationRequested)
+                    while (!_cancellationTokenSource.Token.IsCancellationRequested)
                     {
-                        break;
-                    }
+                        await Task.Delay(injectInterval, _cancellationTokenSource.Token).ConfigureAwait(false);
 
-                    await StarterNodeTriggered().ConfigureAwait(false);
+                        if (_cancellationTokenSource.Token.IsCancellationRequested)
+                        {
+                            break;
+                        }
+
+                        await StarterNodeTriggered().ConfigureAwait(false);
+                    }
                 }
             }, _cancellationTokenSource.Token);
         }
@@ -127,7 +145,7 @@ namespace NovusNodoUIPlugins.InjectorNode
             if (_cancellationTokenSource != null)
             {
                 _cancellationTokenSource.Cancel();
-                _task.Wait(); // Optionally wait for the task to complete
+                _task.Wait(); // Wait for the task to complete
                 _cancellationTokenSource.Dispose();
             }
         }

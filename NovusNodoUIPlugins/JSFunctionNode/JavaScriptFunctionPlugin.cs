@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoUIPlugins.JSFunctionNode
@@ -7,6 +6,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
     /// <summary>
     /// Represents a plugin that executes JavaScript functions.
     /// </summary>
+    [PluginId("7BA6BE2A-19A1-44FF-878D-3E408CA17366", "JS Function", "#ea899a")]
     public class JavaScriptFunctionPlugin : PluginBase
     {
         /// <summary>
@@ -18,21 +18,6 @@ namespace NovusNodoUIPlugins.JSFunctionNode
             JsonConfig = "return msg;";
             AddWorkTask(Workload);
         }
-
-        /// <summary>
-        /// Gets the unique identifier for the plugin.
-        /// </summary>
-        public override string ID => "7BA6BE2A-19A1-44FF-878D-3E408CA17366";
-
-        /// <summary>
-        /// Gets or sets the name of the plugin.
-        /// </summary>
-        public override string Name { get; set; } = "JS Function";
-
-        /// <summary>
-        /// Gets the background color of the plugin.
-        /// </summary>
-        public override Color Background => Color.FromArgb(234, 137, 154);
 
         /// <summary>
         /// Gets the type of the node.
@@ -48,7 +33,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         {
             // Execute the JavaScript code and return the result
             //The config is the JavaScript code to be executed
-            return await ExecuteJavaScriptCodeCallback(JsonConfig, jsonData).ConfigureAwait(false);
+            return await ExecuteJavaScriptCodeCallback((string)JsonConfig, jsonData).ConfigureAwait(false);
         }
     }
 }

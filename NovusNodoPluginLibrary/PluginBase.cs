@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 
@@ -8,6 +7,7 @@ namespace NovusNodoPluginLibrary
     /// <summary>
     /// Represents the base class for all plugins.
     /// </summary>
+    [PluginId("BASE", "none", "#000000")]
     public abstract class PluginBase : IPluginBase
     {
         /// <summary>
@@ -16,41 +16,57 @@ namespace NovusNodoPluginLibrary
         public PluginBase()
         {
             WorkTasks = new Dictionary<string, Func<JsonObject, Task<JsonObject>>>();
+
+            // Retrieve the ClassIdAttribute from the Type
+            PluginIdAttribute attribute = (PluginIdAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(PluginIdAttribute));
+            Id = attribute.Id;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets or sets the unique identifier for the plugin.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the function to save settings asynchronously.
+        /// </summary>
         public Func<Task> SaveSettings { get; set; }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets or sets the callback function to execute JavaScript code.
+        /// </summary>
         public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets or sets the function to update the debug log.
+        /// </summary>
         public Func<string, JsonObject, Task> UpdateDebugLog { get; set; }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets or sets the parent node.
+        /// </summary>
         public IPluginBase ParentNode { get; set; }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets or sets the logger instance for the plugin.
+        /// </summary>
         public ILogger Logger { get; set; }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets or sets the type of the UI component associated with the plugin.
+        /// </summary>
         public Type UI { get; set; }
 
-        /// <inheritdoc/>
-        public abstract string ID { get; }
-
-        /// <inheritdoc/>
-        public abstract string Name { get; set; }
-
-        /// <inheritdoc/>
-        public abstract Color Background { get; }
-
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the type of the node.
+        /// </summary>
         public abstract NodeType NodeType { get; }
 
-        private string jsonConfig = "";
-        /// <inheritdoc/>
-        public string JsonConfig
+        /// <summary>
+        /// Gets or sets the configuration object.
+        /// </summary>
+        private object jsonConfig = "";
+        public object JsonConfig
         {
             get { return jsonConfig; }
             set

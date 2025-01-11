@@ -104,7 +104,7 @@
             NovusUIManagement.CurrentlySelectedNode.Name = CurrentSelectedNodeName;
             try
             {
-                await JS.InvokeVoidAsync("JJSChangeNodeLabel", [$"{NovusUIManagement.CurrentlySelectedNode.ID}", $"{CurrentSelectedNodeName}"]);
+                await JS.InvokeVoidAsync("JJSChangeNodeLabel", [$"{NovusUIManagement.CurrentlySelectedNode.Id}", $"{CurrentSelectedNodeName}"]);
             }
             catch (Exception ex)
             {

@@ -20,7 +20,7 @@ namespace NovusNodoCore.NodeDefinition
         public void AddConnection(string connectedPortID, INodeBase nextNode)
         {
             NextNodes.Add(connectedPortID, nextNode);
-            nextNode.InputPort.ConnectedOutputPort.Add(ID, this);
+            nextNode.InputPort.ConnectedOutputPort.Add(Id, this);
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="connectedPortID">The ID of the connected input port to remove.</param>
         public void RemoveConnection(string connectedPortID)
         {
-            NextNodes[connectedPortID].InputPort.ConnectedOutputPort.Remove(ID);
+            NextNodes[connectedPortID].InputPort.ConnectedOutputPort.Remove(Id);
             NextNodes.Remove(connectedPortID);
         }
 
@@ -37,7 +37,7 @@ namespace NovusNodoCore.NodeDefinition
         {
             foreach (var nextNode in NextNodes)
             {
-                nextNode.Value.InputPort.ConnectedOutputPort.Remove(ID);
+                nextNode.Value.InputPort.ConnectedOutputPort.Remove(Id);
             }
             NextNodes.Clear();
         }

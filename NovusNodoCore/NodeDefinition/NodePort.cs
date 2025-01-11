@@ -10,7 +10,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets the unique identifier for this port.
         /// </summary>
-        public string ID { get; set; } = Guid.NewGuid().ToString();
+        public string Id { get; set; } = Guid.NewGuid().ToString();
 
         public INodeBase Node { get; set; } = node;
     }

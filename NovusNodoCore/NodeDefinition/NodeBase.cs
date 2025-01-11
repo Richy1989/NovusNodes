@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
@@ -26,6 +25,8 @@ namespace NovusNodoCore.NodeDefinition
         /// Gets the plugin base instance.
         /// </summary>
         public PluginBase PluginBase { get; }
+
+        public PluginIdAttribute PluginIdAttribute { get; }
 
         /// <summary>
         /// Gets or sets the logger instance for the plugin.
@@ -68,6 +69,42 @@ namespace NovusNodoCore.NodeDefinition
         }
 
         /// <summary>
+        /// Gets or sets the parent node.
+        /// </summary>
+        public IPluginBase ParentNode { get => PluginBase.ParentNode; set => PluginBase.ParentNode = value; }
+
+        /// <summary>
+        /// Gets the type of the node.
+        /// </summary>
+        public NodeType NodeType => PluginBase.NodeType;
+
+        /// <summary>
+        /// Gets the unique identifier for the node.
+        /// </summary>
+        public string Id { get; } = Guid.NewGuid().ToString();
+
+        /// <summary>
+        /// Gets or sets the JSON configuration for the node.
+        /// </summary>
+        public object JsonConfig { get => PluginBase.JsonConfig; set => PluginBase.JsonConfig = value; }
+
+        /// <summary>
+        /// Gets or sets the name of the node.
+        /// </summary>
+        private string name;
+        public string Name { get { return name; } set { name = value; OnPropertyChanged(); } }
+
+        /// <summary>
+        /// Gets or sets the UI configuration for the node.
+        /// </summary>
+        public NodeUIConfig UIConfig { get; set; } = new NodeUIConfig();
+
+        /// <summary>
+        /// Gets the dictionary of work tasks associated with the node.
+        /// </summary>
+        public IDictionary<string, Func<JsonObject, Task<JsonObject>>> WorkTasks => PluginBase.WorkTasks;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="NodeBase"/> class.
         /// </summary>
         /// <param name="basedPlugin">The plugin base instance.</param>
@@ -75,8 +112,10 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager instance.</param>
         /// <param name="updateDebugFunction">The function to update the debug log.</param>
         /// <param name="token">The cancellation Token.</param>
-        public NodeBase(IPluginBase basedPlugin, ILogger Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, Func<string, JsonObject, Task> updateDebugFunction, CancellationToken token)
+        public NodeBase(IPluginBase basedPlugin, PluginIdAttribute pluginIdAttribute, ILogger<INodeBase> Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, Func<string, JsonObject, Task> updateDebugFunction, CancellationToken token)
         {
+            Name = pluginIdAttribute.Name;
+            this.PluginIdAttribute = pluginIdAttribute;
             this.PluginBase = basedPlugin as PluginBase;
             (this.PluginBase as PluginBase).UpdateDebugLog = updateDebugFunction;
             this.Logger = Logger;
@@ -99,7 +138,7 @@ namespace NovusNodoCore.NodeDefinition
             for (int i = 0; i < PluginBase.WorkTasks.Count; i++)
             {
                 var outputPort = new OutputPort(this);
-                OutputPorts.Add(outputPort.ID, outputPort);
+                OutputPorts.Add(outputPort.Id, outputPort);
             }
 
             if (PluginBase.NodeType == NodeType.Starter)
@@ -178,45 +217,7 @@ namespace NovusNodoCore.NodeDefinition
             await Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Gets or sets the parent node.
-        /// </summary>
-        public IPluginBase ParentNode { get => PluginBase.ParentNode; set => PluginBase.ParentNode = value; }
-
-        /// <summary>
-        /// Gets the type of the node.
-        /// </summary>
-        public NodeType NodeType => PluginBase.NodeType;
-
-        /// <summary>
-        /// Gets the unique identifier for the node.
-        /// </summary>
-        public string ID { get; } = Guid.NewGuid().ToString();
-
-        /// <summary>
-        /// Gets or sets the JSON configuration for the node.
-        /// </summary>
-        public string JsonConfig { get => PluginBase.JsonConfig; set => PluginBase.JsonConfig = value; }
-
-        /// <summary>
-        /// Gets or sets the name of the node.
-        /// </summary>
-        public string Name { get => PluginBase.Name; set { PluginBase.Name = value; OnPropertyChanged(); } }
-
-        /// <summary>
-        /// Gets the background color of the node.
-        /// </summary>
-        public Color Background => PluginBase.Background;
-
-        /// <summary>
-        /// Gets or sets the UI configuration for the node.
-        /// </summary>
-        public NodeUIConfig UIConfig { get; set; } = new NodeUIConfig();
-
-        /// <summary>
-        /// Gets the dictionary of work tasks associated with the node.
-        /// </summary>
-        public IDictionary<string, Func<JsonObject, Task<JsonObject>>> WorkTasks => PluginBase.WorkTasks;
+        
 
         /// <summary>
         /// Prepares the workload asynchronously.

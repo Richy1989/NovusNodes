@@ -23,7 +23,7 @@ namespace NovusNodoPluginLibrary
         /// <summary>
         /// Gets or sets the settings code.
         /// </summary>
-        public string PluginConfig { get; set; }
+        public object PluginConfig { get; set; }
 
         /// <summary>
         /// Method called when the component is initialized.
@@ -54,6 +54,10 @@ namespace NovusNodoPluginLibrary
         /// <param name="disposing">Indicates whether the method is called from Dispose.</param>
         protected abstract void Dispose(bool disposing);
 
+        /// <summary>
+        /// Saves the settings asynchronously.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous save operation.</returns>
         public abstract Task SaveSettings();
     }
 }

@@ -8,6 +8,7 @@ namespace NovusNodoCore.NodeDefinition
     /// </summary>
     public interface INodeBase : IPluginBase
     {
+        public string Name { get; set; }
         /// <summary>
         /// Gets the plugin base instance.
         /// </summary>

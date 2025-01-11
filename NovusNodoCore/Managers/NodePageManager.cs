@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
@@ -44,7 +39,7 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Event fired when AvailableNodes is updated.
         /// </summary>
-        public event Func<INodeBase, Task> AvailableNodesUpdated;
+        public event Func<NodeBase, Task> AvailableNodesUpdated;
 
         /// <summary>
         /// Gets or sets the available nodes
@@ -71,9 +66,9 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="pluginBase">The plugin base to create the node from.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task<NodeBase> CreateNode(IPluginBase pluginBase)
+        public async Task<NodeBase> CreateNode(Type pluginBase, PluginIdAttribute attribute)
         {
-            var instance = Activator.CreateInstance(pluginBase.GetType());
+            var instance = Activator.CreateInstance(pluginBase);
 
             if (instance == null)
             {
@@ -84,9 +79,9 @@ namespace NovusNodoCore.Managers
 
             if (plugin != null)
             {
-                var logger = loggerFactory.CreateLogger(typeof(NodeBase));
-                NodeBase node = new(plugin, logger, NodeJSEnvironmentManager, DebugLogChanged, Token);
-                AvailableNodes.Add(node.ID, node);
+                Logger<INodeBase> logger = (Logger<INodeBase>)loggerFactory.CreateLogger<INodeBase>();
+                NodeBase node = new(plugin, attribute,logger, NodeJSEnvironmentManager, DebugLogChanged, Token);
+                AvailableNodes.Add(node.Id, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
                 return node;
             }
@@ -149,7 +144,7 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="nodeBase">The node that was updated.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        private async Task OnAvailableNodesUpdated(INodeBase nodeBase)
+        private async Task OnAvailableNodesUpdated(NodeBase nodeBase)
         {
             if (AvailableNodesUpdated == null)
             {

@@ -152,10 +152,10 @@ namespace NovusNodo.Components.Pages
         /// </summary>
         /// <param name="node">The node that was added.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        private async Task NodesAdded(INodeBase node)
+        private async Task NodesAdded(NodeBase node)
         {
-            Logger.LogDebug($"Adding node {node.ID} to JointJS paper {TabID}");
-            await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.ID}", $"{Helper.Helper.ConvertColorToCSSColor(node.Background)}", $"{node.Name}", node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y, ((double)(node.NodeType))]);
+            Logger.LogDebug($"Adding node {node.Id} to JointJS paper {TabID}");
+            await JS.InvokeVoidAsync("JJSCreateNodeElement", [$"{node.Id}", $"{node.PluginIdAttribute.Background}", $"{node.Name}", node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y, ((double)(node.NodeType))]);
             await AddPorts(node);
         }
 
@@ -203,7 +203,7 @@ namespace NovusNodo.Components.Pages
                         string connectedPortId = nextNode.Key;
                         INodeBase connectedNode = nextNode.Value;
 
-                        await JS.InvokeVoidAsync("JJSCreateLink", [$"{node.ID}", $"{port.ID}", $"{connectedNode.ID}", $"{connectedPortId}"]);
+                        await JS.InvokeVoidAsync("JJSCreateLink", [$"{node.Id}", $"{port.Id}", $"{connectedNode.Id}", $"{connectedPortId}"]);
                     }
                 }
             }
@@ -218,13 +218,13 @@ namespace NovusNodo.Components.Pages
         {
             if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Finisher)
             {
-                await JS.InvokeVoidAsync("JJSAddInputPort", [$"{node.ID}", $"{node.InputPort.ID}"]);
+                await JS.InvokeVoidAsync("JJSAddInputPort", [$"{node.Id}", $"{node.InputPort.Id}"]);
             }
             if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Starter)
             {
                 foreach (var port in node.OutputPorts.Values)
                 {
-                    await JS.InvokeVoidAsync("JJSAddOutputPort", [$"{node.ID}", $"{port.ID}"]);
+                    await JS.InvokeVoidAsync("JJSAddOutputPort", [$"{node.Id}", $"{port.Id}"]);
                 }
             }
         }

@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 
 namespace NovusNodoPluginLibrary
@@ -9,6 +8,11 @@ namespace NovusNodoPluginLibrary
     /// </summary>
     public interface IPluginBase
     {
+        /// <summary>
+        /// Gets the unique identifier for the plugin.
+        /// </summary>
+        string Id { get; }
+
         /// <summary>
         /// Gets or sets the function to save settings asynchronously.
         /// </summary>
@@ -25,29 +29,14 @@ namespace NovusNodoPluginLibrary
         Type UI { get; set; }
 
         /// <summary>
-        /// Gets or sets the JSON configuration.
+        /// Gets or sets the configuration object.
         /// </summary>
-        string JsonConfig { get; set; }
+        object JsonConfig { get; set; }
 
         /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
         IPluginBase ParentNode { get; set; }
-
-        /// <summary>
-        /// Gets the unique identifier for the plugin.
-        /// </summary>
-        string ID { get; }
-
-        /// <summary>
-        /// Gets or sets the name of the plugin.
-        /// </summary>
-        string Name { get; set; }
-
-        /// <summary>
-        /// Gets the background color of the plugin.
-        /// </summary>
-        Color Background { get; }
 
         /// <summary>
         /// Gets the type of the node.

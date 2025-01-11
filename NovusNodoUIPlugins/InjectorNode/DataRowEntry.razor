@@ -12,7 +12,7 @@
         <MudText>=</MudText>
     </MudItem>
     <MudItem xs="2">
-        <MudSelect T="PossibleTypesEnum" @bind-Value="@Item.SelectedType" Label="Standard" Variant="Variant.Text" Margin="Margin.Dense">
+        <MudSelect T="string" @bind-Value="@selectedType" @bind-SelectedValues="AvailableTypes" Label="Standard" Variant="Variant.Text" Margin="Margin.Dense">
             @foreach (var name in Enum.GetNames<PossibleTypesEnum>())
             {
                 <MudSelectItem Value="@name"></MudSelectItem>
@@ -27,18 +27,58 @@
     </MudItem>
 </MudGrid>
 
-
 <style>
     .mud-input,
     .mud-input-control > .mud-input-control-input-container > .mud-input-label-inputcontrol {
-    font-size: 0.875rem; /* 1 rem is default */
+        font-size: 0.875rem; /* 1 rem is default */
     }
 </style>
 
 @code
 {
+    /// <summary>
+    /// Gets or sets the item associated with this data row entry.
+    /// </summary>
     [Parameter] public Item Item { get; set; }
+
+    /// <summary>
+    /// Gets or sets the function to call when the remove button is clicked.
+    /// </summary>
     [Parameter] public Func<string, Task> RemoveButton { get; set; }
 
-    private static string variable = "msg.";
+    /// <summary>
+    /// Gets or sets the selected type as a string.
+    /// </summary>
+    private string selectedType { get; set; }
+
+    private IEnumerable<string> availableTypes;
+
+    /// <summary>
+    /// Gets or sets the available types for selection.
+    /// </summary>
+    public IEnumerable<string> AvailableTypes
+    {
+        get { return availableTypes; }
+        set
+        {
+            availableTypes = value;
+            if (value.Count() > 0)
+            {
+                if (Item.SelectedType.ToString() != value.First())
+                {
+                    Item.SelectedType = (PossibleTypesEnum)Enum.Parse(typeof(PossibleTypesEnum), value.First(), true);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Initializes the component.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        selectedType = Item.SelectedType.ToString();
+        AvailableTypes = new HashSet<string>() { selectedType };
+        base.OnInitialized();
+    }
 }
