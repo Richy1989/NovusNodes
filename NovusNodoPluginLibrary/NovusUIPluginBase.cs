@@ -21,7 +21,7 @@ namespace NovusNodoPluginLibrary
         protected bool DisposedValue { get; set; }
 
         /// <summary>
-        /// Gets or sets the settings code.
+        /// Gets or sets the settings code. //ToDo: Remove this property .. use Base Plugin Config
         /// </summary>
         public object PluginConfig { get; set; }
 
