@@ -17,7 +17,7 @@
         </MudContainer>
 
         <MudDivider Class="my-2" />
-        <MudTable Items="@Entries" Hover="true" Breakpoint="Breakpoint.Sm">
+        <MudTable Items="@localConfig.InjectorEntries" Hover="true" Breakpoint="Breakpoint.Sm">
             <RowTemplate>
                 <MudTd Class="pa-1"><DataRowEntry Item="@context" RemoveButton="RemoveButton"></DataRowEntry></MudTd>
             </RowTemplate>
@@ -42,7 +42,7 @@
 
             <!-- Input for a value -->
             <MudItem Class="ml-2">
-                <MudTextField T="double" @bind-Value="InjectIntervalValue" Variant="Variant.Outlined" Placeholder="Value" Margin="Margin.Dense" />
+                <MudTextField T="double" @bind-Value="localConfig.InjectIntervalValue" Variant="Variant.Outlined" Placeholder="Value" Margin="Margin.Dense" />
             </MudItem>
 
             <!-- Selection for "Seconds, Minutes, Hours" -->
@@ -59,32 +59,34 @@
 </MudContainer>
 
 @code {
-
+    private InjectorNodeConfig localConfig;
     private bool isIntervalSelectionVisible = false;
-    private InjectMode InjectMode { get; set; } = InjectMode.None;
-    public InjectInterval InjectInterval { get; set; } = InjectInterval.Seconds;
-    public double InjectIntervalValue { get; set; } = 5;
 
     /// <summary>
     /// Gets or sets the collection of entries.
     /// </summary>
-    public IEnumerable<Item> Entries { get; set; } = new List<Item>();
+    // public IEnumerable<Item> Entries { get; set; } = new List<Item>();
 
     /// <summary>
     /// Method invoked when the component is initialized.
     /// </summary>
     protected override void OnInitialized()
     {
-        FillItems();
+        base.OnInitialized();
 
-        injectInterval = InjectInterval.ToString();
+        PluginConfig = PluginConfig == null ? InjectorNodeConfig.CreateDefault() : (InjectorNodeConfig)PluginConfig;
+        
+        //Remove this, at fix the issue
+        localConfig = PluginConfig as InjectorNodeConfig;
+
+        if (localConfig.InjectorEntries.Count == 0)
+            FillItems();
+
+        injectInterval = localConfig.InjectInterval.ToString();
         InjectIntervals = new HashSet<string>() { injectInterval };
 
-        injectMode = InjectMode.ToString();
+        injectMode = localConfig.InjectMode.ToString();
         InjectModes = new HashSet<string>() { injectMode };
-
-
-        base.OnInitialized();
     }
 
     /// <summary>
@@ -102,7 +104,7 @@
     private async Task RemoveButton(string id)
     {
         // Remove the item from the list
-        Entries = Entries.Where(x => x.ID != id).ToList();
+        localConfig.InjectorEntries = localConfig.InjectorEntries.Where(x => x.ID != id).ToList();
         await InvokeAsync(() =>
         {
             StateHasChanged();
@@ -121,12 +123,12 @@
                 SelectedType = PossibleTypesEnum.DateTime
             };
         // Add the new item to the list
-        Entries = Entries.Append(newItem);
+        localConfig.InjectorEntries = localConfig.InjectorEntries.Append(newItem).ToList();
     }
 
     private void InjectionModeChanged()
     {
-        if (InjectMode == InjectMode.Interval)
+        if (localConfig.InjectMode == InjectMode.Interval)
         {
             isIntervalSelectionVisible = true;
         }
@@ -146,9 +148,9 @@
             injectIntervals = value;
             if (value.Count() > 0)
             {
-                if (InjectInterval.ToString() != value.First())
+                if (localConfig.InjectInterval.ToString() != value.First())
                 {
-                    InjectInterval = (InjectInterval)Enum.Parse(typeof(InjectInterval), value.First(), true);
+                    localConfig.InjectInterval = (InjectInterval)Enum.Parse(typeof(InjectInterval), value.First(), true);
                 }
             }
         }
@@ -164,9 +166,9 @@
             injectModes = value;
             if (value.Count() > 0)
             {
-                if (InjectMode.ToString() != value.First())
+                if (localConfig.InjectMode.ToString() != value.First())
                 {
-                    InjectMode = (InjectMode)Enum.Parse(typeof(InjectMode), value.First(), true);
+                    localConfig.InjectMode = (InjectMode)Enum.Parse(typeof(InjectMode), value.First(), true);
                     InjectionModeChanged();
                 }
             }

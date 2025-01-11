@@ -65,7 +65,7 @@ namespace NovusNodoPluginLibrary
         /// <summary>
         /// Gets or sets the configuration object.
         /// </summary>
-        private object jsonConfig = "";
+        private object jsonConfig = null;
         public object JsonConfig
         {
             get { return jsonConfig; }

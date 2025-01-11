@@ -97,10 +97,11 @@ namespace NovusNodoUIPlugins.InjectorNode
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Start()
         {
-            InjectorNodeConfig config = InjectorNodeConfig.CreateDefault();
+            InjectorNodeConfig config = null;
             try
             {
-                config = (InjectorNodeConfig)JsonConfig;
+                config = JsonConfig == null ? InjectorNodeConfig.CreateDefault() : (InjectorNodeConfig)JsonConfig;
+            
             }
             catch (Exception ex)
             {

@@ -17,15 +17,15 @@ namespace NovusNodoUIPlugins.InjectorNode
 
         public void CreateConfig()
         {
-            InjectorNodeConfig injectorNodeConfig = new InjectorNodeConfig
-            {
-                InjectInterval = InjectInterval,
-                InjectIntervalValue = InjectIntervalValue,
-                InjectMode = InjectMode,
-                InjectorEntries = Entries.ToList()
-            };
+            //InjectorNodeConfig injectorNodeConfig = new InjectorNodeConfig
+            //{
+            //    InjectInterval = InjectInterval,
+            //    InjectIntervalValue = InjectIntervalValue,
+            //    InjectMode = InjectMode,
+            //    InjectorEntries = Entries.ToList()
+            //};
 
-            PluginBase.JsonConfig = (object)injectorNodeConfig;
+            PluginBase.JsonConfig = (object)PluginConfig;
         }
 
         protected override void Dispose(bool disposing)
