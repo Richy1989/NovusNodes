@@ -10,7 +10,7 @@ namespace NovusNodoUIPlugins.InjectorNode
     /// <summary>
     /// Plugin class for injecting nodes with specific configurations and workloads.
     /// </summary>
-    [PluginId("0B8A143C-B574-4EBA-BDAF-106B1F279AA2", "Inject", "#D3D3D3")]
+    [NovusPlugin("0B8A143C-B574-4EBA-BDAF-106B1F279AA2", "Inject", "#D3D3D3")]
     public class InjectorNodePlugin : PluginBase
     {
         private CancellationTokenSource _cancellationTokenSource;
@@ -111,7 +111,7 @@ namespace NovusNodoUIPlugins.InjectorNode
 
                         if (_cancellationTokenSource.Token.IsCancellationRequested)
                         {
-                            break;
+                            return;
                         }
 
                         await StarterNodeTriggered().ConfigureAwait(false);

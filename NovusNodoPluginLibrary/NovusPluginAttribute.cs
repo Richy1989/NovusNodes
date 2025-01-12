@@ -1,7 +1,7 @@
 ﻿namespace NovusNodoPluginLibrary
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public class PluginIdAttribute : Attribute
+    public class NovusPluginAttribute : Attribute
     {
         /// <summary>
         /// Gets the unique identifier for the plugin.
@@ -19,12 +19,12 @@
         public string Background { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PluginIdAttribute"/> class.
+        /// Initializes a new instance of the <see cref="NovusPluginAttribute"/> class.
         /// </summary>
         /// <param name="id">The unique identifier for the plugin.</param>
         /// <param name="name">The name of the plugin.</param>
         /// <param name="hexColor">The background color of the plugin in hexadecimal format.</param>
-        public PluginIdAttribute(string id, string name, string hexColor)
+        public NovusPluginAttribute(string id, string name, string hexColor)
         {
             Name = name;
             Background = hexColor;

@@ -26,7 +26,7 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public PluginBase PluginBase { get; }
 
-        public PluginIdAttribute PluginIdAttribute { get; }
+        public NovusPluginAttribute PluginIdAttribute { get; }
 
         /// <summary>
         /// Gets or sets the logger instance for the plugin.
@@ -112,7 +112,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager instance.</param>
         /// <param name="updateDebugFunction">The function to update the debug log.</param>
         /// <param name="token">The cancellation Token.</param>
-        public NodeBase(IPluginBase basedPlugin, PluginIdAttribute pluginIdAttribute, ILogger<INodeBase> Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, Func<string, JsonObject, Task> updateDebugFunction, CancellationToken token)
+        public NodeBase(IPluginBase basedPlugin, NovusPluginAttribute pluginIdAttribute, ILogger<INodeBase> Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, Func<string, JsonObject, Task> updateDebugFunction, CancellationToken token)
         {
             Name = pluginIdAttribute.Name;
             this.PluginIdAttribute = pluginIdAttribute;

@@ -66,7 +66,7 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="pluginBase">The plugin base to create the node from.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task<NodeBase> CreateNode(Type pluginBase, PluginIdAttribute attribute)
+        public async Task<NodeBase> CreateNode(Type pluginBase, NovusPluginAttribute attribute)
         {
             var instance = Activator.CreateInstance(pluginBase);
 

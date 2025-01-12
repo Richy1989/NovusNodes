@@ -6,7 +6,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
     /// <summary>
     /// Represents a plugin that executes JavaScript functions.
     /// </summary>
-    [PluginId("7BA6BE2A-19A1-44FF-878D-3E408CA17366", "JS Function", "#ea899a")]
+    [NovusPlugin("7BA6BE2A-19A1-44FF-878D-3E408CA17366", "JS Function", "#ea899a")]
     public class JavaScriptFunctionPlugin : PluginBase
     {
         /// <summary>

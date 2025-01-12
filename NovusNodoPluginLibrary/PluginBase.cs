@@ -7,7 +7,7 @@ namespace NovusNodoPluginLibrary
     /// <summary>
     /// Represents the base class for all plugins.
     /// </summary>
-    [PluginId("BASE", "none", "#000000")]
+    [NovusPlugin("BASE", "none", "#000000")]
     public abstract class PluginBase : IPluginBase
     {
         /// <summary>
@@ -18,7 +18,7 @@ namespace NovusNodoPluginLibrary
             WorkTasks = new Dictionary<string, Func<JsonObject, Task<JsonObject>>>();
 
             // Retrieve the ClassIdAttribute from the Type
-            PluginIdAttribute attribute = (PluginIdAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(PluginIdAttribute));
+            NovusPluginAttribute attribute = (NovusPluginAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(NovusPluginAttribute));
             Id = attribute.Id;
         }
 

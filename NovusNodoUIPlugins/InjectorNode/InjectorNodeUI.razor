@@ -80,21 +80,13 @@
         localConfig = PluginConfig as InjectorNodeConfig;
 
         if (localConfig.InjectorEntries.Count == 0)
-            FillItems();
+            AddNewEntry();
 
         injectInterval = localConfig.InjectInterval.ToString();
         InjectIntervals = new HashSet<string>() { injectInterval };
 
         injectMode = localConfig.InjectMode.ToString();
         InjectModes = new HashSet<string>() { injectMode };
-    }
-
-    /// <summary>
-    /// Fills the initial items in the Entries collection.
-    /// </summary>
-    private void FillItems()
-    {
-        AddNewEntry();
     }
 
     /// <summary>

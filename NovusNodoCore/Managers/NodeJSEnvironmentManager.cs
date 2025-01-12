@@ -136,9 +136,4 @@ namespace NovusNodoCore.Managers
             throw new FileNotFoundException("libnode.dll not found");
         }
     }
-    //public interface IUserJSCodeRunner
-    //{
-    //    JsonObject RunUserCodeJson(string code, JsonObject parameters);
-    //    string RunUserCode(string code, string parameters);
-    //}
 }

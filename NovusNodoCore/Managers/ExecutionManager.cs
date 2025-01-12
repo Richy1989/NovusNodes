@@ -29,7 +29,7 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Gets or sets the available plugins.
         /// </summary>
-        public IDictionary<string, (Type, PluginIdAttribute)> AvailablePlugins { get; set; } = new Dictionary<string, (Type, PluginIdAttribute)>();
+        public IDictionary<string, (Type, NovusPluginAttribute)> AvailablePlugins { get; set; } = new Dictionary<string, (Type, NovusPluginAttribute)>();
 
         /// <summary>
         /// Gets or sets the available nodes per Tab page.
@@ -75,7 +75,7 @@ namespace NovusNodoCore.Managers
                 foreach (var type in derivedTypes)
                 {
 
-                    PluginIdAttribute baseAttribute = (PluginIdAttribute)Attribute.GetCustomAttribute(type, typeof(PluginIdAttribute));
+                    NovusPluginAttribute baseAttribute = (NovusPluginAttribute)Attribute.GetCustomAttribute(type, typeof(NovusPluginAttribute));
 
                     if(baseAttribute == null)
                     {

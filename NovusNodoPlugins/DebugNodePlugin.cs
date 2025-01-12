@@ -7,7 +7,7 @@ namespace NovusNodoPlugins
     /// <summary>
     /// Plugin class for debugging nodes.
     /// </summary>
-    [PluginId("B52F8BEC-BFAA-44D6-9AC2-D2565711A210", "Debug", "#ADD8E6")]
+    [NovusPlugin("B52F8BEC-BFAA-44D6-9AC2-D2565711A210", "Debug", "#ADD8E6")]
     public class DebugNodePlugin : PluginBase
     {
         /// <summary>
