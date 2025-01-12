@@ -2,7 +2,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
-using Microsoft.JavaScript.NodeApi;
 using Microsoft.JavaScript.NodeApi.Generator;
 using Microsoft.JavaScript.NodeApi.Runtime;
 
@@ -39,8 +38,8 @@ namespace NovusNodoCore.Managers
             string wwwrootDir = Path.Combine(executingDir, "wwwroot");
             globalNovusJavaScriptPath = Path.Combine(wwwrootDir, "JSFolder", "BackendGlobal.js");
             string baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string libnodePath = GetLibNodePath();// Path.Combine(executingDir, "../", "libnode", "out", "Release", "libnode.dll");
-            
+            string libnodePath = GetLibNodePath();
+
             logger.LogDebug("Libnode path: {0}", libnodePath);
             logger.LogDebug("BackendGlobal path: {0}", globalNovusJavaScriptPath);
 
@@ -58,29 +57,24 @@ namespace NovusNodoCore.Managers
         /// <returns>A <see cref="JsonObject"/> containing the result of the executed code.</returns>
         public JsonObject RunUserCode(string code, JsonObject parameters)
         {
-            string content = "";
+            JsonObject content = [];
             nodejs.Run(() =>
             {
                 try
                 {
                     var globalNovusJavaScript = nodejs.Import(globalNovusJavaScriptPath);
-                    content = (string)globalNovusJavaScript.CallMethod("RunUserCode", $"{code}", GetStringRepresentation(parameters));
-
+                    var jsonNode = JsonObject.Parse((string)globalNovusJavaScript.CallMethod("RunUserCode", $"{code}", GetStringRepresentation(parameters)));
+                    content = jsonNode.AsObject();
                 }
                 catch (Exception e)
                 {
-                    //ToDo: Show in Debug log!
                     logger.LogError(e, "Error running user code");
                 }
             });
-            var json = JsonSerializer.Deserialize<JsonObject>(content);
 
-            if (json == null)
-            {
-                return [];
-            }
+            //var userCodeRunner = (IUserJSCodeRunner)nodejs.Import<IUserJSCodeRunner>(globalNovusJavaScriptPath, "");
 
-            return json;
+            return content;
         }
 
         /// <summary>
@@ -121,6 +115,11 @@ namespace NovusNodoCore.Managers
             }
         }
 
+        /// <summary>
+        /// Gets the path to the libnode.dll file.
+        /// </summary>
+        /// <returns>The path to the libnode.dll file.</returns>
+        /// <exception cref="FileNotFoundException">Thrown when the libnode.dll file is not found.</exception>
         private string GetLibNodePath()
         {
             string appDir = Path.GetDirectoryName(typeof(Program).Assembly.Location)!;
@@ -130,11 +129,16 @@ namespace NovusNodoCore.Managers
 
             string executingDir = Directory.GetCurrentDirectory();
             libnodePath = Path.Combine(executingDir, "../", "libnode", "out", "Release", "libnode.dll");
-            
+
             if (File.Exists(libnodePath)) return libnodePath;
 
             logger.LogError("libnode.dll not found");
             throw new FileNotFoundException("libnode.dll not found");
         }
     }
+    //public interface IUserJSCodeRunner
+    //{
+    //    JsonObject RunUserCodeJson(string code, JsonObject parameters);
+    //    string RunUserCode(string code, string parameters);
+    //}
 }

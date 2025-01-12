@@ -36,7 +36,7 @@
     {
         <MudGrid Class="d-flex align-items-center">
             <!-- Text "Every" -->
-            <MudItem>
+            <MudItem Class="d-flex justify-center align-center">
                 <MudText Class="align-center">Every</MudText>
             </MudItem>
 
@@ -117,11 +117,11 @@
     private void AddNewEntry()
     {
         Item newItem = new Item
-            {
-                Variable = "payload",
-                Value = "",
-                SelectedType = PossibleTypesEnum.DateTime
-            };
+        {
+            Variable = "payload",
+            Value = "",
+            SelectedType = PossibleTypesEnum.DateTime
+        };
         // Add the new item to the list
         localConfig.InjectorEntries = localConfig.InjectorEntries.Append(newItem).ToList();
     }

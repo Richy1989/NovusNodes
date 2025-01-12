@@ -1,14 +1,9 @@
-using System.Runtime.Loader;
-using System.Reflection;
 using MudBlazor.Services;
 using NovusNodo.Components;
 using NovusNodo.Management;
-using NovusNodoCore.Managers;
-using NovusNodoCore;
-using Microsoft.Extensions.Logging;
-using NovusNodoPluginLibrary;
-using Microsoft.AspNetCore.Components;
 using NovusNodo.PluginManagement;
+using NovusNodoCore;
+using NovusNodoCore.Managers;
 
 namespace NovusNodo
 {
@@ -18,12 +13,8 @@ namespace NovusNodo
         {
             var builder = WebApplication.CreateBuilder(args);
 
-
-          
-        
-
-        // Add logging to console
-        builder.Logging.AddConsole();
+            // Add logging to console
+            builder.Logging.AddConsole();
 
             builder.Services.AddSingleton<NovusUIManagement>();
 

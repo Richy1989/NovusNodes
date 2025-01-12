@@ -20,7 +20,14 @@
         </MudSelect>
     </MudItem>
     <MudItem xs="5">
-        <MudTextField T="string" @bind-Value="@Item.Value" Variant="Variant.Text" Margin="Margin.Dense" Label="Value"></MudTextField>
+        @if (Item.SelectedType != PossibleTypesEnum.Number)
+        {
+            <MudTextField T="string" @bind-Value="@Item.Value" Variant="Variant.Text" Margin="Margin.Dense" Label="Value"></MudTextField>
+        }
+        else
+        {
+            <MudNumericField T="string" @bind-Value="@Item.Value" Variant="Variant.Text" Margin="Margin.Dense" Label="Value"></MudNumericField>
+        }
     </MudItem>
     <MudItem xs="1">
         <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(async () => await RemoveButton(Item.ID))"></MudIconButton>

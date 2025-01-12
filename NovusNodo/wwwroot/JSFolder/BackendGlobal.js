@@ -15,6 +15,19 @@ function RunUserCode(code, parameters)
     let result = func(JSON.parse(parameters));
     // Execute the function with the provided parameter
     return JSON.stringify(result);
+   // return result;
+}
+
+function RunUserCodeJson(code, parameters) {
+    //console.log("Running user code: " + code);
+    //console.log("With parameters: " + parameters);
+
+    // Create a new function with `msg` as the parameter
+    const func = new Function('msg', code);
+    let result = func(parameters);
+    // Execute the function with the provided parameter
+    return result;
+    // return result;
 }
 
 module.exports = { RunUserCode };

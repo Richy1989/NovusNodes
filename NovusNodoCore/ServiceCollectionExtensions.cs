@@ -1,9 +1,4 @@
-﻿using System.ComponentModel;
-using System.Reflection;
-using System.Runtime.Loader;
-using System.Runtime.Serialization;
-using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using NovusNodoCore.Managers;
 
 namespace NovusNodoCore

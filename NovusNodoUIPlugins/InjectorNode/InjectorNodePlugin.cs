@@ -125,11 +125,18 @@ namespace NovusNodoUIPlugins.InjectorNode
         /// </summary>
         public void Stop()
         {
-            if (_cancellationTokenSource != null)
+            try
             {
-                _cancellationTokenSource.Cancel();
-                _task.Wait(); // Wait for the task to complete
-                _cancellationTokenSource.Dispose();
+                if (_cancellationTokenSource != null)
+                {
+                    _cancellationTokenSource.Cancel();
+                    _task.Wait(TimeSpan.FromMilliseconds(500)); // Wait for the task to complete
+                    _cancellationTokenSource.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error stopping the plugin");
             }
         }
 
