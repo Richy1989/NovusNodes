@@ -37,12 +37,10 @@ namespace NovusNodo.Components.Layout
         /// <param name="arg">The argument containing the debug log information.</param>
         private async Task ExecutionManager_DebugLogChanged((string, System.Text.Json.Nodes.JsonObject) arg)
         {
-            await InvokeAsync(() =>
-            {
-                StateHasChanged();
-            });
             await InvokeAsync(async () =>
             {
+                StateHasChanged();
+
                 if (autoScrollDebugWindow)
                     await ScrollManager.ScrollToBottomAsync(".scrollable-drawer-content", ScrollBehavior.Smooth);
             });
