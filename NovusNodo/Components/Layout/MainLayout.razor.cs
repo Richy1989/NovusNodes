@@ -13,15 +13,12 @@ namespace NovusNodo.Components.Layout
         private MudTheme _theme = null;
         private DotNetObjectReference<NovusUIManagement> novusUIManagementRef;
         private bool _disposedValue;
-        private bool autoScrollDebugWindow = true;
         /// <summary>
         /// Initializes the component.
         /// </summary>
         protected override void OnInitialized()
         {
             base.OnInitialized();
-
-            ExecutionManager.DebugLogChanged += ExecutionManager_DebugLogChanged;
 
             _theme = new()
             {
@@ -32,21 +29,6 @@ namespace NovusNodo.Components.Layout
         }
 
         /// <summary>
-        /// Handles the DebugLogChanged event from the ExecutionManager.
-        /// </summary>
-        /// <param name="arg">The argument containing the debug log information.</param>
-        private async Task ExecutionManager_DebugLogChanged((string, System.Text.Json.Nodes.JsonObject) arg)
-        {
-            await InvokeAsync(async () =>
-            {
-                StateHasChanged();
-
-                if (autoScrollDebugWindow)
-                    await ScrollManager.ScrollToBottomAsync(".scrollable-drawer-content", ScrollBehavior.Smooth);
-            });
-        }
-
-        /// <summary>
         /// Toggles the state of the drawer.
         /// </summary>
         private void DrawerToggle()
@@ -54,14 +36,7 @@ namespace NovusNodo.Components.Layout
             NovusUIManagement.DrawerOpen = !NovusUIManagement.DrawerOpen;
         }
 
-        public async Task ClearDebugLog()
-        {
-            ExecutionManager.DebugLog.Clear();
-            await InvokeAsync(() =>
-            {
-                StateHasChanged();
-            });
-        }
+
 
         /// <summary>
         /// Toggles the state of the settings drawer.
@@ -128,7 +103,6 @@ namespace NovusNodo.Components.Layout
                 if (disposing)
                 {
                     novusUIManagementRef?.Dispose();
-                    ExecutionManager.DebugLogChanged -= ExecutionManager_DebugLogChanged;
                 }
 
                 _disposedValue = true;

@@ -101,6 +101,8 @@ function initializeCodeMirror(elementId, initialCode) {
 //    element.scrollTop = element.scrollHeight;
 //};
 
-function scrollToBottom(element) {
+function scrollToBottom(elementid)
+{
+    element = document.getElementById(elementid);
     element.scrollTop = element.scrollHeight;
 }

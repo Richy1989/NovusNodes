@@ -1,0 +1,91 @@
+﻿@using NovusNodo.Components.Pages
+@inject NovusNodo.Management.NovusUIManagement NovusUIManagement
+@inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
+@inject IJSRuntime JS
+@inject ILoggerFactory LoggerFactory
+
+<MudContainer Class="pa-0 d-flex flex-column flex-grow-1" Style="width: 100%; height:100%;" MaxWidth="MaxWidth.False">
+    <div style="display: flex; flex-direction: row; justify-content: space-around; margin:5px 0px 5px 0px;">
+        <MudButton Onclick="ClearDebugLog" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ClearAll" Color="Color.Primary" FullWidth="true">Clear Debug Log</MudButton>
+        <MudSwitch @bind-Value="autoScrollDebugWindow" Style="padding-left:10px;" Color="Color.Primary" Label="Auto Scroll" UncheckedColor="Color.Warning" />
+    </div>
+    <MudContainer id="scrollable-drawer-content" Class="scrollable-drawer-content d-flex flex-column overflow-x-auto" Style="padding: 5px 0px 5px 0px; width: 100%; height:100%;" MaxWidth="MaxWidth.False">
+        <MudTable Items="@ExecutionManager.DebugLog" Hover="true" Breakpoint="Breakpoint.Sm">
+            <RowTemplate>
+                <MudTd Class="pa-1"><DebugEntry Timestamp="DateTime.Now" MessageID="@context.Key" Tag="Info" Message="@context.Value"></DebugEntry></MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudContainer>
+</MudContainer>
+
+@code {
+
+    private bool _disposedValue;
+    private bool autoScrollDebugWindow = true;
+
+    /// <summary>
+        /// Initializes the component.
+        /// </summary>
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        ExecutionManager.DebugLogChanged += ExecutionManager_DebugLogChanged;
+    }
+
+    public async Task ClearDebugLog()
+    {
+        ExecutionManager.DebugLog.Clear();
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+
+    /// <summary>
+    /// Handles the DebugLogChanged event from the ExecutionManager.
+    /// </summary>
+    /// <param name="arg">The argument containing the debug log information.</param>
+    private async Task ExecutionManager_DebugLogChanged((string, System.Text.Json.Nodes.JsonObject) arg)
+    {
+        await InvokeAsync(async () =>
+        {
+            StateHasChanged();
+
+            
+                
+            //     await ScrollManager.ScrollToBottomAsync(".scrollable-drawer-content", ScrollBehavior.Smooth);
+
+            //scrollToBottom
+        });
+        if (autoScrollDebugWindow)
+         await JS.InvokeVoidAsync("scrollToBottom", "scrollable-drawer-content");
+    }
+
+    /// <summary>
+    /// Public implementation of Dispose pattern callable by consumers.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Protected implementation of Dispose pattern.
+    /// </summary>
+    /// <param name="disposing">Indicates whether the method is called from Dispose.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                ExecutionManager.DebugLogChanged -= ExecutionManager_DebugLogChanged;
+            }
+
+            _disposedValue = true;
+        }
+    }
+}
