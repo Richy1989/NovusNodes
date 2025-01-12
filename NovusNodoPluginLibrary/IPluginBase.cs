@@ -31,7 +31,7 @@ namespace NovusNodoPluginLibrary
         /// <summary>
         /// Gets or sets the configuration object.
         /// </summary>
-        object JsonConfig { get; set; }
+        object PluginConfig { get; set; }
 
         /// <summary>
         /// Gets or sets the parent node.

@@ -32,7 +32,7 @@ namespace NovusNodoPluginLibrary
         {
             if (PluginBase != null)
             {
-                PluginConfig = PluginBase.JsonConfig;
+                PluginConfig = PluginBase.PluginConfig;
                 PluginBase.SaveSettings = SaveSettings;
 
             }

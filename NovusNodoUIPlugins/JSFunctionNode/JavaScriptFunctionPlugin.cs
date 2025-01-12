@@ -15,7 +15,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         public JavaScriptFunctionPlugin()
         {
             UI = typeof(JavaScriptFunctionPluginUI);
-            JsonConfig = "return msg;";
+            PluginConfig = "return msg;";
             AddWorkTask(Workload);
         }
 
@@ -33,7 +33,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         {
             // Execute the JavaScript code and return the result
             //The config is the JavaScript code to be executed
-            return await ExecuteJavaScriptCodeCallback((string)JsonConfig, jsonData).ConfigureAwait(false);
+            return await ExecuteJavaScriptCodeCallback((string)PluginConfig, jsonData).ConfigureAwait(false);
         }
     }
 }

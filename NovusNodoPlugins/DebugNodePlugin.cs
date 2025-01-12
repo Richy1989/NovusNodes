@@ -15,7 +15,7 @@ namespace NovusNodoPlugins
         /// </summary>
         public DebugNodePlugin()
         {
-            JsonConfig = "{\"DebugPath\": \"msg.time\"}";
+            PluginConfig = "{\"DebugPath\": \"msg.time\"}";
 
             //Adding the task to the list of tasks
             base.AddWorkTask(Workload);

@@ -65,13 +65,13 @@ namespace NovusNodoPluginLibrary
         /// <summary>
         /// Gets or sets the configuration object.
         /// </summary>
-        private object jsonConfig = null;
-        public object JsonConfig
+        private object pluginConfig = null;
+        public object PluginConfig
         {
-            get { return jsonConfig; }
+            get { return pluginConfig; }
             set
             {
-                jsonConfig = value;
+                pluginConfig = value;
                 Task.Run(async () =>
                 {
                     if (ConfigUpdated != null)

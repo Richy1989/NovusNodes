@@ -48,7 +48,7 @@ namespace NovusNodoUIPlugins.InjectorNode
         public async Task<JsonObject> Workload(JsonObject jsonData)
         {
             StringBuilder jsonConfigBuilder = new();
-            InjectorNodeConfig config = JsonConfig == null ? InjectorNodeConfig.CreateDefault() : (InjectorNodeConfig)JsonConfig;
+            InjectorNodeConfig config = PluginConfig == null ? InjectorNodeConfig.CreateDefault() : (InjectorNodeConfig)PluginConfig;
 
             foreach (var entry in config.InjectorEntries)
             {
@@ -88,7 +88,7 @@ namespace NovusNodoUIPlugins.InjectorNode
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Start()
         {
-            InjectorNodeConfig config = JsonConfig == null ? InjectorNodeConfig.CreateDefault() : (InjectorNodeConfig)JsonConfig;
+            InjectorNodeConfig config = PluginConfig == null ? InjectorNodeConfig.CreateDefault() : (InjectorNodeConfig)PluginConfig;
 
             int injectInterval = (int)(config.InjectIntervalValue * (int)config.InjectInterval);
 

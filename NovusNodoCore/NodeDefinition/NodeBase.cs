@@ -86,7 +86,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets the JSON configuration for the node.
         /// </summary>
-        public object JsonConfig { get => PluginBase.JsonConfig; set => PluginBase.JsonConfig = value; }
+        public object PluginConfig { get => PluginBase.PluginConfig; set => PluginBase.PluginConfig = value; }
 
         /// <summary>
         /// Gets or sets the name of the node.

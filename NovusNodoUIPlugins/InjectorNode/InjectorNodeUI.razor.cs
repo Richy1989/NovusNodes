@@ -46,7 +46,7 @@ namespace NovusNodoUIPlugins.InjectorNode
                 }
             }
 
-            PluginBase.JsonConfig = PluginConfig;
+            PluginBase.PluginConfig = PluginConfig;
         }
 
         /// <summary>
