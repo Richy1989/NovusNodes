@@ -1,3 +1,4 @@
+using Microsoft.Extensions.FileProviders;
 using MudBlazor.Services;
 using NovusNodo.Components;
 using NovusNodo.Management;
@@ -49,7 +50,23 @@ namespace NovusNodo
             app.MapStaticAssets();
             app.UseHttpsRedirection();
 
+            
             app.UseStaticFiles();
+
+            for(int i = 0; i < PluginManager.StaticFileOptions.Count; i++)
+            {
+                app.UseStaticFiles(PluginManager.StaticFileOptions[i]);
+            }
+
+            //app.UseStaticFiles();    //Serve files from wwwroot
+            //app.UseStaticFiles(new StaticFileOptions
+            //{
+            //    FileProvider = new PhysicalFileProvider(
+            //            Path.Combine(builder.Environment.ContentRootPath, "MyStaticFiles")),
+            //    RequestPath = "/StaticFiles"
+            //});
+
+
             app.UseAntiforgery();
 
             app.MapRazorComponents<App>()

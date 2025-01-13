@@ -17,17 +17,36 @@
     [Parameter] public string MessageID { get; set; }
     [Parameter] public JsonObject Message { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     await base.OnInitializedAsync();
+    //     var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
+    //     try
+    //     {
+    //         await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Logger.LogError(ex, $"Error in creating the Json Editor for debug entry {MessageID}");
+    //     }
+    // }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await base.OnInitializedAsync();
-        var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
-        try
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
         {
-            await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, $"Error in creating the Json Editor for debug entry {MessageID}");
+
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
+            try
+            {
+                await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, $"Error in creating the Json Editor for debug entry {MessageID}");
+            }
         }
     }
 }

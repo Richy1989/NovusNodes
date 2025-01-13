@@ -103,6 +103,9 @@ function initializeCodeMirror(elementId, initialCode) {
 
 function scrollToBottom(elementid)
 {
+    console.log("Scrolling to bottom of ID:" + elementid);
     element = document.getElementById(elementid);
+    console.log("Scrolling to bottom of Element:" + element);
     element.scrollTop = element.scrollHeight;
+    console.log("Scrolling to bottom of Element Scroll Height:" + element.scrollHeight);
 }

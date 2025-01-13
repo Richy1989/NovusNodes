@@ -24,8 +24,8 @@
     private bool autoScrollDebugWindow = true;
 
     /// <summary>
-        /// Initializes the component.
-        /// </summary>
+    /// Initializes the component.
+    /// </summary>
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -49,18 +49,21 @@
     /// <param name="arg">The argument containing the debug log information.</param>
     private async Task ExecutionManager_DebugLogChanged((string, System.Text.Json.Nodes.JsonObject) arg)
     {
-        await InvokeAsync(async () =>
+        await InvokeAsync(() =>
         {
             StateHasChanged();
-
-            
-                
-            //     await ScrollManager.ScrollToBottomAsync(".scrollable-drawer-content", ScrollBehavior.Smooth);
-
-            //scrollToBottom
         });
+    }
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
         if (autoScrollDebugWindow)
-         await JS.InvokeVoidAsync("scrollToBottom", "scrollable-drawer-content");
+        {
+            await JS.InvokeVoidAsync("scrollToBottom", "scrollable-drawer-content");
+        }
+
     }
 
     /// <summary>

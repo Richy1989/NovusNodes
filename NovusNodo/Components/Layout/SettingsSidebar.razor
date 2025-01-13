@@ -56,8 +56,6 @@
 
     public string EnableDisableSwitch { get; set; } = "Enabled";
 
-
-
     public bool IsNodeEnabled
     {
         get
@@ -135,6 +133,7 @@
     /// </summary>
     protected override void OnInitialized()
     {
+        base.OnInitialized();
 
         Parameters = PrepareParameters(NovusUIManagement.SideBarUI);
 
