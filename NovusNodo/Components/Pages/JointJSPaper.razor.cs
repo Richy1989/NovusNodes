@@ -12,7 +12,20 @@ namespace NovusNodo.Components.Pages
     /// </summary>
     public partial class JointJSPaper : ComponentBase, IDisposable
     {
+        /// <summary>
+        /// Indicates whether the component has been initialized.
+        /// </summary>
         private bool isInitialized = false;
+
+        /// <summary>
+        /// Indicates whether the object has been disposed.
+        /// </summary>
+        private bool _disposedValue;
+
+        /// <summary>
+        /// A reference to the current instance of the JointJS Paper component for JavaScript interop.
+        /// </summary>
+        private DotNetObjectReference<JointJSPaper> jointJSPaperComponentRef;
 
         /// <summary>
         /// Gets or sets the Tab ID associated with this JointJS Paper component.
@@ -24,16 +37,6 @@ namespace NovusNodo.Components.Pages
         /// Gets or sets the NodePageManager instance for managing nodes on this page.
         /// </summary>
         public NodePageManager NodePageManager { get; set; }
-
-        /// <summary>
-        /// Indicates whether the object has been disposed.
-        /// </summary>
-        private bool _disposedValue;
-
-        /// <summary>
-        /// A reference to the current instance of the JointJS Paper component for JavaScript interop.
-        /// </summary>
-        private DotNetObjectReference<JointJSPaper> jointJSPaperComponentRef;
 
         /// <summary>
         /// Method called when the component is initialized.

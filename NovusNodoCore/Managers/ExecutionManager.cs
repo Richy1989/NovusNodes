@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
+using NovusNodoCore.DebugNotification;
+using NovusNodoCore.NovusLogger;
 using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.Managers
@@ -19,12 +21,15 @@ namespace NovusNodoCore.Managers
         /// </summary>
         private readonly IServiceProvider serviceProvider;
 
-        private readonly ILogger logger;
+        /// <summary>
+        /// The logger instance for logging errors and information.
+        /// </summary>
+        private readonly ILogger<ExecutionManager> logger;
 
         /// <summary>
         /// Event fired when DebugLog is updated.
         /// </summary>
-        public event Func<(string, JsonObject), Task> DebugLogChanged;
+        public event Func<string, DebugMessage, Task> DebugLogChanged;
 
         /// <summary>
         /// Gets or sets the available plugins.
@@ -39,7 +44,7 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Gets or sets the debug log.
         /// </summary>
-        public IDictionary<string, JsonObject> DebugLog { get; set; } = new Dictionary<string, JsonObject>();
+        public IDictionary<string, DebugMessage> DebugLog { get; set; } = new Dictionary<string, DebugMessage>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
@@ -54,6 +59,13 @@ namespace NovusNodoCore.Managers
 
             NodeJSEnvironmentManager = nodeJSEnvironmentManager;
             NodeJSEnvironmentManager.Initialize();
+
+            DebugWindowLogger.NewDebugLog += ExecutionManager_NewDebugLog;
+        }
+
+        private async Task ExecutionManager_NewDebugLog(DebugMessage arg)
+        {
+            await OnDebugLogUpdated(arg).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -91,13 +103,6 @@ namespace NovusNodoCore.Managers
                         logger.LogError("Plugin ID must be a valid GUID");
                         throw new Exception("Plugin ID must be a valid GUID");
                     }
-
-                    //var instance = Activator.CreateInstance(type);
-                    //if (instance == null)
-                    //{
-                    //    continue;
-                    //}
-                    //PluginBase plugin = (PluginBase)instance;
 
                     AvailablePlugins.Add(baseAttribute.Id, (type, baseAttribute));
                 }
@@ -152,12 +157,26 @@ namespace NovusNodoCore.Managers
         /// <param name="id">The ID of the debug log entry.</param>
         /// <param name="message">The debug log message.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task OnDebugLogUpdated(string id, JsonObject message)
+        public async Task OnDebugLogUpdated(string senderId, JsonObject inputMessage)
         {
-            string dID = Guid.NewGuid().ToString();
-            DebugLog.Add(dID, message);
+            DebugMessage debugMessage = new()
+            {
+                DebugType = "Debug",
+                Tag = "Debug",
+                Message = inputMessage,
+                Sender = senderId
+            };
+
+            DebugLog.Add(debugMessage.Id, debugMessage);
             if (DebugLogChanged.Invoke != null)
-                await DebugLogChanged.Invoke((dID, message)).ConfigureAwait(false);
+                await DebugLogChanged.Invoke(debugMessage.Id, debugMessage).ConfigureAwait(false);
+        }
+
+        public async Task OnDebugLogUpdated(DebugMessage message)
+        {
+            DebugLog.Add(message.Id, message);
+            if (DebugLogChanged.Invoke != null)
+                await DebugLogChanged.Invoke(message.Id, message).ConfigureAwait(false);
         }
     }
 }

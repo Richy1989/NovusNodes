@@ -6,7 +6,7 @@ namespace NovusNodo.PluginManagement
 {
     public static class PluginManager
     {
-        public static List<StaticFileOptions> StaticFileOptions { get; } = new();
+        public static List<PhysicalFileProvider> FileProviders { get; } = new();
         public static string PluginPath { get; } = Path.Combine(Directory.GetCurrentDirectory(), "plugins");
         /// <summary>
         /// Adds plugin components to the service collection.
@@ -104,10 +104,7 @@ namespace NovusNodo.PluginManagement
                             continue;
                         }
 
-                        StaticFileOptions.Add(new StaticFileOptions
-                        {
-                            FileProvider = new PhysicalFileProvider(dir)
-                        });
+                        //FileProviders.Add(new PhysicalFileProvider(dir));
 
                         string PluginStaticFilesDirName = Path.GetFileName(Path.TrimEndingDirectorySeparator(dir));
                         string localwwwRootPath = Path.Combine(executingDir, "wwwroot", "_content", PluginStaticFilesDirName);
@@ -117,12 +114,12 @@ namespace NovusNodo.PluginManagement
                             Directory.Delete(localwwwRootPath, true); // true indicates recursive deletion
                         }
 
-                        //Directory.CreateDirectory(localwwwRootPath);
-                        //foreach (string filePath in Directory.GetFiles(dir))
-                        //{
-                        //    string fileName = Path.GetFileName(Path.TrimEndingDirectorySeparator(filePath));
-                        //    File.Copy(filePath, Path.Combine(localwwwRootPath, fileName), true); // Overwrite if exists
-                        //}
+                        Directory.CreateDirectory(localwwwRootPath);
+                        foreach (string filePath in Directory.GetFiles(dir))
+                        {
+                            string fileName = Path.GetFileName(Path.TrimEndingDirectorySeparator(filePath));
+                            File.Copy(filePath, Path.Combine(localwwwRootPath, fileName), true); // Overwrite if exists
+                        }
                     }
                 }
             }

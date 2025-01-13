@@ -1,51 +1,90 @@
 ﻿@using Blazor.JsonEditor.Component
 @using System.Text.Json.Nodes
 @using System.Text.Json
+@using NovusNodoCore.DebugNotification
 @inject IJSRuntime JS
 @inject ILogger<DebugEntry> Logger
 
-
 <MudContainer>
-    <MudText Typo="Typo.subtitle2">@Timestamp.ToString("g")</MudText>
-    <MudText Typo="Typo.body2" Color="Color.Secondary">@Tag</MudText>
-    <div id="@string.Format("{0}", MessageID)" style="min-height:150px;"></div>
+    <MudText Typo="Typo.subtitle2">@Message.DateTime.ToString("g")</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary">@Message.Tag</MudText>
+
+    @if (Message.ErrorMessage != null)
+    {
+        <MudContainer Class="error-log-container">
+            <MudText Typo="Typo.h6" Color="Color.Error" Class="error-title">
+                @if (Message.ErrorMessage != null)
+                {
+                    @Message.ErrorMessage;
+                }
+            </MudText>
+            <MudDivider />
+            <MudText Typo="Typo.body1" Class="error-message">
+                @if (Message.Exception != null) 
+                {
+                    @Message.Exception.Message;
+                }
+            </MudText>
+        </MudContainer>
+    }
+    else
+    {
+        <div id="@string.Format("{0}", MessageID)" style="min-height:150px;"></div>
+    }
 </MudContainer>
 
-@code {
-    [Parameter] public DateTime Timestamp { get; set; }
-    [Parameter] public string Tag { get; set; }
+<style>
+    .error-log-container {
+        padding: 16px;
+        background-color: #f8d7da;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .error-title {
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .error-message {
+        margin-bottom: 16px;
+    }
+</style>
+
+@code
+{
+    /// <summary>
+    /// Gets or sets the unique identifier for the message.
+    /// </summary>
     [Parameter] public string MessageID { get; set; }
-    [Parameter] public JsonObject Message { get; set; }
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     await base.OnInitializedAsync();
-    //     var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
-    //     try
-    //     {
-    //         await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Logger.LogError(ex, $"Error in creating the Json Editor for debug entry {MessageID}");
-    //     }
-    // }
+    /// <summary>
+    /// Gets or sets the JSON object representing the message.
+    /// </summary>
+    [Parameter] public DebugMessage Message { get; set; }
 
+    /// <summary>
+    /// Method invoked after the component has been rendered.
+    /// </summary>
+    /// <param name="firstRender">Indicates whether this is the first time the component is rendered.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
 
         if (firstRender)
         {
-
-            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
-            try
+            if (Message.ErrorMessage == null)
             {
-                await module.InvokeVoidAsync("JsonEditorCreateEditor", [$"{MessageID}", $"{Message}"]);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, $"Error in creating the Json Editor for debug entry {MessageID}");
+                var module = await JS.InvokeAsync<IJSObjectReference>("import", "./JSFolder/JsonEditor.js");
+                try
+                {
+                    await module.InvokeVoidAsync("JsonEditorCreateEditor", new object[] { $"{MessageID}", $"{Message.Message}" });
+                }
+                catch
+                {
+                    //Do not log here to avoid circular messages for logging
+                }
             }
         }
     }

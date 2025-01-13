@@ -1,4 +1,5 @@
 ﻿@using NovusNodo.Components.Pages
+@using NovusNodoCore.DebugNotification
 @inject NovusNodo.Management.NovusUIManagement NovusUIManagement
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 @inject IJSRuntime JS
@@ -12,7 +13,7 @@
     <MudContainer id="scrollable-drawer-content" Class="scrollable-drawer-content d-flex flex-column overflow-x-auto" Style="padding: 5px 0px 5px 0px; width: 100%; height:100%;" MaxWidth="MaxWidth.False">
         <MudTable Items="@ExecutionManager.DebugLog" Hover="true" Breakpoint="Breakpoint.Sm">
             <RowTemplate>
-                <MudTd Class="pa-1"><DebugEntry Timestamp="DateTime.Now" MessageID="@context.Key" Tag="Info" Message="@context.Value"></DebugEntry></MudTd>
+                <MudTd Class="pa-1"><DebugEntry MessageID="@context.Key" Message="@context.Value"></DebugEntry></MudTd>
             </RowTemplate>
         </MudTable>
     </MudContainer>
@@ -47,7 +48,7 @@
     /// Handles the DebugLogChanged event from the ExecutionManager.
     /// </summary>
     /// <param name="arg">The argument containing the debug log information.</param>
-    private async Task ExecutionManager_DebugLogChanged((string, System.Text.Json.Nodes.JsonObject) arg)
+    private async Task ExecutionManager_DebugLogChanged(string id, DebugMessage arg)
     {
         await InvokeAsync(() =>
         {

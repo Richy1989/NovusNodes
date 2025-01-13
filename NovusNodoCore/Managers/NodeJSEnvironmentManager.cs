@@ -68,7 +68,7 @@ namespace NovusNodoCore.Managers
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Error running user code");
+                    logger.LogError(e, "Error running user code.");
                 }
             });
 
