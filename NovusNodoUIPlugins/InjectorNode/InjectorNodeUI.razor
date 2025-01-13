@@ -17,7 +17,7 @@
         </MudContainer>
 
         <MudDivider Class="my-2" />
-        <MudTable Items="@localConfig.InjectorEntries" Hover="true" Breakpoint="Breakpoint.Sm">
+        <MudTable Items="@localInjectorEntries" Hover="true" Breakpoint="Breakpoint.Sm">
             <RowTemplate>
                 <MudTd Class="pa-1"><DataRowEntry Item="@context" RemoveButton="RemoveButton"></DataRowEntry></MudTd>
             </RowTemplate>
@@ -59,6 +59,7 @@
 </MudContainer>
 
 @code {
+    private List<Item> localInjectorEntries = new List<Item>();
     private InjectorNodeConfig localConfig;
     private bool isIntervalSelectionVisible = false;
 
@@ -75,11 +76,15 @@
         base.OnInitialized();
 
         PluginConfig = PluginConfig == null ? InjectorNodeConfig.CreateDefault() : (InjectorNodeConfig)PluginConfig;
-        
-        //Remove this, at fix the issue
         localConfig = PluginConfig as InjectorNodeConfig;
 
-        if (localConfig.InjectorEntries.Count == 0)
+        //Remove this, at fix the issue
+        foreach (var entry in (PluginConfig as InjectorNodeConfig).InjectorEntries)
+        {
+            localInjectorEntries.Add(entry);
+        }
+
+        if (localInjectorEntries.Count == 0)
             AddNewEntry();
 
         injectInterval = localConfig.InjectInterval.ToString();
@@ -96,7 +101,8 @@
     private async Task RemoveButton(string id)
     {
         // Remove the item from the list
-        localConfig.InjectorEntries = localConfig.InjectorEntries.Where(x => x.ID != id).ToList();
+        localInjectorEntries = localInjectorEntries.Where(x => x.ID != id).ToList();
+
         await InvokeAsync(() =>
         {
             StateHasChanged();
@@ -114,8 +120,9 @@
             Value = "",
             SelectedType = PossibleTypesEnum.DateTime
         };
+
         // Add the new item to the list
-        localConfig.InjectorEntries = localConfig.InjectorEntries.Append(newItem).ToList();
+        localInjectorEntries = localInjectorEntries.Append(newItem).ToList();
     }
 
     private void InjectionModeChanged()

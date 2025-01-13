@@ -32,9 +32,8 @@ namespace NovusNodoUIPlugins.InjectorNode
         {
             //Add number sequence to duplicate the variable names
             var nameCounts = new Dictionary<string, int>();
-            foreach (var entry in (PluginConfig as InjectorNodeConfig).InjectorEntries)
+            foreach (var entry in localInjectorEntries)
             {
-
                 if (nameCounts.ContainsKey(entry.Variable))
                 {
                     nameCounts[entry.Variable]++;
@@ -46,7 +45,8 @@ namespace NovusNodoUIPlugins.InjectorNode
                 }
             }
 
-            PluginBase.PluginConfig = PluginConfig;
+            localConfig.InjectorEntries = localInjectorEntries;
+            PluginBase.PluginConfig = localConfig;
         }
 
         /// <summary>

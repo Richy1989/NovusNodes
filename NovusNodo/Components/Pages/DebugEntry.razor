@@ -6,8 +6,9 @@
 @inject ILogger<DebugEntry> Logger
 
 <MudContainer>
-    <MudText Typo="Typo.subtitle2">@Message.DateTime.ToString("g")</MudText>
-    <MudText Typo="Typo.body2" Color="Color.Secondary">@Message.Tag</MudText>
+    <MudText Typo="Typo.subtitle2">Time: @Message.DateTime.ToString("yyyy-MM-dd HH:mm:ss")</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary">Id: @Message.Id</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary">Tag: @Message.Tag</MudText>
 
     @if (Message.ErrorMessage != null)
     {
