@@ -109,3 +109,22 @@ function scrollToBottom(elementid)
     element.scrollTop = element.scrollHeight;
     console.log("Scrolling to bottom of Element Scroll Height:" + element.scrollHeight);
 }
+
+function lightenColor(hex, percent) {
+    // Convert HEX to RGB
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+
+    // Increase RGB values by the given percentage
+    r = Math.min(255, r + (255 - r) * (percent / 100));
+    g = Math.min(255, g + (255 - g) * (percent / 100));
+    b = Math.min(255, b + (255 - b) * (percent / 100));
+
+    // Convert RGB back to HEX
+    r = Math.round(r).toString(16).padStart(2, '0');
+    g = Math.round(g).toString(16).padStart(2, '0');
+    b = Math.round(b).toString(16).padStart(2, '0');
+
+    return `#${r}${g}${b}`;
+}

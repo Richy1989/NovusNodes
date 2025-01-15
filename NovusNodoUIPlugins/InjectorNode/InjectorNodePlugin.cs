@@ -73,7 +73,7 @@ namespace NovusNodoUIPlugins.InjectorNode
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error deserializing JSON object using default check in value");
+                Logger.LogError(ex, "Error deserializing JSON object using default inject value");
                 var time = new { DateTime = DateTime.UtcNow.ToString("O") };
                 string jsonString = JsonSerializer.Serialize(time);
                 jsonObject = JsonSerializer.Deserialize<JsonObject>(jsonString);
@@ -136,7 +136,7 @@ namespace NovusNodoUIPlugins.InjectorNode
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error stopping the plugin");
+                Logger.LogDebug(ex, "Error stopping the plugin");
             }
         }
 

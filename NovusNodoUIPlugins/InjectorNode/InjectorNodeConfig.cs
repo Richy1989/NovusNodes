@@ -10,7 +10,7 @@ namespace NovusNodoUIPlugins.InjectorNode
         /// <summary>
         /// Gets or sets the list of injector entries.
         /// </summary>
-        public List<Item> InjectorEntries { get; set; } = new List<Item>();
+        public List<Item> InjectorEntries { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the injection mode.

@@ -12,7 +12,7 @@
                 <MudText Typo="Typo.h5" Align="Align.Center">Injector Node Configuration</MudText>
             </MudItem>
             <MudItem>
-                <MudIconButton OnClick="AddNewEntry" Icon="@Icons.Material.Filled.Add"></MudIconButton>
+                <MudIconButton OnClick="AddNewInjectorEntry" Icon="@Icons.Material.Filled.Add"></MudIconButton>
             </MudItem>
         </MudContainer>
 
@@ -58,15 +58,11 @@
     }
 </MudContainer>
 
-@code {
+@code
+{
     private List<Item> localInjectorEntries = new List<Item>();
     private InjectorNodeConfig localConfig;
     private bool isIntervalSelectionVisible = false;
-
-    /// <summary>
-    /// Gets or sets the collection of entries.
-    /// </summary>
-    // public IEnumerable<Item> Entries { get; set; } = new List<Item>();
 
     /// <summary>
     /// Method invoked when the component is initialized.
@@ -85,7 +81,7 @@
         }
 
         if (localInjectorEntries.Count == 0)
-            AddNewEntry();
+            AddNewInjectorEntry();
 
         injectInterval = localConfig.InjectInterval.ToString();
         InjectIntervals = new HashSet<string>() { injectInterval };
@@ -112,7 +108,7 @@
     /// <summary>
     /// Adds a new entry to the Entries collection.
     /// </summary>
-    private void AddNewEntry()
+    private void AddNewInjectorEntry()
     {
         Item newItem = new Item
         {

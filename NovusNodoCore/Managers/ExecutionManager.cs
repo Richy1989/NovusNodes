@@ -63,6 +63,11 @@ namespace NovusNodoCore.Managers
             DebugWindowLogger.NewDebugLog += ExecutionManager_NewDebugLog;
         }
 
+        /// <summary>
+        /// Handles the event when a new debug log is created.
+        /// </summary>
+        /// <param name="arg">The debug message argument.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         private async Task ExecutionManager_NewDebugLog(DebugMessage arg)
         {
             await OnDebugLogUpdated(arg).ConfigureAwait(false);
@@ -89,7 +94,7 @@ namespace NovusNodoCore.Managers
 
                     NovusPluginAttribute baseAttribute = (NovusPluginAttribute)Attribute.GetCustomAttribute(type, typeof(NovusPluginAttribute));
 
-                    if(baseAttribute == null)
+                    if (baseAttribute == null)
                     {
                         continue;
                     }
@@ -98,7 +103,7 @@ namespace NovusNodoCore.Managers
                         logger.LogError("Cannot load Base class of plugin, or ID was not set");
                         throw new Exception("Cannot load Base class of plugin, or ID was not set");
                     }
-                    if(!Guid.TryParse(baseAttribute.Id, out _))
+                    if (!Guid.TryParse(baseAttribute.Id, out _))
                     {
                         logger.LogError("Plugin ID must be a valid GUID");
                         throw new Exception("Plugin ID must be a valid GUID");
@@ -172,6 +177,11 @@ namespace NovusNodoCore.Managers
                 await DebugLogChanged.Invoke(debugMessage.Id, debugMessage).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Invokes the DebugLogChanged event.
+        /// </summary>
+        /// <param name="message">The debug log message.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task OnDebugLogUpdated(DebugMessage message)
         {
             DebugLog.Add(message.Id, message);

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NovusNodoCore.NodeDefinition
+﻿namespace NovusNodoCore.NodeDefinition
 {
     /// <summary>
     /// Represents a port in a node, which can be either an input or output port.

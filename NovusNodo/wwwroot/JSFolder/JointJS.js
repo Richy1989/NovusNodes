@@ -32,10 +32,14 @@ let selectedCell = null;
  */
 let selectedLink = null;
 
+//Checks if the curser is currently hovering over a port
+let inPortHighlight = false;
 
 let BackgroundColor = 'white';
 let StrokeColor = 'black';
 let LinkColor = '#7f1ddc';
+let inputPortColor = '#4A90E2';
+let outputPortColor = '#E6A502';
 /**
  * Sets the color palette for the JointJS diagram.
  * @param {string} backgroundColor - The background color of the diagram.
@@ -207,19 +211,8 @@ function JJSCreatePaper(paperContainerName, reference) {
                 }
             }
         });
-
-        
         selectedLink = currentLink;
     });
-
-    //// Highlight the selected cell
-    //paper.on('element:pointerclick', (cellView) =>
-    //{
-    //    ResetAll();
-
-    //    selectedCell = cellView;
-    //    cellView.highlight(); // Highlight the new selection
-    //});
 
     paper.on('element:pointerclick', function (elementView, evt, x, y) {
         
@@ -248,8 +241,48 @@ function JJSCreatePaper(paperContainerName, reference) {
         NovusUIManagementRef.invokeMethodAsync("NovusUIManagement.CellDoubleClick", selectedPaperTabId, cellView.model.id);
     });
 
+    // Add event listener for mouseover and mouseout
+    paper.on('cell:mouseover', function (cellView, evt) {
+        const portId = evt.target.getAttribute('port');
+        if (portId) {
+            highlightPortColorOnHover(cellView.model, portId); // Hover color
+        }
+    });
+
+    paper.on('cell:mouseout', function (cellView, evt) {
+        const portId = evt.target.getAttribute('port');
+        if (portId) {
+            restorePortColorOnHover(cellView.model, portId); // Hover reset color
+        }
+    });
+
     const jointjspaper = new JointJSPage(graph, paper, paperContainerName, reference);
     jointJSPages[paperContainerName] = jointjspaper;
+}
+
+
+// Function to change port color on hover
+function highlightPortColorOnHover(element, portId)
+{
+    if (!inPortHighlight) {
+        inPortHighlight = true;
+        const originalColor = element.getPort(portId).attrs.portBody.fill;
+
+        let color = lightenColor(originalColor, 40);
+        console.log("Highlighed", color);
+        element.portProp(portId, 'attrs/portBody/originalFill', originalColor);
+        element.portProp(portId, 'attrs/portBody/fill', color);
+    }
+}
+
+// Function to restore port color on hover
+function restorePortColorOnHover(element, portId) {
+    inPortHighlight = false;
+    const originalColor = element.portProp(portId, 'attrs/portBody/originalFill');
+    console.log('Original color:', originalColor);
+    if (originalColor) {
+        element.portProp(portId, 'attrs/portBody/fill', originalColor);
+    }
 }
 
 // Handle the Delete key press
@@ -432,7 +465,7 @@ function JJSCreateNodeElement(id, color, text, width, height, x, y, type) {
             portBody: {
                 magnet: true,
                 r: 7,
-                fill: '#4A90E2',//'#023047',
+                fill: inputPortColor, //'#4A90E2',//'#023047',
                 stroke: '#4A90E2'
             }
         },
@@ -461,7 +494,7 @@ function JJSCreateNodeElement(id, color, text, width, height, x, y, type) {
             portBody: {
                 magnet: true,
                 r: 7,
-                fill: '#E6A502',
+                fill: outputPortColor,//'#E6A502',
                 stroke: '#023047'
             }
         },
@@ -484,24 +517,22 @@ function JJSCreateNodeElement(id, color, text, width, height, x, y, type) {
 
     let node = null;
 
-
-        node = new joint.shapes.custom.NovusNode({
-            id: id,
-            position: { x: parseFloat(x), y: parseFloat(y) },
-            attrs: {
-                headerLabel: {
-                    text: text,
-                },
-            },
-            ports: {
-                groups: {
-                    'in': portsIn,
-                    'out': portsOut
-                }
+    node = new joint.shapes.custom.NovusNode({
+        id: id,
+        position: { x: parseFloat(x), y: parseFloat(y) },
+        attrs: {
+            headerLabel: {
+                text: text,
             }
-        });
+        },
+        ports: {
+            groups: {
+                'in': portsIn,
+                'out': portsOut
+            }
+        }
+    });
     
-
     jointJSPages[selectedPaperTabId].graph.addCell(node);
 }
 
@@ -577,7 +608,12 @@ function JJSAddInputPort(nodeId, portId) {
         {
             id: portId,
             group: 'in',
-            attrs: { label: { text: '' } }
+            attrs: {
+                label: { text: '' },
+                portBody: {
+                    fill: inputPortColor,
+                },
+            }
         }
     ]);
 }
@@ -597,7 +633,12 @@ function JJSAddOutputPort(nodeId, portId) {
         {
             id: portId,
             group: 'out',
-            attrs: { label: { text: '' } }
+            attrs: {
+                label: { text: '' },
+                portBody: {
+                    fill: outputPortColor,
+                },
+            }
         }
     ]);
 }

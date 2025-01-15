@@ -49,7 +49,7 @@ namespace NovusNodoCore.NodeDefinition
         public Type UI { get => PluginBase.UI; set => PluginBase.UI = value; }
 
         /// <summary>Auto Reset event to ensure only one node is executed at a time</summary>
-        private AutoResetEvent autoResetEvent = new(true);
+        private readonly AutoResetEvent autoResetEvent = new(true);
 
         /// <summary>
         /// Gets or sets a value indicating whether the node is enabled.
@@ -217,8 +217,6 @@ namespace NovusNodoCore.NodeDefinition
             await Task.CompletedTask;
         }
 
-        
-
         /// <summary>
         /// Prepares the workload asynchronously.
         /// </summary>
@@ -242,7 +240,6 @@ namespace NovusNodoCore.NodeDefinition
             {
                 try
                 {
-                    //ToDo: Add c#-javascript API
                     JsonObject value = nodeJSEnvironmentManager.RunUserCode(code, parameters);
                     return await Task.FromResult(value).ConfigureAwait(false);
                 }
