@@ -1,11 +1,12 @@
 ﻿// Define a class
 class JointJSPage {
     // Constructor method to initialize properties
-    constructor(graph, paper, paperId, netReference) {
+    constructor(graph, paper, paperId, netReference, selection) {
         this.graph = graph;
         this.paper = paper;
         this.paperId = paperId;
         this.netReference = netReference;
+        this.selection = selection;
     }
 }
 
@@ -152,6 +153,26 @@ function JJSCreatePaper(paperContainerName, reference) {
         }
     });
 
+    //const selection = new ui.Selection({
+    //    paper: paper,
+    //    useModelGeometry: true
+    //});
+
+    //paper.on('blank:pointerdown', function (evt, x, y) {
+    //    selection.startSelecting(evt, x, y);
+    //});
+
+    //paper.on('element:pointerup', function (elementView) {
+    //    // Add selected element to selection
+    //    selection.collection.add(elementView.model);
+    //});
+
+    //paper.on('cell:pointerup', function (cellView) {
+    //    if (!selection.collection.contains(cellView.model)) {
+    //        selection.collection.add(cellView.model);
+    //    }
+    //});
+
     // Resize the paper when the container size changes
     window.addEventListener('resize', () => {
         ResizePaper();
@@ -256,7 +277,7 @@ function JJSCreatePaper(paperContainerName, reference) {
         }
     });
 
-    const jointjspaper = new JointJSPage(graph, paper, paperContainerName, reference);
+    const jointjspaper = new JointJSPage(graph, paper, paperContainerName, reference, selection);
     jointJSPages[paperContainerName] = jointjspaper;
 }
 
@@ -352,7 +373,6 @@ function ElementDeleted(elementId) {
     jointJSPages[selectedPaperTabId].netReference.invokeMethodAsync('NovusHome.ElementRemoved', elementId);
 }
 
-
 function JJSCreateInjectorNode(id, color, text, width, height)
 {
     // Define the custom element
@@ -368,10 +388,8 @@ function JJSCreateInjectorNode(id, color, text, width, height)
             }
         })
     });
-    return injectorDef;
-    
+    return injectorDef;   
 }
-
 
 /**
 * Creates a custom node element and adds it to the graph.
