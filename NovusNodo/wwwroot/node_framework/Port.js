@@ -49,16 +49,20 @@ export class Port {
             .attr("y", this.y);
     }
 
+    /**
+     * Makes sure all connected linkes are moved when the node (and nodeport) are moved.
+     */
     dragLinks() {
         for (let i = 0; i < this.connectedLinks.length; i++) {
             const link = this.connectedLinks[i];
-            
+            let line = this.canvas.svg.select('[id=\"' + link.id + '\"]');
+
             if(this.portType == 'input') {
-                link.attr("x2", this.node.x + this.x + this.width / 2)
+                line.attr("x2", this.node.x + this.x + this.width / 2)
                     .attr("y2", this.node.y + this.y + this.height / 2);
             }
             else if(this.portType == 'output') {
-                link.attr("x1", this.node.x + this.x + this.width / 2)
+                line.attr("x1", this.node.x + this.x + this.width / 2)
                     .attr("y1", this.node.y + this.y + this.height / 2);
             }
         }

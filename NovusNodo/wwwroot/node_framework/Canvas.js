@@ -36,7 +36,7 @@ export class Canvas {
     }
 
     createSvg() {
-        let localSVG = d3.select("svg")
+        let localSVG = d3.select("#main_1")
             .attr("width", this.width)
             .attr("height", this.height)
             .style("background-color", this.getBackgroundColor())
@@ -158,68 +158,67 @@ export class Canvas {
      * @param {Port} targetPort - The target port.
      */
     addLink(sourcePort, targetPort) {
+        
         const link = new Link(crypto.randomUUID(), sourcePort, targetPort);
+        console.log("Adding link:", link.id, sourcePort, targetPort);
+        sourcePort.connectedLinks.push(link);
+        targetPort.connectedLinks.push(link);
         this.linkList.push(link);
     }
     /**
      * Draws all the links on the canvas.
      */
     drawLinks() {
-        for (let i = 0; i < this.linkList.length; i++) {
+        /*for (let i = 0; i < this.linkList.length; i++) {
             const link = this.linkList[i];
             const sourcePort = link.sourcePort;
             const targetPort = link.targetPort;
 
-            let sourcePortX = sourcePort.node.x + sourcePort.x + 5;
+             let sourcePortX = sourcePort.node.x + sourcePort.x + 5;
             let sourcePortY = sourcePort.node.y + sourcePort.y + 5;
 
             let targetPortX = targetPort.node.x + targetPort.x + 5;
             let targetPortY = targetPort.node.y + targetPort.y + 5;
-            
+             */
+
             const canvas = this;
             
-            const line = this.svg.append("line")
+            var u = this.svg.selectAll("line").data(this.linkList, (d) => d.id);
+
+            const line = u.join("line")
                 .attr("class", "link")
-                .attr("id", link.id)
-                .attr("x1", sourcePortX)
-                .attr("y1", sourcePortY)
-                .attr("x2", targetPortX)
-                .attr("y2", targetPortY)
+                .attr("id", (d) => d.id)
+                .attr("x1", (d) => d.sourcePort.node.x + d.sourcePort.x + 5)
+                .attr("y1", (d) => d.sourcePort.node.y + d.sourcePort.y + 5)
+                .attr("x2", (d) => d.targetPort.node.x + d.targetPort.x + 5)
+                .attr("y2", (d) => d.targetPort.node.y + d.targetPort.y + 5)
                 .attr("stroke", this.getLinkColor())
-                .on("click", function () {
+                .on("click", (event, link) => {
+                    console.log("Selected link", event, link);
+                    console.log("Selected This", this);
                     canvas.resetAllLinkColors();
-                    canvas.selectedLink = link.id;
-                    d3.select(this).attr("stroke", "orange");
-                    console.log("Selected link", link.id);
+                    canvas.selectedLink = link;
+                    this.svg.select('[id=\"' + link.id + '\"]').attr("stroke", "orange");
                 });
-
-                link.line = line;
-
-            sourcePort.connectedLinks.push(line);
-            targetPort.connectedLinks.push(line);
-        }
     }
 
     resetAllLinkColors() {
         for (let i = 0; i < this.linkList.length; i++) {
             const link = this.linkList[i];
-            link.line.attr("stroke", this.getLinkColor());
-        }
+            this.svg.select('[id=\"' + link.id + '\"]').attr("stroke", this.getLinkColor());
+            }
     }
 
     deleteSelectedLink() {
         if (this.selectedLink) {
-           // console.log("Deleting link", this.selectedLink.id);   
-            console.log("Deleting link", this.selectedLink);   
-            // Remove the line element from the SVG
-            d3.select("#"+this.selectedLink).remove();
-            
-            // Remove the link from the link list
-            //this.linkList = this.linkList.filter(link => link.id !== this.selectedLink.id); // Remove the link from the list
-            
+            console.log("Deleting link", this.selectedLink.id);
+            // Remove the link from the SVG
+            this.linkList = this.linkList.filter(link => link.id !== this.selectedLink.id);
+            this.drawLinks();
+
             // Remove the link from the connected links list of the source and target ports
-            //this.selectedLink.sourcePort.connectedLinks = this.selectedLink.sourcePort.connectedLinks.filter(link => link.id !== this.selectedLink.id);
-            //this.selectedLink.targetPort.connectedLinks = this.selectedLink.targetPort.connectedLinks.filter(link => link.id !== this.selectedLink.id);
+            this.selectedLink.sourcePort.connectedLinks = this.selectedLink.sourcePort.connectedLinks.filter(link => link.id !== this.selectedLink.id);
+            this.selectedLink.targetPort.connectedLinks = this.selectedLink.targetPort.connectedLinks.filter(link => link.id !== this.selectedLink.id);
             this.selectedLink = null;
         }
     }
