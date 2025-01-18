@@ -11,7 +11,7 @@ export class Node {
      * @param {number} y - The initial y-coordinate of the node.
      */
     constructor(id, canvas, width, height, x, y, color, nodeType) {
-        this.svg = d3.select("svg");
+        this.svg = canvas.svg;
         this.canvas = canvas;
         this.id = id;
         this.width = width;
@@ -35,25 +35,31 @@ export class Node {
         const group = this.svg.append("g")
             .attr("class", "node-group")
             .attr("transform", `translate(${this.x},${this.y})`)
-            
             .call(d3.drag()
                 .on("start", this.dragStarted.bind(this))
                 .on("drag", this.dragged.bind(this))
                 .on("end", this.dragEnded.bind(this)));
 
+
         group.append("rect")
+            .attr("id", this.id)
             .attr("class", "node")
             .attr("stroke", this.canvas.getNodeStrokeColor())
             .attr("name", "nodebody")
             .attr("fill", this.color)
             .attr("width", this.width)
-            .attr("height", this.height);
-
-            this.label = group.append("text")
-            .attr("class", "label")
-            .attr("x", this.width / 2)
-            .attr("y", this.height / 4)
-            .text("Label");
+            .attr("height", this.height)
+            .on("click", () => {
+                this.canvas.resetAllColors();
+                this.svg.select('[id=\"' + this.id + '\"]').attr("stroke", "orange");
+            });
+            
+        this.label = group.append("text")
+        .attr("class", "label")
+        .attr("x", this.width / 2)
+        .attr("y", this.height / 4)
+        .attr("pointer-events", "none") 
+        .text("Label");
 
        /* group.append("circle")
             .attr("class", "button")

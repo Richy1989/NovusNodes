@@ -2,7 +2,7 @@ import { Node } from "./Node.js";
 import { Link } from "./Link.js";
 
 export class Canvas {
-    
+
     isDarkMode = true;
     nodeList = [];
     linkList = [];
@@ -14,11 +14,11 @@ export class Canvas {
      * Creates an instance of Canvas.
      * @param {string} id - The unique identifier for the canvas.
      */
-    constructor(height, width) {
+    constructor(id, height, width) {
         this.height = height;
+        this.id = id;
         this.width = width;
         this.nodes = [];
-        this.links = [];
         this.svg = this.createSvg();
         this.init();
     }
@@ -26,7 +26,7 @@ export class Canvas {
     getLinkColor() {
         return this.isDarkMode ? "white" : "#778899";
     }
-    
+
     getNodeStrokeColor() {
         return this.isDarkMode ? "#f0ead6" : "black";
     }
@@ -36,18 +36,18 @@ export class Canvas {
     }
 
     createSvg() {
-        let localSVG = d3.select("#main_1")
+        let localSVG = d3.select('[id=\"' + this.id + '\"]')
             .attr("width", this.width)
             .attr("height", this.height)
             .style("background-color", this.getBackgroundColor())
             .style("border", "1px solid black");
-    
+
         // Grid configuration
         const rows = Math.ceil(this.height / 20);
         const cols = Math.ceil(this.width / 20);
         const spacing = 20; // Distance between dots
         const dotRadius = 0.5;
-    
+
         // Generate grid data
         const gridData = [];
         for (let row = 0; row < rows; row++) {
@@ -58,7 +58,7 @@ export class Canvas {
                 });
             }
         }
-    
+
         // Draw the dots
         localSVG.selectAll("circle")
             .data(gridData)
@@ -68,7 +68,7 @@ export class Canvas {
             .attr("cy", d => d.y + spacing / 2)
             .attr("r", dotRadius)
             .style("fill", "steelblue");
-    
+
         return localSVG;
     }
 
@@ -122,16 +122,16 @@ export class Canvas {
             }
         });
     }
-    
+
     addNode(node) {
         const canvas = this;
         node.outputPort.port.on("pointerdown", function (event) {
             const transform = d3.select(event.target.parentNode).attr("transform");
             const translateParent = transform.match(/translate\(([^,]+),([^\)]+)\)/);
-    
+
             const portCenterX = parseFloat(translateParent[1]) + parseFloat(d3.select(event.target).attr("x")) + node.outputPort.width / 2;
             const portCenterY = parseFloat(translateParent[2]) + parseFloat(d3.select(event.target).attr("y")) + node.outputPort.height / 2;
-    
+
             console.log("Mouse down", portCenterX, portCenterY);
             canvas.isLinking = true;
             canvas.sourcePort = node.outputPort;//d3.select(event.target);
@@ -142,8 +142,8 @@ export class Canvas {
                 .attr("y2", event.y)
                 .attr("stroke", canvas.getLinkColor())
                 .attr("stroke-width", 2);
-    
-                canvas.svg.on("pointermove", function (event) {
+
+            canvas.svg.on("pointermove", function (event) {
                 if (canvas.isLinking && canvas.tempLine) {
                     const [x, y] = d3.pointer(event);
                     canvas.tempLine.attr("x2", x).attr("y2", y);
@@ -158,7 +158,7 @@ export class Canvas {
      * @param {Port} targetPort - The target port.
      */
     addLink(sourcePort, targetPort) {
-        
+
         const link = new Link(crypto.randomUUID(), sourcePort, targetPort);
         console.log("Adding link:", link.id, sourcePort, targetPort);
         sourcePort.connectedLinks.push(link);
@@ -169,44 +169,35 @@ export class Canvas {
      * Draws all the links on the canvas.
      */
     drawLinks() {
-        /*for (let i = 0; i < this.linkList.length; i++) {
-            const link = this.linkList[i];
-            const sourcePort = link.sourcePort;
-            const targetPort = link.targetPort;
 
-             let sourcePortX = sourcePort.node.x + sourcePort.x + 5;
-            let sourcePortY = sourcePort.node.y + sourcePort.y + 5;
-
-            let targetPortX = targetPort.node.x + targetPort.x + 5;
-            let targetPortY = targetPort.node.y + targetPort.y + 5;
-             */
-
-            const canvas = this;
-            
-            var u = this.svg.selectAll("line").data(this.linkList, (d) => d.id);
-
-            const line = u.join("line")
-                .attr("class", "link")
-                .attr("id", (d) => d.id)
-                .attr("x1", (d) => d.sourcePort.node.x + d.sourcePort.x + 5)
-                .attr("y1", (d) => d.sourcePort.node.y + d.sourcePort.y + 5)
-                .attr("x2", (d) => d.targetPort.node.x + d.targetPort.x + 5)
-                .attr("y2", (d) => d.targetPort.node.y + d.targetPort.y + 5)
-                .attr("stroke", this.getLinkColor())
-                .on("click", (event, link) => {
-                    console.log("Selected link", event, link);
-                    console.log("Selected This", this);
-                    canvas.resetAllLinkColors();
-                    canvas.selectedLink = link;
-                    this.svg.select('[id=\"' + link.id + '\"]').attr("stroke", "orange");
-                });
+        var lines = this.svg.selectAll("line").data(this.linkList, (d) => d.id);
+        lines.join("line")
+            .attr("class", "link")
+            .attr("id", (d) => d.id)
+            .attr("x1", (d) => d.sourcePort.node.x + d.sourcePort.x + 5)
+            .attr("y1", (d) => d.sourcePort.node.y + d.sourcePort.y + 5)
+            .attr("x2", (d) => d.targetPort.node.x + d.targetPort.x + 5)
+            .attr("y2", (d) => d.targetPort.node.y + d.targetPort.y + 5)
+            .attr("stroke", this.getLinkColor())
+            .on("click", (event, link) => {
+                console.log("Selected link", event, link);
+                console.log("Selected This", this);
+                this.resetAllColors();
+                this.selectedLink = link;
+                this.svg.select('[id=\"' + link.id + '\"]').attr("stroke", "orange");
+            });
     }
 
-    resetAllLinkColors() {
+    resetAllColors() {
         for (let i = 0; i < this.linkList.length; i++) {
             const link = this.linkList[i];
             this.svg.select('[id=\"' + link.id + '\"]').attr("stroke", this.getLinkColor());
-            }
+        }
+
+        for (let i = 0; i < this.nodeList.length; i++) {
+            const node = this.nodeList[i];
+            this.svg.select('[id=\"' + node.id + '\"]').attr("stroke", this.getNodeStrokeColor());
+        }
     }
 
     deleteSelectedLink() {
