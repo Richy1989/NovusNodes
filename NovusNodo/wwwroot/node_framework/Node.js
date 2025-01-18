@@ -52,6 +52,7 @@ export class Node {
             .on("click", () => {
                 this.canvas.resetAllColors();
                 this.svg.select('[id=\"' + this.id + '\"]').attr("stroke", "orange");
+                this.canvas.selectedNode = this;
             });
             
         this.label = group.append("text")
@@ -68,6 +69,10 @@ export class Node {
             .attr("r", 10);*/
 
         return group;
+    }
+
+    removeNode() {
+        this.group.remove();
     }
 
     /**

@@ -3,18 +3,21 @@ import { Link } from "./Link.js";
 
 export class Canvas {
 
-    isDarkMode = true;
+    isDarkMode = false;
     nodeList = [];
     linkList = [];
     tempLine = null
     selectedLink = null;
+    selectedNode = null;
+    isSelecting = false;
     isLinking = false;
+    tempSelectRect = null;
 
     /**
      * Creates an instance of Canvas.
      * @param {string} id - The unique identifier for the canvas.
      */
-    constructor(id, height, width) {
+    constructor(id, width, height) {
         this.height = height;
         this.id = id;
         this.width = width;
@@ -114,11 +117,48 @@ export class Canvas {
                 }
             }
             canvas.svg.on("pointermove", null);
+
+           
+
+        });
+
+        this.svg.on("pointerdown", function (event) {
+            console.log("Mouse down", event.x, event.y);
+            canvas.isSelecting = true;
+            canvas.tempSelectRect = canvas.svg.append("rect")
+                .attr("x", event.x)
+                .attr("y", event.y)
+                .attr("width", 0)
+                .attr("height", 0)
+                .attr("stroke", "black")
+                .attr("stroke-width", 1)
+                .attr("fill", "none");
+
+                canvas.svg.on("pointermove", function (event) {
+                    if (canvas.tempSelectRect && canvas.isSelecting) {
+                        const [x, y] = d3.pointer(event);
+                        let width = Math.abs(x - parseFloat(canvas.tempSelectRect.attr("x")));
+                        let height = Math.abs(y - parseFloat(canvas.tempSelectRect.attr("y")));
+                        canvas.tempSelectRect.attr("width", width)
+                            .attr("height", height);
+                    }
+                    
+                });
         });
 
         d3.select("body").on("keydown", function (event) {
             if (event.key === "Delete") {
-                canvas.deleteSelectedLink();
+                canvas.deleteSelection();
+            }
+        });
+
+        // Add global pointerup event listener
+        window.addEventListener("pointerup", (event) => {
+            canvas.isSelecting = false;
+            if (canvas.tempSelectRect) {
+                canvas.svg.on("pointermove", null);
+                canvas.tempSelectRect.remove();
+                canvas.tempSelectRect = null;
             }
         });
     }
@@ -141,7 +181,7 @@ export class Canvas {
                 .attr("x2", event.x)
                 .attr("y2", event.y)
                 .attr("stroke", canvas.getLinkColor())
-                .attr("stroke-width", 2);
+                .attr("stroke-width", 3);
 
             canvas.svg.on("pointermove", function (event) {
                 if (canvas.isLinking && canvas.tempLine) {
@@ -189,6 +229,9 @@ export class Canvas {
     }
 
     resetAllColors() {
+        this.selectedLink = null;
+        this.selectedNode = null;
+
         for (let i = 0; i < this.linkList.length; i++) {
             const link = this.linkList[i];
             this.svg.select('[id=\"' + link.id + '\"]').attr("stroke", this.getLinkColor());
@@ -200,7 +243,7 @@ export class Canvas {
         }
     }
 
-    deleteSelectedLink() {
+    deleteSelection() {
         if (this.selectedLink) {
             console.log("Deleting link", this.selectedLink.id);
             // Remove the link from the SVG
@@ -211,6 +254,21 @@ export class Canvas {
             this.selectedLink.sourcePort.connectedLinks = this.selectedLink.sourcePort.connectedLinks.filter(link => link.id !== this.selectedLink.id);
             this.selectedLink.targetPort.connectedLinks = this.selectedLink.targetPort.connectedLinks.filter(link => link.id !== this.selectedLink.id);
             this.selectedLink = null;
+        }
+
+        if (this.selectedNode) {
+            console.log("Deleting node", this.selectedNode.id);
+            this.nodeList = this.nodeList.filter(node => node.id !== this.selectedNode.id);
+            // Remove the node from the SVG
+            this.selectedNode.removeNode();
+
+            // Remove all links connected to the node
+            let connectedLinksInput = this.selectedNode.inputPort.connectedLinks;
+            let connectedLinksOutput = this.selectedNode.outputPort.connectedLinks;
+            this.linkList = this.linkList.filter(link => !connectedLinksInput.includes(link) && !connectedLinksOutput.includes(link));
+            this.drawLinks();
+
+            this.selectedNode = null;
         }
     }
 }
