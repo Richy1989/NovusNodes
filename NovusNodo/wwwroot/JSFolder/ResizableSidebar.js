@@ -65,7 +65,7 @@ $(window).on('mousemove', null, null, _.debounce((event) => {
         $(resizeData.resizeTarget).outerWidth(newWidth);
 
         //Resize the Joint JS Paper
-        ResizePaper();
+        //resizeCanvas();
     }
 }, 1));
 

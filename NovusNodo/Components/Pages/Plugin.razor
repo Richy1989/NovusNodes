@@ -37,7 +37,6 @@
     /// </summary>
     protected override void OnInitialized()
     {
-
         BackgroundColorCss = PluginBase.Item2.Background;
         Name = PluginBase.Item2.Name;
     }
@@ -57,24 +56,23 @@
     /// </summary>
     private async Task AddItem()
     {
-
         var node = await ExecutionManager.NodePages[NovusUIManagement.CurrentlyOpenedPage].CreateNode(PluginBase.Item1, PluginBase.Item2);
-        node.PropertyChanged += async (sender, args) =>
-        {
-            if (args.PropertyName == "IsEnabled")
-            {
-                if (sender is NodeBase node)
-                {
-                    if (node.IsEnabled)
-                    {
-                        await JS.InvokeVoidAsync("JJSEnableNode", $"{node.Id}");
-                    }
-                    else
-                    {
-                        await JS.InvokeVoidAsync("JJSDisableNode", $"{node.Id}");
-                    }
-                }
-            }
-        };
+        // node.PropertyChanged += async (sender, args) =>
+        // {
+        //     if (args.PropertyName == "IsEnabled")
+        //     {
+        //         if (sender is NodeBase node)
+        //         {
+        //             if (node.IsEnabled)
+        //             {
+        //                 await JS.InvokeVoidAsync("JJSEnableNode", $"{node.Id}");
+        //             }
+        //             else
+        //             {
+        //                 await JS.InvokeVoidAsync("JJSDisableNode", $"{node.Id}");
+        //             }
+        //         }
+        //     }
+        // };
     }
 }

@@ -11,8 +11,10 @@ namespace NovusNodo.Management
     /// </summary>
     public class NovusUIManagement : IDisposable
     {
+        public IJSObjectReference CanvasRef { get; set; }
         public INodeBase CurrentlySelectedNode { get; set; }
         public string CurrentlyOpenedPage { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NovusUIManagement"/> class with the specified execution manager.
         /// </summary>

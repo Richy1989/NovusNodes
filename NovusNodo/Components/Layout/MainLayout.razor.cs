@@ -74,9 +74,13 @@ namespace NovusNodo.Components.Layout
         /// <returns>A task that represents the asynchronous operation.</returns>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
             {
                 NovusUIManagement.JS = JS;
+
+                //var canvasRef = await JS.InvokeAsync<IJSObjectReference>("import", "./node_framework/node_framework.js");
+                //NovusUIManagement.CanvasRef = canvasRef;
 
                 novusUIManagementRef = DotNetObjectReference.Create(NovusUIManagement);
                 await JS.InvokeVoidAsync("GJSSetNovusUIManagementRef", novusUIManagementRef);

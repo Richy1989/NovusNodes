@@ -128,7 +128,11 @@
             {
                 currentNodePageManager = ExecutionManager.NodePages[UserTabs[UserIndex].Id.ToString()];
                 NovusUIManagement.CurrentlyOpenedPage = UserTabs[UserIndex].Id.ToString();
-                await JS.InvokeVoidAsync("JJSSetSelectedPaperTabId", UserTabs[UserIndex].Id.ToString());
+                
+                var canvasRef = await JS.InvokeAsync<IJSObjectReference>("import", "./node_framework/node_framework.js");
+                NovusUIManagement.CanvasRef = canvasRef;
+
+                await NovusUIManagement.CanvasRef.InvokeVoidAsync("setSelectedCanvasTabId", UserTabs[UserIndex].Id.ToString());
             }
         }
     }

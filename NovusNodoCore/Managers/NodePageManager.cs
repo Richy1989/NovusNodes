@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
+using Microsoft.JavaScript.NodeApi;
 using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
 

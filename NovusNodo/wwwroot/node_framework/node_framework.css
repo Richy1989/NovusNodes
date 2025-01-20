@@ -1,6 +1,6 @@
 .node {
     rx: 6px;
-    stroke-width: 1.5px;
+    stroke-width: 2px;
 }
 .button {
     fill: orange;
@@ -17,7 +17,7 @@
 .label {
     font-family: Arial, sans-serif;
     font-size: 14px;
-    fill: white;
+    fill: black;
     text-anchor: middle;
     dominant-baseline: middle;
     user-select: none;
@@ -38,3 +38,20 @@
     stroke-width: 2; /* Border width */
     stroke-dasharray: 4; /* Dashed border */
 }
+
+/* Button styles */
+.injectorButton {
+    fill: #007BFF; /* Bootstrap primary button color */
+    rx: 10;/*  Rounded corners */
+    cursor: pointer;
+    transition: fill 0.2s ease-in-out; /* Smooth transition for color changes */
+    stroke-width: 2;
+  }
+  
+  .injectorButton:hover {
+    fill: #0056b3; /* Darker shade on hover */
+  }
+  
+  .injectorButton:active {
+    fill: #003d80; /* Even darker shade when pressed */
+  }

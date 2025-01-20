@@ -3,19 +3,20 @@ import { Port } from "./Port.js";
 /**
  * Represents a draggable node in an SVG.
  */
-export class Node {
+export class Node{    
     /**
      * Creates an instance of Node.
      * @param {string} id - The unique identifier for the node.
      * @param {number} x - The initial x-coordinate of the node.
      * @param {number} y - The initial y-coordinate of the node.
      */
-    constructor(id, canvas, width, height, x, y, color, nodeType) {
+    constructor(id, canvas, color, name, width, height, x, y, nodeType) {
         this.svg = canvas.svg;
         this.canvas = canvas;
         this.id = id;
         this.width = width;
         this.height = height;
+        this.name = name;
         this.color = color;
         this.x = x;
         this.y = y;
@@ -24,7 +25,6 @@ export class Node {
         this.nodeType = nodeType;
         this.isDragging = false;
         this.group = this.createNodeGroup();
-        this.createPorts();
     }
 
     /**
@@ -54,19 +54,38 @@ export class Node {
                 this.markAsSelected();
                 this.canvas.selectedNode = this;
             });
+
+        let node = this;
+        if(this.nodeType == 1) {
+
+            let buttonHeight =  this.height - 5;
+            let buttonWidth =  40;
+
+            // Append a rectangle (button) to the group
+            group.append("rect")
+            .attr("class", "injectorButton")
+            .attr("x", -buttonWidth)
+            .attr("y", this.height / 2 - buttonHeight / 2)
+            .attr("width", buttonWidth)
+            .attr("height", buttonHeight)
+            .attr("stroke", this.canvas.getNodeStrokeColor())
+            .on("click", function() {
+                // Dispatch the custom event to notify that the button has been clicked
+                const moveEvent = new CustomEvent("nodeInjectorButtonClicked", {bubbles: true,
+                    detail: {
+                        id: node.id
+                    }
+                });
+                node.svg.node().dispatchEvent(moveEvent);
+            });
+        }
             
         this.label = group.append("text")
         .attr("class", "label")
         .attr("x", this.width / 2)
         .attr("y", this.height / 4)
         .attr("pointer-events", "none") 
-        .text("Label");
-
-       /* group.append("circle")
-            .attr("class", "button")
-            .attr("cx", -10)
-            .attr("cy", 25)
-            .attr("r", 10);*/
+        .text(this.name);
 
         return group;
     }
@@ -76,9 +95,7 @@ export class Node {
     }
 
     markAsSelected() {
-        //this.canvas.resetAllColors();
         this.svg.select('[id=\"' + this.id + '\"]').attr("stroke", "orange");
-        //this.canvas.selectedNode = this;
     }
 
     /**
@@ -134,23 +151,64 @@ export class Node {
      */
     dragEnded(event) {
         this.isDragging = false;
+
+        //Bring the event back to visible area if it goes out of the canvas
+        let needUpdate = false;
+        let x = this.x;
+        let y = this.y;
+        if(this.x < 0) { 
+            x = 100;
+            needUpdate = true;
+        }
+        if(this.y < 0) {
+            y = 100;
+            needUpdate = true;
+        }
+
+        if(needUpdate) {
+            this.updatePosition(x, y);
+        }
     }
 
     updatePosition(x, y) {
         this.x = x;
         this.y = y;
+
         this.group.attr("transform", `translate(${this.x},${this.y})`);
-        this.inputPort.dragLinks();
-        this.outputPort.dragLinks();
+        if (this.inputPort) {
+            this.inputPort.dragLinks();
+        }
+        if (this.outputPort) {
+            this.outputPort.dragLinks();
+        }
+
+        // Dispatch the custom event to notify that the node has moved
+        const moveEvent = new CustomEvent("nodeMoved", {bubbles: true,
+            detail: {
+                id: this.id,
+                x: this.x,
+                y: this.y
+            }
+        });
+        this.svg.node().dispatchEvent(moveEvent);
     }
 
-    createPorts() {
-        if (this.nodeType == 1 || this.nodeType == 3) {
-            this.inputPort = new Port(this, this.canvas, 'input', crypto.randomUUID());//addPort(-5, this.height / 2 - 5, 'input');
+    addInputPort(id) {
+        this.inputPort = new Port(this, this.canvas, 'input', id);
+    }
+
+    addOutputPorts(id) {
+        this.outputPort = new Port(this, this.canvas, 'output', id);
+    }
+
+    getPort(id) {
+        if (this.inputPort != null && this.inputPort.id == id)
+        {
+            return this.inputPort;
         }
-    
-        if (this.nodeType == 2 || this.nodeType == 3) {
-            this.outputPort = new Port(this, this.canvas, 'output', crypto.randomUUID());//= addPort(this.width - 5, this.height / 2 - 5, 'output');
+        else if (this.outputPort != null && this.outputPort.id == id)
+        {
+            return this.outputPort;
         }
     }
 }
