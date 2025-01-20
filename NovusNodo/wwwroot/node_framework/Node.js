@@ -35,7 +35,7 @@ export class Node {
         const group = this.svg.append("g")
             .attr("class", "node-group")
             .attr("transform", `translate(${this.x},${this.y})`)
-            .call(d3.drag()
+             .call(d3.drag()
                 .on("start", this.dragStarted.bind(this))
                 .on("drag", this.dragged.bind(this))
                 .on("end", this.dragEnded.bind(this)));
@@ -51,7 +51,7 @@ export class Node {
             .attr("height", this.height)
             .on("click", () => {
                 this.canvas.resetAllColors();
-                this.svg.select('[id=\"' + this.id + '\"]').attr("stroke", "orange");
+                this.markAsSelected();
                 this.canvas.selectedNode = this;
             });
             
@@ -73,6 +73,12 @@ export class Node {
 
     removeNode() {
         this.group.remove();
+    }
+
+    markAsSelected() {
+        //this.canvas.resetAllColors();
+        this.svg.select('[id=\"' + this.id + '\"]').attr("stroke", "orange");
+        //this.canvas.selectedNode = this;
     }
 
     /**
@@ -101,12 +107,14 @@ export class Node {
      * @param {d3.D3DragEvent} event - The drag event.
      */
     dragStarted(event) {
-        if (d3.select(event.sourceEvent.target).attr("name") === "nodebody") {
-            this.isDragging = true;
-            const transform = d3.select(event.sourceEvent.target.parentNode).attr("transform");
-            const translate = transform.match(/translate\(([^,]+),([^\)]+)\)/);
-            this.offsetX = event.x - parseFloat(translate[1]);
-            this.offsetY = event.y - parseFloat(translate[2]);
+        if(!this.canvas.isMultiNodeDragging) {
+            if (d3.select(event.sourceEvent.target).attr("name") === "nodebody") {
+                this.isDragging = true;
+                const transform = d3.select(event.sourceEvent.target.parentNode).attr("transform");
+                const translate = transform.match(/translate\(([^,]+),([^\)]+)\)/);
+                this.offsetX = event.x - parseFloat(translate[1]);
+                this.offsetY = event.y - parseFloat(translate[2]);
+            }
         }
     }
 
@@ -116,11 +124,7 @@ export class Node {
      */
     dragged(event) {
         if (this.isDragging) {
-            this.x = event.x - this.offsetX;
-            this.y = event.y - this.offsetY;
-            this.group.attr("transform", `translate(${this.x},${this.y})`);
-            this.inputPort.dragLinks();
-            this.outputPort.dragLinks();
+            this.updatePosition(event.x - this.offsetX, event.y - this.offsetY);
         }
     }
 
@@ -130,6 +134,14 @@ export class Node {
      */
     dragEnded(event) {
         this.isDragging = false;
+    }
+
+    updatePosition(x, y) {
+        this.x = x;
+        this.y = y;
+        this.group.attr("transform", `translate(${this.x},${this.y})`);
+        this.inputPort.dragLinks();
+        this.outputPort.dragLinks();
     }
 
     createPorts() {

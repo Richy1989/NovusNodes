@@ -20,9 +20,21 @@
     fill: white;
     text-anchor: middle;
     dominant-baseline: middle;
+    user-select: none;
+    /* For cross-browser compatibility */
+    -webkit-user-select: none;  /* Safari */
+    -moz-user-select: none;     /* Firefox */
+    -ms-user-select: none;      /* Internet Explorer/Edge */
 }
 
 .port {
     stroke-width: 1.5px;
     cursor: pointer;
+}
+
+.select-rect {
+    fill: rgba(255, 165, 0, 0.3); /* Orange fill with transparency */
+    stroke: orange; /* Orange border */
+    stroke-width: 2; /* Border width */
+    stroke-dasharray: 4; /* Dashed border */
 }

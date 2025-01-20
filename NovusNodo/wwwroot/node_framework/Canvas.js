@@ -13,6 +13,9 @@ export class Canvas {
     isLinking = false;
     tempSelectRect = null;
 
+    dragMultipleSelection = [];
+    isMultiNodeDragging = false;
+
     /**
      * Creates an instance of Canvas.
      * @param {string} id - The unique identifier for the canvas.
@@ -117,33 +120,48 @@ export class Canvas {
                 }
             }
             canvas.svg.on("pointermove", null);
-
-           
-
         });
 
-        this.svg.on("pointerdown", function (event) {
-            console.log("Mouse down", event.x, event.y);
-            canvas.isSelecting = true;
-            canvas.tempSelectRect = canvas.svg.append("rect")
-                .attr("x", event.x)
-                .attr("y", event.y)
-                .attr("width", 0)
-                .attr("height", 0)
-                .attr("stroke", "black")
-                .attr("stroke-width", 1)
-                .attr("fill", "none");
+        // Add pointerdown event listener to the SVG element for the selection rectangle
+        this.svg.on("pointerdown", function (event) {            
+            // Check if the target is the SVG element itself
+            if (event.target.tagName === 'svg') {
+                console.log("Mouse down on SVG", event.x, event.y);
+            
+                canvas.svg.on("pointermove", null);
+                canvas.resetAllColors();
+                canvas.dragMultipleSelection = []; 
 
-                canvas.svg.on("pointermove", function (event) {
-                    if (canvas.tempSelectRect && canvas.isSelecting) {
-                        const [x, y] = d3.pointer(event);
-                        let width = Math.abs(x - parseFloat(canvas.tempSelectRect.attr("x")));
-                        let height = Math.abs(y - parseFloat(canvas.tempSelectRect.attr("y")));
-                        canvas.tempSelectRect.attr("width", width)
-                            .attr("height", height);
-                    }
-                    
-                });
+                if(canvas.tempSelectRect)
+                    canvas.tempSelectRect.remove();
+                
+                canvas.isSelecting = true;
+
+                const startX = event.x;
+                const startY = event.y;
+
+                canvas.tempSelectRect = canvas.svg.append("rect")
+                    .attr("x", startX)
+                    .attr("y", startY)
+                    .attr("class", "select-rect")
+                    .attr("width", 1)
+                    .attr("height", 1)
+
+                    // Add pointermove event listener to the SVG element for the selection rectangle
+                    canvas.svg.on("pointermove", function (event) {
+                        if (canvas.tempSelectRect && canvas.isSelecting) {
+                            const [x, y] = d3.pointer(event);
+                            const width = x - startX;
+                            const height = y - startY;
+
+                            canvas.tempSelectRect
+                                .attr("x", Math.min(x, startX))
+                                .attr("y", Math.min(y, startY))
+                                .attr("width", Math.abs(width))
+                                .attr("height", Math.abs(height));
+                        }
+                    });
+            }
         });
 
         d3.select("body").on("keydown", function (event) {
@@ -152,13 +170,34 @@ export class Canvas {
             }
         });
 
-        // Add global pointerup event listener
+        // Add global pointerup event listener to remove the selection rectangle
+        // and mark all selected nodes
         window.addEventListener("pointerup", (event) => {
             canvas.isSelecting = false;
             if (canvas.tempSelectRect) {
+
+                // Find all nodes within the selection rectangle
+                const selectRect = canvas.tempSelectRect.node().getBBox();
+                canvas.dragMultipleSelection = canvas.nodeList.filter(node => {
+                    const nodeX = parseFloat(node.x);
+                    const nodeY = parseFloat(node.y);
+                    const nodeWidth = parseFloat(node.width);
+                    const nodeHeight = parseFloat(node.height);
+
+                    return (
+                        nodeX >= selectRect.x &&
+                        nodeY >= selectRect.y &&
+                        nodeX + nodeWidth <= selectRect.x + selectRect.width &&
+                        nodeY + nodeHeight <= selectRect.y + selectRect.height
+                    );
+                });
+                
+                // Mark all selected nodes
+                canvas.dragMultipleSelection.forEach((d) => d.markAsSelected());   
+
                 canvas.svg.on("pointermove", null);
                 canvas.tempSelectRect.remove();
-                canvas.tempSelectRect = null;
+                canvas.tempSelectRect = null;                
             }
         });
     }
@@ -190,6 +229,38 @@ export class Canvas {
                 }
             });
         });
+
+        // Add pointerdown event listener to move all selected nodes
+        node.group.on("pointerdown", function (event) {
+            if (canvas.dragMultipleSelection.includes(node)) {
+                canvas.isMultiNodeDragging = true;
+                const initialPositions = canvas.dragMultipleSelection.map(node => ({
+                    node: node,
+                    startX: parseFloat(node.x),
+                    startY: parseFloat(node.y)
+                }));
+
+                const startX = event.x;
+                const startY = event.y;
+
+                canvas.svg.on("pointermove", function (event) {
+                    const dx = event.x - startX;
+                    const dy = event.y - startY;
+
+                    initialPositions.forEach(pos => {
+                        pos.node.x = pos.startX + dx;
+                        pos.node.y = pos.startY + dy;
+                        pos.node.updatePosition(pos.node.x, pos.node.y);//group.attr("transform", `translate(${pos.node.x},${pos.node.y})`);
+                    });
+                });
+
+                window.addEventListener("pointerup", function () {
+                    canvas.svg.on("pointermove", null);
+                    canvas.isMultiNodeDragging = false;
+                }, { once: true });
+            }
+        });
+
         this.nodeList.push(node);
     }
     /**
