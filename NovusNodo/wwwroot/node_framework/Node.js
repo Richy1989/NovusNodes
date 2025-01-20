@@ -87,10 +87,26 @@ export class Node{
         .attr("class", "label")
         .attr("x", this.width / 2)
         .attr("y", this.height / 4)
-        .attr("pointer-events", "none") 
+        .attr("pointer-events", "none")
         .text(this.name);
 
         return group;
+    }
+
+    setEnabled(enabled) {
+        if (enabled) {
+            this.group.select("rect.node")
+                .attr("stroke", this.canvas.getNodeStrokeColor())
+                .attr("stroke-dasharray", "0")
+                .attr("fill", this.color)
+                .attr("opacity", 1);
+        } else {
+            this.group.select("rect.node")
+                .attr("stroke", "gray")
+                .attr("stroke-dasharray", "4,2")
+                .attr("fill", "#f0f0f0")
+                .attr("opacity", 0.5);
+        }
     }
 
     /**

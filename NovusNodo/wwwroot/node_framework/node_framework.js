@@ -5,10 +5,19 @@ import { Canvas } from "./Canvas.js";
 let netCanvasReference = null;
 let canvasTabs = {};
 let selectedPaperTabId = null;
+let isDarkMode = true;
 
 export function setSelectedCanvasTabId(id) {
     console.log("Setting Selected Canvas TabId to " + id);
     selectedPaperTabId = id;
+}
+
+export function setDarkMode(isInDarkMode) {
+    isDarkMode = isInDarkMode;
+    Object.values(canvasTabs).forEach(element => {
+        element.setDarkMode(isDarkMode);
+        element.changeBackgroundColor();
+    });
 }
 
 export function createCanvas(id, reference) {
@@ -20,6 +29,8 @@ export function createCanvas(id, reference) {
     const height = parentContainer.node().clientHeight;
 
     canvasTabs[id] = new Canvas(id, netCanvasReference, width, height);
+    canvasTabs[id].setDarkMode(isDarkMode);
+    canvasTabs[id].changeBackgroundColor();
 }
 
 export function resizeCanvas(id) {
@@ -84,12 +95,6 @@ export function addLink(sourceNodeId, sourcePortId, targetNodeId, targetPortId)
     canvas.addLink(sourcePort, targetPort);
 }
 
-export function setDarkMode(isDarkMode) {
-    Object.values(canvasTabs).forEach(element => {
-        element.setDarkMode(isDarkMode);
-    });
-}
-
 export function setNodeName(nodeId, name) {
     if (selectedPaperTabId == null) {
         console.log("No Canvas Tab Selected");
@@ -99,6 +104,17 @@ export function setNodeName(nodeId, name) {
     const canvas = canvasTabs[selectedPaperTabId];
     const node = canvas.getNode(nodeId);
     node.setLabelText(name);
+}
+
+export function enableDisableNode(nodeId, isEnabled) {
+    if (selectedPaperTabId == null) {
+        console.log("No Canvas Tab Selected");
+        return;
+    }
+
+    const canvas = canvasTabs[selectedPaperTabId];
+    const node = canvas.getNode(nodeId);
+    node.setEnabled(isEnabled);
 }
 
 

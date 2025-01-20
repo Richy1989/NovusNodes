@@ -176,6 +176,17 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task NodesAdded(NodeBase node)
         {
+            node.PropertyChanged += async (sender, e) =>
+             {
+                 if (e.PropertyName == "IsEnabled")
+                 {
+                     if (sender is NodeBase node)
+                     {
+                         await NovusUIManagement.CanvasRef.InvokeVoidAsync("enableDisableNode", [node.Id, node.IsEnabled]);
+                     }
+                 }
+             };
+
             Logger.LogDebug($"Adding node {node.Id} to canvas {TabID}");
             await NovusUIManagement.CanvasRef.InvokeVoidAsync("createNode", [node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y, (double)node.NodeType]);
             await AddPorts(node);

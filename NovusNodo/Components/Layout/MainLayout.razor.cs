@@ -50,9 +50,10 @@ namespace NovusNodo.Components.Layout
         private async Task DarkModeToggle()
         {
             NovusUIManagement.IsDarkMode = !NovusUIManagement.IsDarkMode;
-            await InvokeAsync(() =>
+            await InvokeAsync(async () =>
             {
-                StateHasChanged();
+                await JS.InvokeVoidAsync("GJSReloadPage");
+                //StateHasChanged();
             });
         }
 
@@ -66,6 +67,23 @@ namespace NovusNodo.Components.Layout
         };
 
         /// <summary>
+        /// Toggles the play pause variable.
+        /// </summary>
+        private void PlayPauseButtonIconToggle()
+        {
+            ExecutionManager.IsExecutionAllowed = !ExecutionManager.IsExecutionAllowed;
+        }
+
+        /// <summary>
+        /// Gets the icon for the play pause toggle button.
+        /// </summary>
+        public string PlayPauseButtonIcon => ExecutionManager.IsExecutionAllowed switch
+        {
+            true => Icons.Material.Rounded.PauseCircleFilled,
+            false => Icons.Material.Outlined.PlayCircleFilled,
+        };
+
+        /// <summary>
         /// Method called after the component has rendered.
         /// </summary>
         /// <param name="firstRender">Indicates if this is the first render.</param>
@@ -76,9 +94,6 @@ namespace NovusNodo.Components.Layout
             if (firstRender)
             {
                 NovusUIManagement.JS = JS;
-
-                //var canvasRef = await JS.InvokeAsync<IJSObjectReference>("import", "./node_framework/node_framework.js");
-                //NovusUIManagement.CanvasRef = canvasRef;
 
                 novusUIManagementRef = DotNetObjectReference.Create(NovusUIManagement);
                 await JS.InvokeVoidAsync("GJSSetNovusUIManagementRef", novusUIManagementRef);

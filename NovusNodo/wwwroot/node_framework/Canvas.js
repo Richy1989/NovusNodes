@@ -54,6 +54,10 @@ export class Canvas {
         this.isDarkMode = isDarkMode;
     };
 
+    changeBackgroundColor() {
+        this.svg.style("background-color", this.getBackgroundColor());
+    }
+
     createSvg() {
         let localSVG = d3.select('[id=\"' + this.id + '\"]')
             .attr("width", this.width)

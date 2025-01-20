@@ -28,6 +28,11 @@ namespace NovusNodoCore.Managers
         private readonly ILoggerFactory loggerFactory;
 
         /// <summary>
+        /// The execution manager.
+        /// </summary>
+        private readonly ExecutionManager executionManager;
+
+        /// <summary>
         /// The cancellation Token source used to cancel operations.
         /// </summary>
         public CancellationTokenSource CancellationTokenSource { get; }
@@ -52,8 +57,9 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="loggerFactory">The logger factory.</param>
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager.</param>
-        public NodePageManager(ILoggerFactory loggerFactory, NodeJSEnvironmentManager nodeJSEnvironmentManager)
+        public NodePageManager(ILoggerFactory loggerFactory, ExecutionManager executionManager, NodeJSEnvironmentManager nodeJSEnvironmentManager)
         {
+            this.executionManager = executionManager;
             CancellationTokenSource = new CancellationTokenSource();
             Token = CancellationTokenSource.Token;
 
@@ -81,7 +87,7 @@ namespace NovusNodoCore.Managers
             if (plugin != null)
             {
                 Logger<INodeBase> logger = (Logger<INodeBase>)loggerFactory.CreateLogger<INodeBase>();
-                NodeBase node = new(plugin, attribute,logger, NodeJSEnvironmentManager, DebugLogChanged, Token);
+                NodeBase node = new(plugin, executionManager, attribute,logger, NodeJSEnvironmentManager, DebugLogChanged, Token);
                 AvailableNodes.Add(node.Id, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
                 return node;

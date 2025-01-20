@@ -15,6 +15,7 @@ namespace NovusNodoCore.NodeDefinition
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private readonly ExecutionManager executionManager;
         private readonly CancellationToken token;
         private readonly NodeJSEnvironmentManager nodeJSEnvironmentManager;
 
@@ -112,8 +113,9 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager instance.</param>
         /// <param name="updateDebugFunction">The function to update the debug log.</param>
         /// <param name="token">The cancellation Token.</param>
-        public NodeBase(IPluginBase basedPlugin, NovusPluginAttribute pluginIdAttribute, ILogger<INodeBase> Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, Func<string, JsonObject, Task> updateDebugFunction, CancellationToken token)
+        public NodeBase(IPluginBase basedPlugin, ExecutionManager executionManager, NovusPluginAttribute pluginIdAttribute, ILogger<INodeBase> Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, Func<string, JsonObject, Task> updateDebugFunction, CancellationToken token)
         {
+            this.executionManager = executionManager;
             Name = pluginIdAttribute.Name;
             this.PluginIdAttribute = pluginIdAttribute;
             this.PluginBase = basedPlugin as PluginBase;
@@ -145,8 +147,8 @@ namespace NovusNodoCore.NodeDefinition
             {
                 (PluginBase as PluginBase).StarterNodeTriggered = async () =>
                 {
-                    if (IsEnabled)
-                        await ExecuteNode(new JsonObject()).ConfigureAwait(false);
+                    if (IsEnabled && executionManager.IsExecutionAllowed)
+                        await ExecuteNode([]).ConfigureAwait(false);
                 };
             }
         }

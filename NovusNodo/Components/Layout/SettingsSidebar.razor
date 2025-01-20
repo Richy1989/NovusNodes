@@ -53,9 +53,7 @@
     /// Indicates whether the object has been disposed.
     /// </summary>
     private bool _disposedValue;
-
     public string EnableDisableSwitch { get; set; } = "Enabled";
-
     public bool IsNodeEnabled
     {
         get
@@ -134,6 +132,10 @@
         NovusUIManagement.OnNodeDoubleClicked += OnNodeDoubleClicked;
     }
 
+
+    /// <summary>
+    /// Handles the NodeDoubleClicked event.
+    /// </summary>
     private async Task OnNodeDoubleClicked(INodeBase node)
     {
         Type ui = null;

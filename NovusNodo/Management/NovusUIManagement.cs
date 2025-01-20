@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 using MudBlazor;
 using NovusNodo.Components.Pages;
 using NovusNodoCore.Managers;
@@ -134,7 +133,6 @@ namespace NovusNodo.Management
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ReloadPage()
         {
-            //await Task.CompletedTask.ConfigureAwait(false);
             await JS.InvokeVoidAsync("GJSReloadPage").ConfigureAwait(false);
         }
 
@@ -155,6 +153,9 @@ namespace NovusNodo.Management
             await OnNodeDoubleClicked(CurrentlySelectedNode);
         }
 
+        /// <summary>
+        /// Changes the name of the currently selected node.
+        /// </summary>
         public async Task ChangeNodeLabelName(string newName)
         {
             CurrentlySelectedNode.Name = newName;

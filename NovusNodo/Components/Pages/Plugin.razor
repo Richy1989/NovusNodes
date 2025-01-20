@@ -2,8 +2,6 @@
 @using NovusNodoPluginLibrary
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 @inject NovusNodo.Management.NovusUIManagement NovusUIManagement
-@inject ILoggerFactory LoggerFactory
-@inject IJSRuntime JS
 
 <div class="plugin" style="background-color:@BackgroundColorCss" @onclick="AddItem">
     <div class="plugin-header">@Name</div>
@@ -57,22 +55,5 @@
     private async Task AddItem()
     {
         var node = await ExecutionManager.NodePages[NovusUIManagement.CurrentlyOpenedPage].CreateNode(PluginBase.Item1, PluginBase.Item2);
-        // node.PropertyChanged += async (sender, args) =>
-        // {
-        //     if (args.PropertyName == "IsEnabled")
-        //     {
-        //         if (sender is NodeBase node)
-        //         {
-        //             if (node.IsEnabled)
-        //             {
-        //                 await JS.InvokeVoidAsync("JJSEnableNode", $"{node.Id}");
-        //             }
-        //             else
-        //             {
-        //                 await JS.InvokeVoidAsync("JJSDisableNode", $"{node.Id}");
-        //             }
-        //         }
-        //     }
-        // };
     }
 }

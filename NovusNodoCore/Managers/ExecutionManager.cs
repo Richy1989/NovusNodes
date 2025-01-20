@@ -32,6 +32,11 @@ namespace NovusNodoCore.Managers
         public event Func<string, DebugMessage, Task> DebugLogChanged;
 
         /// <summary>
+        /// Gets or sets a value indicating whether execution is allowed.
+        /// </summary>
+        public bool IsExecutionAllowed { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the available plugins.
         /// </summary>
         public IDictionary<string, (Type, NovusPluginAttribute)> AvailablePlugins { get; set; } = new Dictionary<string, (Type, NovusPluginAttribute)>();
@@ -49,8 +54,8 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
         /// </summary>
+        /// <param name="logger">The logger instance.</param>
         /// <param name="serviceProvider">The service provider.</param>
-        /// <param name="pluginLoader">The plugin loader.</param>
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager.</param>
         public ExecutionManager(ILogger<ExecutionManager> logger, IServiceProvider serviceProvider, NodeJSEnvironmentManager nodeJSEnvironmentManager)
         {
@@ -91,7 +96,6 @@ namespace NovusNodoCore.Managers
 
                 foreach (var type in derivedTypes)
                 {
-
                     NovusPluginAttribute baseAttribute = (NovusPluginAttribute)Attribute.GetCustomAttribute(type, typeof(NovusPluginAttribute));
 
                     if (baseAttribute == null)
@@ -159,8 +163,8 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Invokes the DebugLogChanged event.
         /// </summary>
-        /// <param name="id">The ID of the debug log entry.</param>
-        /// <param name="message">The debug log message.</param>
+        /// <param name="senderId">The ID of the sender.</param>
+        /// <param name="inputMessage">The input message in JSON format.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task OnDebugLogUpdated(string senderId, JsonObject inputMessage)
         {
