@@ -30,7 +30,7 @@
                     }
                 }
             </MudSwitch>
-            
+
             <MudContainer Class="d-flex flex-column flex-grow-1" Style="height:100%; width:100%; padding:0px;" MaxWidth="MaxWidth.False">
                 @if (DynNodeUIType is not null)
                 {
@@ -97,18 +97,7 @@
             await NovusUIManagement.CurrentlySelectedNode.SaveSettings();
         }
 
-        if (NovusUIManagement.CurrentlySelectedNode != null)
-        {
-            NovusUIManagement.CurrentlySelectedNode.Name = CurrentSelectedNodeName;
-            try
-            {
-                await JS.InvokeVoidAsync("JJSChangeNodeLabel", [$"{NovusUIManagement.CurrentlySelectedNode.Id}", $"{CurrentSelectedNodeName}"]);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Failed to change node label.");
-            }
-        }
+        await NovusUIManagement.ChangeNodeLabelName(CurrentSelectedNodeName);
     }
 
     /// <summary>
@@ -142,7 +131,7 @@
         if (NovusUIManagement.CurrentlySelectedNode != null)
             CurrentSelectedNodeName = NovusUIManagement.CurrentlySelectedNode.Name;
 
-        NovusUIManagement.NodeDoubleClicked += OnNodeDoubleClicked;
+        NovusUIManagement.OnNodeDoubleClicked += OnNodeDoubleClicked;
     }
 
     private async Task OnNodeDoubleClicked(INodeBase node)
@@ -217,7 +206,7 @@
         {
             if (disposing)
             {
-                NovusUIManagement.NodeDoubleClicked -= OnNodeDoubleClicked;
+                NovusUIManagement.OnNodeDoubleClicked -= OnNodeDoubleClicked;
             }
 
             _disposedValue = true;

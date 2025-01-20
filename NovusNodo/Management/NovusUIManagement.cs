@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using MudBlazor;
 using NovusNodo.Components.Pages;
 using NovusNodoCore.Managers;
@@ -15,12 +16,15 @@ namespace NovusNodo.Management
         public INodeBase CurrentlySelectedNode { get; set; }
         public string CurrentlyOpenedPage { get; set; }
 
+        private readonly ILogger<NovusUIManagement> Logger;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NovusUIManagement"/> class with the specified execution manager.
         /// </summary>
         /// <param name="executionManager">The execution manager.</param>
-        public NovusUIManagement(ExecutionManager executionManager)
+        public NovusUIManagement(ILogger<NovusUIManagement> logger, ExecutionManager executionManager)
         {
+            this.Logger = logger;
             this.ExecutionManager = executionManager;
         }
 
@@ -37,7 +41,7 @@ namespace NovusNodo.Management
         /// <summary>
         /// Occurs when a node is double-clicked.
         /// </summary>
-        public event Func<INodeBase, Task> NodeDoubleClicked;
+        public event Func<INodeBase, Task> OnNodeDoubleClicked;
 
         /// <summary>
         /// Gets or sets the type of the sidebar UI.
@@ -46,14 +50,6 @@ namespace NovusNodo.Management
 
         // To detect redundant calls
         private bool _disposedValue;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NovusUIManagement"/> class.
-        /// </summary>
-        public NovusUIManagement()
-        {
-
-        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the dark mode is enabled.
@@ -147,8 +143,7 @@ namespace NovusNodo.Management
         /// </summary>
         /// <param name="id">The ID of the node.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        [JSInvokable("NovusUIManagement.CellDoubleClick")]
-        public async Task JJSNodeDoubleClicked(string pageid, string id)
+        public async Task NodeDoubleClicked(string pageid, string id)
         {
             CurrentlySelectedNode = ExecutionManager.NodePages[pageid].AvailableNodes[id];
 
@@ -157,7 +152,20 @@ namespace NovusNodo.Management
                 SideBarUI = CurrentlySelectedNode.UI;
             }
 
-            await NodeDoubleClicked(CurrentlySelectedNode);
+            await OnNodeDoubleClicked(CurrentlySelectedNode);
+        }
+
+        public async Task ChangeNodeLabelName(string newName)
+        {
+            CurrentlySelectedNode.Name = newName;
+            try
+            {
+                await CanvasRef.InvokeVoidAsync("setNodeName", [$"{CurrentlySelectedNode.Id}", $"{newName}"]);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to change node label.");
+            }
         }
 
         /// <summary>

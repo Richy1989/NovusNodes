@@ -103,7 +103,7 @@ namespace NovusNodo.Components.Pages
         /// <param name="width">The new width of the element.</param>
         /// <param name="height">The new height of the element.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        [JSInvokable("NovusNode.ElementResized")]
+        [JSInvokable("NovusNode.NodeResized")]
         public async Task ElementResized(string id, double width, double height)
         {
             Logger.LogDebug($"Element Resized {id} {width} {height} in {TabID}");
@@ -161,6 +161,12 @@ namespace NovusNodo.Components.Pages
             {
                 NodePageManager.ElementRemoved(elementId);
             });
+        }
+
+        [JSInvokable("NovusNode.NodeDoubleClicked")]
+        public async Task NodeDoubleClick(string pageId, string nodeId)
+        {
+            await NovusUIManagement.NodeDoubleClicked(pageId, nodeId);
         }
 
         /// <summary>

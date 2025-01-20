@@ -49,6 +49,17 @@ export class Port {
             .attr("y", this.y);
     }
 
+    updatePortPosition() {
+        if(this.portType == 'input') {
+            this.x = - this.width / 2;
+        }
+        else if(this.portType == 'output') {
+            this.x = this.node.width - this.width / 2;
+        }
+
+        this.port.attr("x", this.x);
+    }
+
     /**
      * Makes sure all connected linkes are moved when the node (and nodeport) are moved.
      */

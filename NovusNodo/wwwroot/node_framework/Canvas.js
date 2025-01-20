@@ -46,13 +46,13 @@ export class Canvas {
         return this.isDarkMode ? "#1a1a1a" : "#f0ead6";
     }
 
-    setDarkMode(isDarkMode) {
-        this.isDarkMode = isDarkMode;
-    }
-
     getNode(id) {
         return this.nodeList.find(node => node.id === id);
     }
+
+    setDarkMode(isDarkMode) {
+        this.isDarkMode = isDarkMode;
+    };
 
     createSvg() {
         let localSVG = d3.select('[id=\"' + this.id + '\"]')
@@ -95,12 +95,10 @@ export class Canvas {
             .attr("cy", d => d.y + spacing / 2)
             .attr("r", dotRadius)
             .style("fill", "steelblue");
-
     }
 
     init() {
         const canvas = this;
-
         // Add global event listener for nodeMoved event
         document.addEventListener("nodeMoved", function (event) {
             canvas.netCanvasReference.invokeMethodAsync("NovusNode.ElementMoved", event.detail.id, event.detail.x, event.detail.y);
@@ -110,6 +108,17 @@ export class Canvas {
         // Add global event listener for nodeMoved event
         document.addEventListener("nodeInjectorButtonClicked", function (event) {
             canvas.netCanvasReference.invokeMethodAsync("NovusNode.InjectorElementClicked", event.detail.id);
+        });
+
+        // Add global event listener for nodeMoved event
+        document.addEventListener("nodeDoubleClicked", function (event) {
+            canvas.netCanvasReference.invokeMethodAsync("NovusNode.NodeDoubleClicked", canvas.id, event.detail.id);
+        });
+
+        // Add global event listener for nodeMoved event
+        document.addEventListener("nodeResized", function (event) {
+            console.log("Node resized", event.detail.id, event.detail.width, event.detail.height);
+            canvas.netCanvasReference.invokeMethodAsync("NovusNode.NodeResized", event.detail.id, event.detail.width, event.detail.height);
         });
 
         // Resize the paper when the container size changes

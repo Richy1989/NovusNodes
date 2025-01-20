@@ -36,8 +36,6 @@ namespace NovusNodo.Components.Layout
             NovusUIManagement.DrawerOpen = !NovusUIManagement.DrawerOpen;
         }
 
-
-
         /// <summary>
         /// Toggles the state of the settings drawer.
         /// </summary>

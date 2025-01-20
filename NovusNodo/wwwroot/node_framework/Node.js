@@ -53,6 +53,9 @@ export class Node{
                 this.canvas.resetAllColors();
                 this.markAsSelected();
                 this.canvas.selectedNode = this;
+            })
+            .on("dblclick", () => {
+                this.onNodeBodyDoubleClick();
             });
 
         let node = this;
@@ -90,6 +93,20 @@ export class Node{
         return group;
     }
 
+    /**
+     * Handles the double-click event on the node body.
+     */
+    onNodeBodyDoubleClick() {
+        console.log(`Node double-clicked: ID=${this.id}`);
+        // Dispatch the custom event to notify that the button has been clicked
+        const moveEvent = new CustomEvent("nodeDoubleClicked", {bubbles: true,
+            detail: {
+                id: this.id
+            }
+        });
+        this.svg.node().dispatchEvent(moveEvent);
+    }
+
     removeNode() {
         this.group.remove();
     }
@@ -112,11 +129,21 @@ export class Node{
     }
 
     /**
-     * Updates the dimensions of the node.
+     * Updates the dimensions of the node and moved the port positions accordingly.
      */
     updateNodeDimensions() {
         this.group.select("rect.node").attr("width", this.width);
         this.label.attr("x", this.width / 2);
+        this.outputPort.updatePortPosition();
+
+        const nodeResizedEvent = new CustomEvent("nodeResized", {bubbles: true,
+            detail: {
+                id: this.id,
+                width: this.width,
+                height: this.height
+            }
+        });
+        this.svg.node().dispatchEvent(nodeResizedEvent);
     }
 
     /**

@@ -90,6 +90,17 @@ export function setDarkMode(isDarkMode) {
     });
 }
 
+export function setNodeName(nodeId, name) {
+    if (selectedPaperTabId == null) {
+        console.log("No Canvas Tab Selected");
+        return;
+    }
+
+    const canvas = canvasTabs[selectedPaperTabId];
+    const node = canvas.getNode(nodeId);
+    node.setLabelText(name);
+}
+
 
 /* 
 let nodeCounter = 0;
