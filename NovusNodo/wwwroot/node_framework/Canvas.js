@@ -464,30 +464,43 @@ export class Canvas {
 
         // Delete selected node
         if (this.selectedNode) {
-            console.log("Deleting node", this.selectedNode.id);
-            this.nodeList = this.nodeList.filter(node => node.id !== this.selectedNode.id);
-
-            // Remove the node from the SVG
-            this.selectedNode.removeNode();
-
-            // Remove all links connected to the node
-            let connectedLinksInput = [];
-            if (this.selectedNode.inputPort != null && this.selectedNode.inputPort.connectedLinks != null) {
-                connectedLinksInput = this.selectedNode.inputPort.connectedLinks;
-            }
-
-            let connectedLinksOutput = [];
-            if (this.selectedNode.outputPort != null && this.selectedNode.outputPort.connectedLinks != null) {
-                connectedLinksOutput = this.selectedNode.outputPort.connectedLinks;
-            }
-
-            this.linkList = this.linkList.filter(link => !connectedLinksInput.includes(link) && !connectedLinksOutput.includes(link));
-            this.drawLinks();
-
-            this.netCanvasReference.invokeMethodAsync("NovusNode.ElementRemoved", this.selectedNode.id);
-
+            this.deleteNode(this.selectedNode);
             this.selectedNode = null;
         }
+
+        // Delete multiple selected nodes
+        if (this.dragMultipleSelection.length > 0) {
+            this.dragMultipleSelection.forEach(node => {
+                this.deleteNode(node);
+            });
+
+            this.dragMultipleSelection = [];
+        }
+    }
+
+    deleteNode(selectedNode)
+    {
+        console.log("Deleting node", selectedNode.id);
+        this.nodeList = this.nodeList.filter(node => node.id !== selectedNode.id);
+
+        // Remove the node from the SVG
+        selectedNode.removeNode();
+
+        // Remove all links connected to the node
+        let connectedLinksInput = [];
+        if (selectedNode.inputPort != null && selectedNode.inputPort.connectedLinks != null) {
+            connectedLinksInput = selectedNode.inputPort.connectedLinks;
+        }
+
+        let connectedLinksOutput = [];
+        if (selectedNode.outputPort != null && selectedNode.outputPort.connectedLinks != null) {
+            connectedLinksOutput = selectedNode.outputPort.connectedLinks;
+        }
+
+        this.linkList = this.linkList.filter(link => !connectedLinksInput.includes(link) && !connectedLinksOutput.includes(link));
+        this.drawLinks();
+
+        this.netCanvasReference.invokeMethodAsync("NovusNode.ElementRemoved", selectedNode.id);
     }
 
     //Resize canvas to fit all nodes

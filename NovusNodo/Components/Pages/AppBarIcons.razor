@@ -1,10 +1,11 @@
 ﻿@inject NovusNodo.Management.NovusUIManagement NovusUIManagement
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 
-<MudPaper Class="d-flex flex-row gap-4" Style="@($"background:rgba(0, 0, 0, 0.4); padding-left:10px; padding-right:10px;")" Elevation="0">
-    <MudIconButton Icon="@(PlayPauseButtonIcon)" Color="@PlayPauseButtonColor" OnClick="@PlayPauseButtonIconToggle" Size="Size.Large" />
-    <MudIconButton Icon="@LineStyleIcon" Color="@LineStyleColor" OnClick="@LineStyleToggle" Size="Size.Large" />
+<MudPaper Class="app-bar-icon d-flex flex-row gap-4" Elevation="0">
+    <MudIconButton Icon="@(PlayPauseButtonIcon)" Color="@PlayPauseButtonColor" OnClick="@PlayPauseButtonIconToggle" />
+    <MudIconButton Icon="@LineStyleIcon" Color="@LineStyleColor" OnClick="@LineStyleToggle" />
 </MudPaper>
+
 @code {
 
     /// <summary>
@@ -24,26 +25,38 @@
         false => Icons.Material.Outlined.PlayCircleFilled,
     };
 
+    /// <summary>
+    /// Gets the color for the play pause toggle button.
+    /// </summary>
     public Color PlayPauseButtonColor => ExecutionManager.IsExecutionAllowed switch
     {
         true => Color.Error,
         false => Color.Tertiary,
     };
 
+    /// <summary>
+    /// Toggles the line style variable.
+    /// </summary>
     private void LineStyleToggle()
     {
         ExecutionManager.UseBezierCurve = !ExecutionManager.UseBezierCurve;
     }
 
+    /// <summary>
+    /// Gets the color for the line style toggle button.
+    /// </summary>
     public Color LineStyleColor => ExecutionManager.UseBezierCurve switch
     {
         true => Color.Surface,
         false => Color.Surface,
     };
 
+    /// <summary>
+    /// Gets the icon for the line style toggle button.
+    /// </summary>
     public string LineStyleIcon => ExecutionManager.UseBezierCurve switch
     {
         true => "fa-solid fa-circle-nodes",
-        false => "fa-solid fa-bezier-curve", // fa-solid
+        false => "fa-solid fa-bezier-curve",
     };
 }

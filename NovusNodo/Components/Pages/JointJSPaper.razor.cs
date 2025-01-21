@@ -61,10 +61,10 @@ namespace NovusNodo.Components.Pages
         private async Task ExecutionManager_OnCurveStyleChanged(bool arg)
         {
             await NovusUIManagement.CanvasRef.InvokeVoidAsync("setLineStyle", arg);
-            await InvokeAsync(() =>
-            {
-                StateHasChanged();
-            });
+            //await InvokeAsync(() =>
+            //{
+            //    StateHasChanged();
+            //});
         }
 
         /// <summary>
