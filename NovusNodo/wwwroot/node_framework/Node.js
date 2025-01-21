@@ -32,7 +32,7 @@ export class Node{
      * @returns {d3.Selection} The created SVG group element.
      */
     createNodeGroup() {
-        const group = this.svg.append("g")
+        const group = this.canvas.nodeGroup.append("g")
             .attr("class", "node-group")
             .attr("transform", `translate(${this.x},${this.y})`)
              .call(d3.drag()
@@ -61,8 +61,8 @@ export class Node{
         let node = this;
         if(this.nodeType == 1) {
 
-            let buttonHeight =  this.height - 5;
-            let buttonWidth =  40;
+            let buttonHeight =  this.height - 10;
+            let buttonWidth =  30;
 
             // Append a rectangle (button) to the group
             group.append("rect")
@@ -71,7 +71,6 @@ export class Node{
             .attr("y", this.height / 2 - buttonHeight / 2)
             .attr("width", buttonWidth)
             .attr("height", buttonHeight)
-            .attr("stroke", this.canvas.getNodeStrokeColor())
             .on("click", function() {
                 // Dispatch the custom event to notify that the button has been clicked
                 const moveEvent = new CustomEvent("nodeInjectorButtonClicked", {bubbles: true,

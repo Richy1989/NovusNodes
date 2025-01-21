@@ -17,6 +17,9 @@ export class Canvas {
     dragMultipleSelection = [];
     isMultiNodeDragging = false;
 
+    linkGroup = null;
+    nodeGroup = null;
+
     gridData = [];
 
     /**
@@ -35,7 +38,7 @@ export class Canvas {
     }
 
     getLinkColor() {
-        return this.isDarkMode ? "white" : "#778899";
+        return this.isDarkMode ? "#778899" : "#778899";
     }
 
     getNodeStrokeColor() {
@@ -67,11 +70,17 @@ export class Canvas {
 
         this.svg = localSVG;
 
+        // Create separate groups for background, links and nodes
+        this.backgroundGroup = this.svg.append("g").attr("class", "backgroundGroup");
+        this.linkGroup = this.svg.append("g").attr("class", "linkGroup");
+        this.nodeGroup = this.svg.append("g").attr("class", "nodeGroup");
+
         this.drawGrid();
 
         return localSVG;
     }
 
+    //Draws a grid on the canvas
     drawGrid() {
 
         // Grid configuration
@@ -92,7 +101,7 @@ export class Canvas {
         }
 
         // Draw the dots
-        this.svg.selectAll("circle")
+        this.backgroundGroup.selectAll("circle")
             .data(this.gridData)
             .join("circle")
             .attr("cx", d => d.x + spacing / 2)
@@ -101,6 +110,7 @@ export class Canvas {
             .style("fill", "steelblue");
     }
 
+    //Initializes the canvas
     init() {
         const canvas = this;
         // Add global event listener for nodeMoved event
@@ -355,7 +365,7 @@ export class Canvas {
      * Draws all the links on the canvas.
      */
     drawLinks() {
-        var lines = this.svg.selectAll("line").data(this.linkList, (d) => d.id);
+        var lines = this.linkGroup.selectAll("line").data(this.linkList, (d) => d.id);
         lines.join("line")
             .attr("class", "link")
             .attr("id", (d) => d.id)
@@ -379,12 +389,12 @@ export class Canvas {
 
         for (let i = 0; i < this.linkList.length; i++) {
             const link = this.linkList[i];
-            this.svg.select('[id=\"' + link.id + '\"]').attr("stroke", this.getLinkColor());
+            this.linkGroup.select('[id=\"' + link.id + '\"]').attr("stroke", this.getLinkColor());
         }
 
         for (let i = 0; i < this.nodeList.length; i++) {
             const node = this.nodeList[i];
-            this.svg.select('[id=\"' + node.id + '\"]').attr("stroke", this.getNodeStrokeColor());
+            this.nodeGroup.select('[id=\"' + node.id + '\"]').attr("stroke", this.getNodeStrokeColor());
         }
     }
 
@@ -465,6 +475,7 @@ export class Canvas {
         this.drawGrid();
     }
 
+    //Find the furthest away elements in the canvas
     findFurthestElements() {
         var furthestXElement = null;
         var furthestYElement = null;

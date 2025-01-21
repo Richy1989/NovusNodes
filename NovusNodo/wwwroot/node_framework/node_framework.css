@@ -42,10 +42,12 @@
 /* Button styles */
 .injectorButton {
     fill: #007BFF; /* Bootstrap primary button color */
-    rx: 10;/*  Rounded corners */
+   /* fill: #ffcc00;  Yellow fill color */
+    stroke: #666; /* Dark gray stroke color */
+    stroke-width: 1.5px;
+    rx: 5px; /* Rounded corners */
     cursor: pointer;
-    transition: fill 0.2s ease-in-out; /* Smooth transition for color changes */
-    stroke-width: 2;
+    transition: fill 0.3s, stroke 0.3s; /* Smooth transition for hover effect */
   }
   
   .injectorButton:hover {
