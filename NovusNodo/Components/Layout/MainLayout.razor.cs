@@ -47,13 +47,9 @@ namespace NovusNodo.Components.Layout
         /// <summary>
         /// Toggles between dark mode and light mode.
         /// </summary>
-        private async Task DarkModeToggle()
+        private void DarkModeToggle()
         {
             NovusUIManagement.IsDarkMode = !NovusUIManagement.IsDarkMode;
-            //await InvokeAsync(() =>
-            //{
-            //    StateHasChanged();
-            //});
         }
 
         /// <summary>

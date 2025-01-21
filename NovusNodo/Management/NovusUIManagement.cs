@@ -11,7 +11,6 @@ namespace NovusNodo.Management
     /// </summary>
     public class NovusUIManagement : IDisposable
     {
-        public IJSObjectReference CanvasRef { get; set; }
         public INodeBase CurrentlySelectedNode { get; set; }
         public string CurrentlyOpenedPage { get; set; }
 
@@ -175,15 +174,15 @@ namespace NovusNodo.Management
         /// </summary>
         public async Task ChangeNodeLabelName(string newName)
         {
-            CurrentlySelectedNode.Name = newName;
-            try
-            {
-                await CanvasRef.InvokeVoidAsync("setNodeName", [$"{CurrentlySelectedNode.Id}", $"{newName}"]);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Failed to change node label.");
-            }
+            //CurrentlySelectedNode.Name = newName;
+            //try
+            //{
+            //    await CanvasRef.InvokeVoidAsync("setNodeName", [$"{CurrentlySelectedNode.Id}", $"{newName}"]);
+            //}
+            //catch (Exception ex)
+            //{
+            //    Logger.LogError(ex, "Failed to change node label.");
+            //}
         }
 
         /// <summary>

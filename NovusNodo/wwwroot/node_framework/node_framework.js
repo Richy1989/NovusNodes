@@ -12,6 +12,19 @@ export function setSelectedCanvasTabId(id) {
     selectedPaperTabId = id;
 }
 
+export function createCanvas(id, reference) {
+    netCanvasReference = reference;
+
+    // Get the computed dimensions of the parent container
+    const parentContainer = d3.select("#main_container");
+    const width = parentContainer.node().clientWidth;
+    const height = parentContainer.node().clientHeight;
+
+    canvasTabs[id] = new Canvas(id, netCanvasReference, width, height);
+    canvasTabs[id].setDarkMode(isDarkMode);
+    canvasTabs[id].changeBackgroundColor();
+}
+
 export function setDarkMode(isInDarkMode) {
     isDarkMode = isInDarkMode;
     Object.values(canvasTabs).forEach(element => {
@@ -26,19 +39,6 @@ export function setLineStyle(useCubicBezier) {
         element.useCubicBezier = useCubicBezier;
         element.drawLinks();
     });
-}
-
-export function createCanvas(id, reference) {
-    netCanvasReference = reference;
-
-    // Get the computed dimensions of the parent container
-    const parentContainer = d3.select("#main_container");
-    const width = parentContainer.node().clientWidth;
-    const height = parentContainer.node().clientHeight;
-
-    canvasTabs[id] = new Canvas(id, netCanvasReference, width, height);
-    canvasTabs[id].setDarkMode(isDarkMode);
-    canvasTabs[id].changeBackgroundColor();
 }
 
 export function resizeCanvas(id) {
@@ -60,8 +60,7 @@ export function createNode(id, color, name, width, height, x, y, nodeType) {
     canvas.addNode(node);
 }
 
-export function addInputPorts(nodeId, portId)
-{
+export function addInputPorts(nodeId, portId) {
     if (selectedPaperTabId == null) {
         console.log("No Canvas Tab Selected");
         return;
@@ -73,8 +72,7 @@ export function addInputPorts(nodeId, portId)
     node.addInputPort(portId);
 }
 
-export function addOutputPorts(nodeId, portId)
-{
+export function addOutputPorts(nodeId, portId) {
     if (selectedPaperTabId == null) {
         console.log("No Canvas Tab Selected");
         return;

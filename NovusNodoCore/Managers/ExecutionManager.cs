@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using NovusNodoCore.DebugNotification;
+using NovusNodoCore.Enumerations;
 using NovusNodoCore.NovusLogger;
 using NovusNodoPluginLibrary;
 
@@ -35,6 +36,9 @@ namespace NovusNodoCore.Managers
         /// Event fired when the curve style is changed.
         /// </summary>
         public event Func<bool, Task> OnCurveStyleChanged;
+
+
+        public event Func<PageAction, string, Task> OnPageChanged;
 
         /// <summary>
         /// Gets or sets a value indicating whether execution is allowed.
@@ -91,13 +95,49 @@ namespace NovusNodoCore.Managers
         }
 
         /// <summary>
+        /// Adds a new tab and returns the created <see cref="NodePageManager"/>.
+        /// </summary>
+        /// <returns>The created <see cref="NodePageManager"/>.</returns>
+        public NodePageManager AddNewTab()
+        {
+            var nodePage = (NodePageManager)serviceProvider.GetService(typeof(NodePageManager));
+            nodePage.DebugLogChanged = OnDebugLogUpdated;
+            nodePage.PageID = Guid.NewGuid().ToString();
+            nodePage.PageName = nodePage.PageID;// "Nodes";
+            NodePages.Add(nodePage.PageID, nodePage);
+            OnPageChanged?.Invoke(PageAction.Added, nodePage.PageID);
+            return nodePage;
+        }
+
+        /// <summary>
+        /// Removes the tab with the specified page ID.
+        /// </summary>
+        /// <param name="pageID">The ID of the page to remove.</param>
+        public void RemoveTab(string pageID)
+        {
+            var nodePage = NodePages[pageID];
+            nodePage.CancellationTokenSource.Cancel();
+            NodePages.Remove(pageID);
+
+            OnPageChanged?.Invoke(PageAction.Removed, nodePage.PageID);
+
+            foreach (var node in nodePage.AvailableNodes)
+            {
+                node.Value.OutputPorts.Clear();
+                node.Value.OutputPorts = null;
+                node.Value.InputPort = null;
+            }
+        }
+
+
+        /// <summary>
         /// Handles the event when a new debug log is created.
         /// </summary>
         /// <param name="arg">The debug message argument.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         private async Task ExecutionManager_NewDebugLog(DebugMessage arg)
         {
-            await OnDebugLogUpdated(arg).ConfigureAwait(false);
+                await OnDebugLogUpdated(arg).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -148,38 +188,6 @@ namespace NovusNodoCore.Managers
         public void LoadSavedData()
         {
             AddNewTab();
-        }
-
-        /// <summary>
-        /// Adds a new tab and returns the created <see cref="NodePageManager"/>.
-        /// </summary>
-        /// <returns>The created <see cref="NodePageManager"/>.</returns>
-        public NodePageManager AddNewTab()
-        {
-            var nodePage = (NodePageManager)serviceProvider.GetService(typeof(NodePageManager));
-            nodePage.DebugLogChanged = OnDebugLogUpdated;
-            nodePage.PageID = Guid.NewGuid().ToString();
-            nodePage.PageName = "Nodes";
-            NodePages.Add(nodePage.PageID, nodePage);
-            return nodePage;
-        }
-
-        /// <summary>
-        /// Removes the tab with the specified page ID.
-        /// </summary>
-        /// <param name="pageID">The ID of the page to remove.</param>
-        public void RemoveTab(string pageID)
-        {
-            var nodePage = NodePages[pageID];
-            nodePage.CancellationTokenSource.Cancel();
-            NodePages.Remove(pageID);
-
-            foreach (var node in nodePage.AvailableNodes)
-            {
-                node.Value.OutputPorts.Clear();
-                node.Value.OutputPorts = null;
-                node.Value.InputPort = null;
-            }
         }
 
         /// <summary>

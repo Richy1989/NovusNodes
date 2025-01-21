@@ -25,13 +25,16 @@ namespace NovusNodo.Components.Pages
         /// <summary>
         /// A reference to the current instance of the JointJS Paper component for JavaScript interop.
         /// </summary>
-        private DotNetObjectReference<JointJSPaper> jointJSPaperComponentRef;
+        private DotNetObjectReference<JointJSPaper> canvasNetComponentRef;
 
         /// <summary>
         /// Gets or sets the Tab ID associated with this JointJS Paper component.
         /// </summary>
         [Parameter]
         public string TabID { get; set; }
+
+        [Parameter]
+        public IJSObjectReference CanvasReference { get; set; }
 
         /// <summary>
         /// Gets or sets the NodePageManager instance for managing nodes on this page.
@@ -47,7 +50,6 @@ namespace NovusNodo.Components.Pages
             base.OnInitialized();
 
             ExecutionManager.OnCurveStyleChanged += ExecutionManager_OnCurveStyleChanged;
-
             NodePageManager = ExecutionManager.NodePages[TabID];
             NodePageManager.AvailableNodesUpdated += NodesAdded;
             NovusUIManagement.OnDarkThemeChanged += NovusUIManagement_OnDarkThemeChanged;
@@ -60,11 +62,7 @@ namespace NovusNodo.Components.Pages
 
         private async Task ExecutionManager_OnCurveStyleChanged(bool arg)
         {
-            await NovusUIManagement.CanvasRef.InvokeVoidAsync("setLineStyle", arg);
-            //await InvokeAsync(() =>
-            //{
-            //    StateHasChanged();
-            //});
+            await CanvasReference.InvokeVoidAsync("setLineStyle", arg);
         }
 
         /// <summary>
@@ -73,7 +71,7 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task SetColorTheme(bool isDarkTheme)
         {
-            await NovusUIManagement.CanvasRef.InvokeVoidAsync("setDarkMode", isDarkTheme);
+            await CanvasReference.InvokeVoidAsync("setDarkMode", isDarkTheme);
         }
 
         /// <summary>
@@ -191,13 +189,13 @@ namespace NovusNodo.Components.Pages
                  {
                      if (sender is NodeBase node)
                      {
-                         await NovusUIManagement.CanvasRef.InvokeVoidAsync("enableDisableNode", [node.Id, node.IsEnabled]);
+                         await CanvasReference.InvokeVoidAsync("enableDisableNode", [node.Id, node.IsEnabled]);
                      }
                  }
              };
 
             Logger.LogDebug($"Adding node {node.Id} to canvas {TabID}");
-            await NovusUIManagement.CanvasRef.InvokeVoidAsync("createNode", [node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y, (double)node.NodeType]);
+            await CanvasReference.InvokeVoidAsync("createNode", [node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y, (double)node.NodeType]);
             await AddPorts(node);
         }
 
@@ -211,13 +209,10 @@ namespace NovusNodo.Components.Pages
             base.OnAfterRender(firstRender);
             if (firstRender)
             {
-                jointJSPaperComponentRef = DotNetObjectReference.Create(this);
+                canvasNetComponentRef = DotNetObjectReference.Create(this);
 
                 Logger.LogDebug("Creating canvas for tab {TabID}", TabID);
-                var canvasRef = await JS.InvokeAsync<IJSObjectReference>("import", "./node_framework/node_framework.js");
-                NovusUIManagement.CanvasRef = canvasRef;
-                await NovusUIManagement.CanvasRef.InvokeVoidAsync("createCanvas", [TabID, jointJSPaperComponentRef]);
-
+                await CanvasReference.InvokeVoidAsync("createCanvas", [TabID, canvasNetComponentRef]);
                 await SetColorTheme(NovusUIManagement.IsDarkMode);
 
                 if (!isInitialized)
@@ -247,7 +242,7 @@ namespace NovusNodo.Components.Pages
                         string connectedPortId = nextNode.Key;
                         INodeBase connectedNode = nextNode.Value;
 
-                        await NovusUIManagement.CanvasRef.InvokeVoidAsync("addLink", [node.Id, port.Id, connectedNode.Id, connectedPortId]);
+                        await CanvasReference.InvokeVoidAsync("addLink", [node.Id, port.Id, connectedNode.Id, connectedPortId]);
                     }
                 }
             }
@@ -262,13 +257,13 @@ namespace NovusNodo.Components.Pages
         {
             if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Finisher)
             {
-                await NovusUIManagement.CanvasRef.InvokeVoidAsync("addInputPorts", [node.Id, node.InputPort.Id]);
+                await CanvasReference.InvokeVoidAsync("addInputPorts", [node.Id, node.InputPort.Id]);
             }
             if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Starter)
             {
                 foreach (var port in node.OutputPorts.Values)
                 {
-                    await NovusUIManagement.CanvasRef.InvokeVoidAsync("addOutputPorts", [node.Id, port.Id]);
+                    await CanvasReference.InvokeVoidAsync("addOutputPorts", [node.Id, port.Id]);
                 }
             }
         }
@@ -293,7 +288,7 @@ namespace NovusNodo.Components.Pages
                 if (disposing)
                 {
                     ExecutionManager.OnCurveStyleChanged -= ExecutionManager_OnCurveStyleChanged;
-                    jointJSPaperComponentRef?.Dispose();
+                    canvasNetComponentRef?.Dispose();
                     NodePageManager.AvailableNodesUpdated -= NodesAdded;
                 }
 

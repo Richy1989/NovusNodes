@@ -478,8 +478,7 @@ export class Canvas {
         }
     }
 
-    deleteNode(selectedNode)
-    {
+    deleteNode(selectedNode) {
         console.log("Deleting node", selectedNode.id);
         this.nodeList = this.nodeList.filter(node => node.id !== selectedNode.id);
 
