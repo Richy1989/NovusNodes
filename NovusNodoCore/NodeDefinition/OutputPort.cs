@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace NovusNodoCore.NodeDefinition
+﻿namespace NovusNodoCore.NodeDefinition
 {
     /// <summary>
     /// Represents an output port in a node.

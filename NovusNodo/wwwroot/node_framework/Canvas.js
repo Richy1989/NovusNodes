@@ -20,6 +20,8 @@ export class Canvas {
     linkGroup = null;
     nodeGroup = null;
 
+    useCubicBezier = true;
+    cubicBezierMultiplier = 100;
     gridData = [];
 
     /**
@@ -288,18 +290,35 @@ export class Canvas {
             console.log("Mouse down", portCenterX, portCenterY);
             canvas.isLinking = true;
             canvas.sourcePort = node.outputPort;//d3.select(event.target);
-            canvas.tempLine = canvas.svg.append("line")
-                .attr("x1", portCenterX)
-                .attr("y1", portCenterY)
-                .attr("x2", portCenterX)
-                .attr("y2", portCenterY)
-                .attr("stroke", canvas.getLinkColor())
-                .attr("stroke-width", 3);
+
+            if (canvas.useCubicBezier) {
+                canvas.tempLine = canvas.linkGroup.append("path")
+                    .attr("d", canvas.calculateCubicBezierPath(node.outputPort, node.outputPort))
+                    .attr("stroke", canvas.getLinkColor())
+                    .attr("stroke-width", 3)
+                    .attr("fill", "none");
+            }
+            else {
+                canvas.tempLine = canvas.svg.append("line")
+                    .attr("x1", portCenterX)
+                    .attr("y1", portCenterY)
+                    .attr("x2", portCenterX)
+                    .attr("y2", portCenterY)
+                    .attr("stroke", canvas.getLinkColor())
+                    .attr("stroke-width", 3);
+            }
 
             canvas.svg.on("pointermove", function (event) {
                 if (canvas.isLinking && canvas.tempLine) {
                     const [x, y] = d3.pointer(event);
-                    canvas.tempLine.attr("x2", x).attr("y2", y);
+
+                    if (canvas.useCubicBezier) {
+                        const pathData = `M${portCenterX},${portCenterY} C${portCenterX + this.cubicBezierMultiplier},${portCenterY} ${x - this.cubicBezierMultiplier},${y} ${x},${y}`;
+                        canvas.tempLine.attr("d", pathData);
+                    }
+                    else {
+                        canvas.tempLine.attr("x2", x).attr("y2", y);
+                    }
                 }
             });
         });
@@ -365,22 +384,48 @@ export class Canvas {
      * Draws all the links on the canvas.
      */
     drawLinks() {
-        var lines = this.linkGroup.selectAll("line").data(this.linkList, (d) => d.id);
-        lines.join("line")
-            .attr("class", "link")
-            .attr("id", (d) => d.id)
-            .attr("x1", (d) => d.sourcePort.node.x + d.sourcePort.x + 5)
-            .attr("y1", (d) => d.sourcePort.node.y + d.sourcePort.y + 5)
-            .attr("x2", (d) => d.targetPort.node.x + d.targetPort.x + 5)
-            .attr("y2", (d) => d.targetPort.node.y + d.targetPort.y + 5)
-            .attr("stroke", this.getLinkColor())
-            .on("click", (event, link) => {
-                console.log("Selected link", event, link);
-                console.log("Selected This", this);
-                this.resetAllColors();
-                this.selectedLink = link;
-                this.svg.select('[id=\"' + link.id + '\"]').attr("stroke", "orange");
-            });
+
+        if (this.useCubicBezier) {
+            //Remove all lines -- we only want paths (cubic bezier)
+            this.linkGroup.selectAll("line").remove();
+            //Add the cubic bezier paths
+            var lines = this.linkGroup.selectAll("path").data(this.linkList, (d) => d.id);
+            lines.join("path")
+                .attr("d", (d) => this.calculateCubicBezierPath(d.sourcePort, d.targetPort))
+                .attr("class", "link")
+                .attr("id", (d) => d.id)
+                .attr("stroke", this.getLinkColor())
+                .attr("stroke-width", 3)
+                .attr("fill", "none")
+                .on("click", (event, link) => {
+                    console.log("Selected link", event, link);
+                    console.log("Selected This", this);
+                    this.resetAllColors();
+                    this.selectedLink = link;
+                    this.svg.select('[id=\"' + link.id + '\"]').attr("stroke", "orange")
+                });
+        }
+        else {
+            //Remove all paths (cubic bezier) -- we only want line 
+            this.linkGroup.selectAll("path").remove();
+            //Add the lines
+            var lines = this.linkGroup.selectAll("line").data(this.linkList, (d) => d.id);
+            lines.join("line")
+                .attr("class", "link")
+                .attr("id", (d) => d.id)
+                .attr("x1", (d) => d.sourcePort.node.x + d.sourcePort.x + 5)
+                .attr("y1", (d) => d.sourcePort.node.y + d.sourcePort.y + 5)
+                .attr("x2", (d) => d.targetPort.node.x + d.targetPort.x + 5)
+                .attr("y2", (d) => d.targetPort.node.y + d.targetPort.y + 5)
+                .attr("stroke", this.getLinkColor())
+                .on("click", (event, link) => {
+                    console.log("Selected link", event, link);
+                    console.log("Selected This", this);
+                    this.resetAllColors();
+                    this.selectedLink = link;
+                    this.svg.select('[id=\"' + link.id + '\"]').attr("stroke", "orange");
+                });
+        }
     }
 
     resetAllColors() {
@@ -497,5 +542,14 @@ export class Canvas {
             furthestXElement: furthestXElement,
             furthestYElement: furthestYElement
         };
+    }
+
+    calculateCubicBezierPath(sourcePort, targetPort) {
+        const sourceX = sourcePort.node.x + sourcePort.x + 5;
+        const sourceY = sourcePort.node.y + sourcePort.y + 5;
+        const targetX = targetPort.node.x + targetPort.x + 5;
+        const targetY = targetPort.node.y + targetPort.y + 5;
+
+        return `M${sourceX},${sourceY} C${sourceX + this.cubicBezierMultiplier},${sourceY} ${targetX - this.cubicBezierMultiplier},${targetY} ${targetX},${targetY}`;
     }
 }

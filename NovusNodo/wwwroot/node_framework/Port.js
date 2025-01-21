@@ -69,12 +69,28 @@ export class Port {
             let line = this.canvas.svg.select('[id=\"' + link.id + '\"]');
 
             if(this.portType == 'input') {
-                line.attr("x2", this.node.x + this.x + this.width / 2)
-                    .attr("y2", this.node.y + this.y + this.height / 2);
+                if(this.node.canvas.useCubicBezier)
+                {
+                    let cub = this.node.canvas.calculateCubicBezierPath(link.sourcePort, link.targetPort);
+                    line.attr("d", cub);
+                }
+                else {
+                    line.attr("x2", this.node.x + this.x + this.width / 2)
+                        .attr("y2", this.node.y + this.y + this.height / 2);
+                }
+                
             }
             else if(this.portType == 'output') {
-                line.attr("x1", this.node.x + this.x + this.width / 2)
-                    .attr("y1", this.node.y + this.y + this.height / 2);
+                if(this.node.canvas.useCubicBezier)
+                    {
+                        let cub = this.node.canvas.calculateCubicBezierPath(link.sourcePort, link.targetPort);
+                        line.attr("d", cub);
+                    }
+                    else
+                    {
+                    line.attr("x1", this.node.x + this.x + this.width / 2)
+                        .attr("y1", this.node.y + this.y + this.height / 2);
+                    }
             }
         }
     }   

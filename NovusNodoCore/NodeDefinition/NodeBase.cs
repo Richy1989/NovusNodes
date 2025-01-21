@@ -174,6 +174,8 @@ namespace NovusNodoCore.NodeDefinition
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ExecuteNode(JsonObject jsonData)
         {
+            if (!isEnabled) return; 
+
             autoResetEvent.WaitOne();
             // Execute all work tasks from the plugin
             // Then trigger all the connected nodes from the according output port
@@ -236,23 +238,16 @@ namespace NovusNodoCore.NodeDefinition
         /// <returns>A task that represents the asynchronous operation, containing the result of the JavaScript execution.</returns>
         public async Task<JsonObject> ExecuteJavaScriptCode(string code, JsonObject parameters)
         {
-            int tries = 0;
-
-            while (tries < 3)
+            try
             {
-                try
-                {
-                    JsonObject value = nodeJSEnvironmentManager.RunUserCode(code, parameters);
-                    return await Task.FromResult(value).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, $"Error executing JavaScript code. This was try {tries} / 3");
-                    tries++;
-                    await Task.Delay(50).ConfigureAwait(false);
-                }
+                JsonObject value = nodeJSEnvironmentManager.RunUserCode(code, parameters);
+                return await Task.FromResult(value).ConfigureAwait(false);
             }
-            Logger.LogError("Failed to execute JavaScript code after 3 tries.");
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, $"Error executing JavaScript code.");
+            }
+
             return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
         }
 
