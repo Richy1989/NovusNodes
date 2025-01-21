@@ -43,6 +43,11 @@ namespace NovusNodo.Management
         public event Func<INodeBase, Task> OnNodeDoubleClicked;
 
         /// <summary>
+        /// Event fired when the dark theme is changed.
+        /// </summary>
+        public event Func<bool, Task> OnDarkThemeChanged;
+
+        /// <summary>
         /// Gets or sets the type of the sidebar UI.
         /// </summary>
         public Type SideBarUI { get; set; } = typeof(BlankConfig);
@@ -56,7 +61,19 @@ namespace NovusNodo.Management
         /// <value>
         ///   <c>true</c> if dark mode is enabled; otherwise, <c>false</c>.
         /// </value>
-        public bool IsDarkMode { get; set; } = true;
+        public bool isDarkMode { get; set; } = true;
+        public bool IsDarkMode
+        {
+            get
+            { 
+                return isDarkMode;
+            }
+            set
+            {
+                isDarkMode = value;
+                OnDarkThemeChanged(value);
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the drawer settings are open.

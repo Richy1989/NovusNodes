@@ -313,7 +313,10 @@ export class Canvas {
                     const [x, y] = d3.pointer(event);
 
                     if (canvas.useCubicBezier) {
-                        const pathData = `M${portCenterX},${portCenterY} C${portCenterX + this.cubicBezierMultiplier},${portCenterY} ${x - this.cubicBezierMultiplier},${y} ${x},${y}`;
+                        const pathData = `M${portCenterX},${portCenterY} 
+                            C${portCenterX + canvas.cubicBezierMultiplier},${portCenterY}
+                            ${x - canvas.cubicBezierMultiplier},${y} ${x},${y}`;
+
                         canvas.tempLine.attr("d", pathData);
                     }
                     else {

@@ -1,0 +1,49 @@
+﻿@inject NovusNodo.Management.NovusUIManagement NovusUIManagement
+@inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
+
+<MudPaper Class="d-flex flex-row gap-4" Style="@($"background:rgba(0, 0, 0, 0.4); padding-left:10px; padding-right:10px;")" Elevation="0">
+    <MudIconButton Icon="@(PlayPauseButtonIcon)" Color="@PlayPauseButtonColor" OnClick="@PlayPauseButtonIconToggle" Size="Size.Large" />
+    <MudIconButton Icon="@LineStyleIcon" Color="@LineStyleColor" OnClick="@LineStyleToggle" Size="Size.Large" />
+</MudPaper>
+@code {
+
+    /// <summary>
+    /// Toggles the play pause variable.
+    /// </summary>
+    private void PlayPauseButtonIconToggle()
+    {
+        ExecutionManager.IsExecutionAllowed = !ExecutionManager.IsExecutionAllowed;
+    }
+
+    /// <summary>
+    /// Gets the icon for the play pause toggle button.
+    /// </summary>
+    public string PlayPauseButtonIcon => ExecutionManager.IsExecutionAllowed switch
+    {
+        true => Icons.Material.Rounded.PauseCircleFilled,
+        false => Icons.Material.Outlined.PlayCircleFilled,
+    };
+
+    public Color PlayPauseButtonColor => ExecutionManager.IsExecutionAllowed switch
+    {
+        true => Color.Error,
+        false => Color.Tertiary,
+    };
+
+    private void LineStyleToggle()
+    {
+        ExecutionManager.UseBezierCurve = !ExecutionManager.UseBezierCurve;
+    }
+
+    public Color LineStyleColor => ExecutionManager.UseBezierCurve switch
+    {
+        true => Color.Surface,
+        false => Color.Surface,
+    };
+
+    public string LineStyleIcon => ExecutionManager.UseBezierCurve switch
+    {
+        true => "fa-solid fa-circle-nodes",
+        false => "fa-solid fa-bezier-curve", // fa-solid
+    };
+}

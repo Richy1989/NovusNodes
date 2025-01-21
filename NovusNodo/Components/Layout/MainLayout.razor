@@ -14,7 +14,8 @@
     <MudAppBar Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h5" Class="ml-3">Novus Nodes</MudText>
-        <MudIconButton Icon="@(PlayPauseButtonIcon)" Color="Color.Tertiary" OnClick="@PlayPauseButtonIconToggle" Size="Size.Large" />
+        <MudSpacer />
+        <AppBarIcons></AppBarIcons>
         <MudSpacer />
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
         <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />

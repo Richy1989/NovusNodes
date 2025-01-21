@@ -50,11 +50,10 @@ namespace NovusNodo.Components.Layout
         private async Task DarkModeToggle()
         {
             NovusUIManagement.IsDarkMode = !NovusUIManagement.IsDarkMode;
-            await InvokeAsync(async () =>
-            {
-                await JS.InvokeVoidAsync("GJSReloadPage");
-                //StateHasChanged();
-            });
+            //await InvokeAsync(() =>
+            //{
+            //    StateHasChanged();
+            //});
         }
 
         /// <summary>
@@ -64,23 +63,6 @@ namespace NovusNodo.Components.Layout
         {
             true => Icons.Material.Rounded.AutoMode,
             false => Icons.Material.Outlined.DarkMode,
-        };
-
-        /// <summary>
-        /// Toggles the play pause variable.
-        /// </summary>
-        private void PlayPauseButtonIconToggle()
-        {
-            ExecutionManager.IsExecutionAllowed = !ExecutionManager.IsExecutionAllowed;
-        }
-
-        /// <summary>
-        /// Gets the icon for the play pause toggle button.
-        /// </summary>
-        public string PlayPauseButtonIcon => ExecutionManager.IsExecutionAllowed switch
-        {
-            true => Icons.Material.Rounded.PauseCircleFilled,
-            false => Icons.Material.Outlined.PlayCircleFilled,
         };
 
         /// <summary>

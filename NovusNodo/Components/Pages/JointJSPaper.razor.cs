@@ -45,26 +45,35 @@ namespace NovusNodo.Components.Pages
         protected override void OnInitialized()
         {
             base.OnInitialized();
+
+            ExecutionManager.OnCurveStyleChanged += ExecutionManager_OnCurveStyleChanged;
+
             NodePageManager = ExecutionManager.NodePages[TabID];
             NodePageManager.AvailableNodesUpdated += NodesAdded;
+            NovusUIManagement.OnDarkThemeChanged += NovusUIManagement_OnDarkThemeChanged;
+        }
+
+        private async Task NovusUIManagement_OnDarkThemeChanged(bool arg)
+        {
+            await SetColorTheme(arg);
+        }
+
+        private async Task ExecutionManager_OnCurveStyleChanged(bool arg)
+        {
+            await NovusUIManagement.CanvasRef.InvokeVoidAsync("setLineStyle", arg);
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
 
         /// <summary>
         /// Sets the color palette for JointJS based on the current UI theme.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        private async Task SetColorTheme()
+        private async Task SetColorTheme(bool isDarkTheme)
         {
-            await NovusUIManagement.CanvasRef.InvokeVoidAsync("setDarkMode", NovusUIManagement.IsDarkMode);
-
-            //if (NovusUIManagement.IsDarkMode)
-            //{
-            //    await JS.InvokeVoidAsync("JJSSetColorPalette", new object[] { NovusUIManagement.DarkPalette.Background, "#ffffff", "#e8e8e8" });
-            //}
-            //else
-            //{
-            //    await JS.InvokeVoidAsync("JJSSetColorPalette", new object[] { NovusUIManagement.LightPalette.Background, "#1e1e2d", "#1e1e2d" });
-            //}
+            await NovusUIManagement.CanvasRef.InvokeVoidAsync("setDarkMode", isDarkTheme);
         }
 
         /// <summary>
@@ -209,7 +218,7 @@ namespace NovusNodo.Components.Pages
                 NovusUIManagement.CanvasRef = canvasRef;
                 await NovusUIManagement.CanvasRef.InvokeVoidAsync("createCanvas", [TabID, jointJSPaperComponentRef]);
 
-                await SetColorTheme();
+                await SetColorTheme(NovusUIManagement.IsDarkMode);
 
                 if (!isInitialized)
                 {
@@ -283,6 +292,7 @@ namespace NovusNodo.Components.Pages
             {
                 if (disposing)
                 {
+                    ExecutionManager.OnCurveStyleChanged -= ExecutionManager_OnCurveStyleChanged;
                     jointJSPaperComponentRef?.Dispose();
                     NodePageManager.AvailableNodesUpdated -= NodesAdded;
                 }

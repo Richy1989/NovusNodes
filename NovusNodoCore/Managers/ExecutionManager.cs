@@ -32,9 +32,31 @@ namespace NovusNodoCore.Managers
         public event Func<string, DebugMessage, Task> DebugLogChanged;
 
         /// <summary>
+        /// Event fired when the curve style is changed.
+        /// </summary>
+        public event Func<bool, Task> OnCurveStyleChanged;
+
+        /// <summary>
         /// Gets or sets a value indicating whether execution is allowed.
         /// </summary>
         public bool IsExecutionAllowed { get; set; } = true;
+
+        private bool useBezierCurve = true;
+        /// <summary>
+        /// Gets or sets a value indicating whether to use a Bezier curve.
+        /// </summary>
+        public bool UseBezierCurve
+        {
+            get
+            {
+                return useBezierCurve;
+            }
+            set
+            {
+                this.useBezierCurve = value;
+                OnCurveStyleChanged(value);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the available plugins.

@@ -17,6 +17,14 @@ export function setDarkMode(isInDarkMode) {
     Object.values(canvasTabs).forEach(element => {
         element.setDarkMode(isDarkMode);
         element.changeBackgroundColor();
+        element.resetAllColors();
+    });
+}
+
+export function setLineStyle(useCubicBezier) {
+    Object.values(canvasTabs).forEach(element => {
+        element.useCubicBezier = useCubicBezier;
+        element.drawLinks();
     });
 }
 
