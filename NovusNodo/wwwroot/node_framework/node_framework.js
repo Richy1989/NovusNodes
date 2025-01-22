@@ -2,7 +2,6 @@ import { Node } from "./Node.js";
 import { Link } from "./Link.js";
 import { Canvas } from "./Canvas.js";
 
-let netCanvasReference = null;
 let canvasTabs = {};
 let selectedPaperTabId = null;
 let isDarkMode = true;
@@ -13,16 +12,22 @@ export function setSelectedCanvasTabId(id) {
 }
 
 export function createCanvas(id, reference) {
-    netCanvasReference = reference;
 
     // Get the computed dimensions of the parent container
     const parentContainer = d3.select("#main_container");
     const width = parentContainer.node().clientWidth;
     const height = parentContainer.node().clientHeight;
 
-    canvasTabs[id] = new Canvas(id, netCanvasReference, width, height);
+    canvasTabs[id] = new Canvas(id, reference, width, height);
     canvasTabs[id].setDarkMode(isDarkMode);
     canvasTabs[id].changeBackgroundColor();
+}
+
+export function removeCanvasTab(id)
+{
+    console.log("Removing Canvas Tab " + id, canvasTabs[id]);
+    canvasTabs[id].delete();
+    delete canvasTabs[id];
 }
 
 export function setDarkMode(isInDarkMode) {

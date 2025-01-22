@@ -103,7 +103,7 @@ namespace NovusNodoCore.Managers
             var nodePage = (NodePageManager)serviceProvider.GetService(typeof(NodePageManager));
             nodePage.DebugLogChanged = OnDebugLogUpdated;
             nodePage.PageID = Guid.NewGuid().ToString();
-            nodePage.PageName = nodePage.PageID;// "Nodes";
+            nodePage.PageName = "Nodes";
             NodePages.Add(nodePage.PageID, nodePage);
             OnPageChanged?.Invoke(PageAction.Added, nodePage.PageID);
             return nodePage;

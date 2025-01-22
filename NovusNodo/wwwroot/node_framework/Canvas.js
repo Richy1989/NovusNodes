@@ -39,6 +39,11 @@ export class Canvas {
         this.init();
     }
 
+    delete()
+    {
+        this.svg.remove();
+    }
+
     getLinkColor() {
         return this.isDarkMode ? "#778899" : "#778899";
     }
@@ -115,24 +120,31 @@ export class Canvas {
     //Initializes the canvas
     init() {
         const canvas = this;
-        // Add global event listener for nodeMoved event
+        /* // Add global event listener for nodeMoved event
         document.addEventListener("nodeMoved", function (event) {
+            canvas.netCanvasReference.invokeMethodAsync("NovusNode.ElementMoved", event.detail.id, event.detail.x, event.detail.y);
+            canvas.resizeCanvasIfNeeded(event.detail.x, event.detail.y);
+        }); */
+
+        // Add global event listener for nodeMoved event
+        this.svg.on("nodeMoved", function (event) {
             canvas.netCanvasReference.invokeMethodAsync("NovusNode.ElementMoved", event.detail.id, event.detail.x, event.detail.y);
             canvas.resizeCanvasIfNeeded(event.detail.x, event.detail.y);
         });
 
+
         // Add global event listener for nodeMoved event
-        document.addEventListener("nodeInjectorButtonClicked", function (event) {
+        this.svg.on("nodeInjectorButtonClicked", function (event) {
             canvas.netCanvasReference.invokeMethodAsync("NovusNode.InjectorElementClicked", event.detail.id);
         });
 
         // Add global event listener for nodeMoved event
-        document.addEventListener("nodeDoubleClicked", function (event) {
+        this.svg.on("nodeDoubleClicked", function (event) {
             canvas.netCanvasReference.invokeMethodAsync("NovusNode.NodeDoubleClicked", canvas.id, event.detail.id);
         });
 
         // Add global event listener for nodeMoved event
-        document.addEventListener("nodeResized", function (event) {
+        this.svg.on("nodeResized", function (event) {
             console.log("Node resized", event.detail.id, event.detail.width, event.detail.height);
             canvas.netCanvasReference.invokeMethodAsync("NovusNode.NodeResized", event.detail.id, event.detail.width, event.detail.height);
         });

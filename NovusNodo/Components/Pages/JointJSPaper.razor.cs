@@ -53,6 +53,22 @@ namespace NovusNodo.Components.Pages
             NodePageManager = ExecutionManager.NodePages[TabID];
             NodePageManager.AvailableNodesUpdated += NodesAdded;
             NovusUIManagement.OnDarkThemeChanged += NovusUIManagement_OnDarkThemeChanged;
+            NovusUIManagement.OnNodeNameChanged += NovusUIManagement_OnNodeNameChanged;
+        }
+
+        private async Task NovusUIManagement_OnNodeNameChanged(string tabId, string nodeId, string name)
+        {
+            if (TabID == tabId)
+            {
+                try
+                {
+                    await CanvasReference.InvokeVoidAsync("setNodeName", [$"{nodeId}", $"{name}"]);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to change node label.");
+                }
+            }
         }
 
         private async Task NovusUIManagement_OnDarkThemeChanged(bool arg)
@@ -210,7 +226,7 @@ namespace NovusNodo.Components.Pages
             if (firstRender)
             {
                 canvasNetComponentRef = DotNetObjectReference.Create(this);
-
+                //CanvasReference = await JS.InvokeAsync<IJSObjectReference>("import", "./node_framework/node_framework.js");
                 Logger.LogDebug("Creating canvas for tab {TabID}", TabID);
                 await CanvasReference.InvokeVoidAsync("createCanvas", [TabID, canvasNetComponentRef]);
                 await SetColorTheme(NovusUIManagement.IsDarkMode);
@@ -287,9 +303,12 @@ namespace NovusNodo.Components.Pages
             {
                 if (disposing)
                 {
+                    Logger.LogDebug($"Disposing JointJS Paper ID: {TabID}");
                     ExecutionManager.OnCurveStyleChanged -= ExecutionManager_OnCurveStyleChanged;
-                    canvasNetComponentRef?.Dispose();
                     NodePageManager.AvailableNodesUpdated -= NodesAdded;
+                    NovusUIManagement.OnDarkThemeChanged -= NovusUIManagement_OnDarkThemeChanged;
+                    NovusUIManagement.OnNodeNameChanged -= NovusUIManagement_OnNodeNameChanged;
+                    canvasNetComponentRef?.Dispose();
                 }
 
                 _disposedValue = true;

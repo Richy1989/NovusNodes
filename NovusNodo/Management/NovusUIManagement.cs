@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using System.Collections.Immutable;
+using Microsoft.JSInterop;
 using MudBlazor;
 using NovusNodo.Components.Pages;
 using NovusNodoCore.Managers;
@@ -11,6 +12,7 @@ namespace NovusNodo.Management
     /// </summary>
     public class NovusUIManagement : IDisposable
     {
+        public event Func<string, string, string, Task> OnNodeNameChanged;
         public INodeBase CurrentlySelectedNode { get; set; }
         public string CurrentlyOpenedPage { get; set; }
 
@@ -174,6 +176,8 @@ namespace NovusNodo.Management
         /// </summary>
         public async Task ChangeNodeLabelName(string newName)
         {
+            await OnNodeNameChanged?.Invoke(CurrentlyOpenedPage, CurrentlySelectedNode.Id, newName);
+
             //CurrentlySelectedNode.Name = newName;
             //try
             //{

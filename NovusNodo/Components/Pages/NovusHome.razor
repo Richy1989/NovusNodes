@@ -169,6 +169,7 @@
         if (tabView is not null)
         {
             Logger.LogDebug($"Removing tab with ID: {id}");
+            await CanvasReference.InvokeVoidAsync("removeCanvasTab", panel.ID);
             ExecutionManager.RemoveTab(tabView.Id.ToString());
             UserTabs.Remove(tabView);
             _stateHasChanged = true;
@@ -212,7 +213,11 @@
         {
             if (disposing)
             {
-                CanvasReference?.DisposeAsync();
+                try
+                {
+                    CanvasReference?.DisposeAsync();
+                }
+                catch { }
             }
 
             _disposedValue = true;
