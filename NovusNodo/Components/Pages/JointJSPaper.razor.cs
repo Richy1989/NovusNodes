@@ -303,7 +303,7 @@ namespace NovusNodo.Components.Pages
             {
                 if (disposing)
                 {
-                    Logger.LogDebug($"Disposing JointJS Paper ID: {TabID}");
+                    Logger.LogDebug($"Disposing Canvas with ID: {TabID}");
                     ExecutionManager.OnCurveStyleChanged -= ExecutionManager_OnCurveStyleChanged;
                     NodePageManager.AvailableNodesUpdated -= NodesAdded;
                     NovusUIManagement.OnDarkThemeChanged -= NovusUIManagement_OnDarkThemeChanged;

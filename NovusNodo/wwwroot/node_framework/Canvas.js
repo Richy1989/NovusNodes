@@ -24,6 +24,8 @@ export class Canvas {
     cubicBezierMultiplier = 100;
     gridData = [];
 
+    zoomer = null;
+
     /**
      * Creates an instance of Canvas.
      * @param {string} id - The unique identifier for the canvas.
@@ -37,10 +39,23 @@ export class Canvas {
         this.svg = null;
         this.createSvg();
         this.init();
+
+        //this.svg.call(d3.zoom().on("zoom", this.handleZoom));
     }
 
-    delete()
-    {
+    handleZoom(e) {
+        if (e.sourceEvent.ctrlKey) {
+            const transform = e.transform;
+            d3.select('[id="' + this.id + '"]').attr('transform', transform);
+            console.log("Zooming", e);
+            // Adjust the canvas size based on the zoom level
+            const newWidth = this.width / transform.k;
+            const newHeight = this.height / transform.k;
+            d3.select('[id="' + this.id + '"]').attr("width", newWidth).attr("height", newHeight);
+        }
+    }
+
+    delete() {
         this.svg.remove();
     }
 
