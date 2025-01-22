@@ -24,6 +24,7 @@ export class Canvas {
     cubicBezierMultiplier = 100;
     gridData = [];
 
+    currentZoom = { x: 0, y: 0, k: 1 };
     zoomer = null;
 
     /**
@@ -38,21 +39,7 @@ export class Canvas {
         this.nodes = [];
         this.svg = null;
         this.createSvg();
-        this.init();
-
-        //this.svg.call(d3.zoom().on("zoom", this.handleZoom));
-    }
-
-    handleZoom(e) {
-        if (e.sourceEvent.ctrlKey) {
-            const transform = e.transform;
-            d3.select('[id="' + this.id + '"]').attr('transform', transform);
-            console.log("Zooming", e);
-            // Adjust the canvas size based on the zoom level
-            const newWidth = this.width / transform.k;
-            const newHeight = this.height / transform.k;
-            d3.select('[id="' + this.id + '"]').attr("width", newWidth).attr("height", newHeight);
-        }
+        this.init();   
     }
 
     delete() {
@@ -98,7 +85,24 @@ export class Canvas {
         this.nodeGroup = this.svg.append("g").attr("class", "nodeGroup");
 
         this.drawGrid();
+        const canvas = this;
+        
+        const zoom = d3.zoom()
+        .scaleExtent([0.5, 10])
+        .wheelDelta((e) => {
+            return -0.1 * Math.sign(e.deltaY / 5);
+        }).on("zoom", (e) => {
+            if (e.sourceEvent.ctrlKey) {
+                const transform = e.transform;
+                canvas.nodeGroup.attr('transform', transform);
+                canvas.linkGroup.attr('transform', transform);
+                canvas.currentZoom = transform;
+                console.log("Zooming", e);
+            }
+        });
 
+        d3.select("#main_container").call(zoom);
+        //d3.select('[id=\"' + this.id + '\"]').call(zoom);
         return localSVG;
     }
 
@@ -135,11 +139,6 @@ export class Canvas {
     //Initializes the canvas
     init() {
         const canvas = this;
-        /* // Add global event listener for nodeMoved event
-        document.addEventListener("nodeMoved", function (event) {
-            canvas.netCanvasReference.invokeMethodAsync("NovusNode.ElementMoved", event.detail.id, event.detail.x, event.detail.y);
-            canvas.resizeCanvasIfNeeded(event.detail.x, event.detail.y);
-        }); */
 
         // Add global event listener for nodeMoved event
         this.svg.on("nodeMoved", function (event) {
@@ -278,9 +277,23 @@ export class Canvas {
         window.addEventListener("pointerup", (event) => {
             canvas.isSelecting = false;
             if (canvas.tempSelectRect) {
-
                 // Find all nodes within the selection rectangle
-                const selectRect = canvas.tempSelectRect.node().getBBox();
+                const originalRect = canvas.tempSelectRect.node().getBBox();
+
+                 const transform = canvas.currentZoom;
+                const selectRect = {
+                    x: (originalRect.x - transform.x) / transform.k,
+                    y: (originalRect.y - transform.y) / transform.k,
+                    width: originalRect.width / transform.k,
+                    height: originalRect.height / transform.k
+                };
+
+                console.log("Transform", transform);
+                console.log("Original rect", originalRect);
+                console.log("Select Rec Transformed:", selectRect); 
+
+              //  const selectRect = originalRect;
+
                 canvas.dragMultipleSelection = canvas.nodeList.filter(node => {
                     const nodeX = parseFloat(node.x);
                     const nodeY = parseFloat(node.y);

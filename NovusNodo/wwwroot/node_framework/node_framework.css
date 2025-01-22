@@ -2,12 +2,14 @@
     rx: 6px;
     stroke-width: 2px;
 }
+
 .button {
     fill: orange;
     stroke: black;
     stroke-width: 1.5px;
     cursor: pointer;
 }
+
 .link {
     stroke-width: 3px;
     stroke-linecap: round;

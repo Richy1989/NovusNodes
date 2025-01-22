@@ -32,7 +32,7 @@
                         {
                             @foreach (var tab in UserTabs)
                             {
-                                <MudTabPanel ID="@tab.Id" Text="@tab.Label" ShowCloseIcon="@tab.ShowCloseIcon">
+                                <MudTabPanel Text="@tab.Label" ShowCloseIcon="@tab.ShowCloseIcon">
                                     <JointJSPaper TabID="@tab.Id.ToString()" CanvasReference="CanvasReference"></JointJSPaper>
                                 </MudTabPanel>
                             }
