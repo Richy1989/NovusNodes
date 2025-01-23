@@ -25,8 +25,6 @@ export class Canvas {
     cubicBezierMultiplier = 100;
     gridData = [];
 
-    zoomer = null;
-
     /**
      * Creates an instance of Canvas.
      * @param {string} id - The unique identifier for the canvas.
@@ -75,7 +73,6 @@ export class Canvas {
             .attr("width", this.width)
             .attr("height", this.height)
             .style("background-color", this.getBackgroundColor());
-           /*  .style("border", "1px solid black") */
 
         this.svg = localSVG;
 
@@ -215,15 +212,11 @@ export class Canvas {
                 let inputPortX = inputPort.x;
                 let inputPortY = inputPort.y;
 
-                const portX = ((parseFloat(node.x) + parseFloat(inputPortX)) - transform.x) * transform.k;
-                const portY = ((parseFloat(node.y) + parseFloat(inputPortY)) - transform.y) * transform.k;
+                const portX = (parseFloat(node.x) + parseFloat(inputPortX)) * transform.k + transform.x;
+                const portY = (parseFloat(node.y) + parseFloat(inputPortY)) * transform.k + transform.y;
 
-                let mouseX = ((event.x - svgX) - transform.x) * transform.k ;
-                let mouseY = ((event.y - svgY) - transform.y) * transform.k;
-
-                console.log("Port XY", portX, portY);
-                console.log("Mouse XY", mouseX, mouseY);
-                console.log("Transform", transform);
+                let mouseX = (event.x - svgX);
+                let mouseY = (event.y - svgY);
 
                 if (mouseX > portX && mouseX < portX + inputPort.width * transform.k && 
                     mouseY > portY && mouseY < portY + inputPort.height * transform.k) {
