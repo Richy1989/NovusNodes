@@ -1,5 +1,6 @@
 import { Node } from "./Node.js";
 import { Link } from "./Link.js";
+import { CanvasZoom } from "./CanvasZoom.js";
 
 export class Canvas {
 
@@ -13,7 +14,7 @@ export class Canvas {
     isSelecting = false;
     isLinking = false;
     tempSelectRect = null;
-
+    CanvasZoom = null;
     dragMultipleSelection = [];
     isMultiNodeDragging = false;
 
@@ -24,7 +25,6 @@ export class Canvas {
     cubicBezierMultiplier = 100;
     gridData = [];
 
-    currentZoom = { x: 0, y: 0, k: 1 };
     zoomer = null;
 
     /**
@@ -74,8 +74,8 @@ export class Canvas {
         let localSVG = d3.select('[id=\"' + this.id + '\"]')
             .attr("width", this.width)
             .attr("height", this.height)
-            .style("background-color", this.getBackgroundColor())
-            .style("border", "1px solid black");
+            .style("background-color", this.getBackgroundColor());
+           /*  .style("border", "1px solid black") */
 
         this.svg = localSVG;
 
@@ -87,23 +87,38 @@ export class Canvas {
         this.drawGrid();
         const canvas = this;
         
-        const zoom = d3.zoom()
-        .scaleExtent([0.5, 10])
-        .wheelDelta((e) => {
-            return -0.1 * Math.sign(e.deltaY / 5);
-        }).on("zoom", (e) => {
-            if (e.sourceEvent.ctrlKey) {
-                const transform = e.transform;
-                canvas.nodeGroup.attr('transform', transform);
-                canvas.linkGroup.attr('transform', transform);
-                canvas.currentZoom = transform;
-                console.log("Zooming", e);
-            }
+        this.CanvasZoom = new CanvasZoom(this);
+
+        /* const zoom = d3.zoom()
+                .scaleExtent([0.5, 32])
+                .translateExtent([[0, 0], [canvas.width, canvas.height]])
+                .extent([[0, 0], [canvas.width, canvas.height]])
+                .wheelDelta((e) => {
+                    console.log("Wheel delta", e);
+                    return -e.deltaY * (e.deltaMode ? 120 : 1) / 1500;
+                }).on("zoom", (e) => {
+
+                if (e.sourceEvent && e.sourceEvent.shiftKey) {
+                    const transform = e.transform;
+                    canvas.nodeGroup.attr('transform', transform);
+                    canvas.linkGroup.attr('transform', transform);
+                    canvas.this.CanvasZoom.currentTransformation = transform;
+                    console.log("Zooming", e);
+                }
+
+                //Prevent browser zoom when min / max zoom is reached
+                e.sourceEvent.preventDefault();
+                e.sourceEvent.stopImmediatePropagation();
         });
 
-        d3.select("#main_container").call(zoom);
-        //d3.select('[id=\"' + this.id + '\"]').call(zoom);
+        //d3.select("#main_container").call(zoom);
+        d3.select('[id=\"' + this.id + '\"]').call(zoom); */
         return localSVG;
+    }
+
+    createZoon(){
+
+
     }
 
     //Draws a grid on the canvas
@@ -168,6 +183,7 @@ export class Canvas {
             canvas.resizeCanvas();
         });
 
+        // Add pointerup event listener to stop linking nodes
         this.svg.on("pointerup", function (event) {
             if (!canvas.isLinking) {
                 return;
@@ -180,35 +196,38 @@ export class Canvas {
             const svgX = svgRect.x; // X position of the SVG element
             const svgY = svgRect.y; // Y position of the SVG element
 
-            canvas.isLinking = false;
-
             if (canvas.tempLine) {
                 canvas.tempLine.remove();
                 canvas.tempLine = null;
             }
 
-            console.log("Mouse up", event.x, event.y);
+            const transform = canvas.CanvasZoom.currentTransformation;
 
             for (let i = 0; i < canvas.nodeList.length; i++) {
                 const node = canvas.nodeList[i];
 
+                // Check if the node has an input port, otherwise it is not possible can't link to it
                 if (node.inputPort == null) {
                     continue;
                 }
 
-                const inputPort = canvas.nodeList[i].inputPort;
-
+                const inputPort = node.inputPort;
                 let inputPortX = inputPort.x;
                 let inputPortY = inputPort.y;
 
-                const portX = parseFloat(node.x) + parseFloat(inputPortX);
-                const portY = parseFloat(node.y) + parseFloat(inputPortY);
+                const portX = ((parseFloat(node.x) + parseFloat(inputPortX)) - transform.x) * transform.k;
+                const portY = ((parseFloat(node.y) + parseFloat(inputPortY)) - transform.y) * transform.k;
 
-                let mouseX = event.x - svgX;
-                let mouseY = event.y - svgY;
+                let mouseX = ((event.x - svgX) - transform.x) * transform.k ;
+                let mouseY = ((event.y - svgY) - transform.y) * transform.k;
 
-                if (mouseX > portX && mouseX < portX + 10 && mouseY > portY && mouseY < portY + 10) {
+                console.log("Port XY", portX, portY);
+                console.log("Mouse XY", mouseX, mouseY);
+                console.log("Transform", transform);
 
+                if (mouseX > portX && mouseX < portX + inputPort.width * transform.k && 
+                    mouseY > portY && mouseY < portY + inputPort.height * transform.k) {
+            
                     var linksWithSameSource = canvas.linkList.filter(link => link.sourcePort.id === canvas.sourcePort.id);
                     var linksWithSameTarget = linksWithSameSource.filter(link => link.targetPort.id === inputPort.id);
 
@@ -227,8 +246,10 @@ export class Canvas {
 
         // Add pointerdown event listener to the SVG element for the selection rectangle
         this.svg.on("pointerdown", function (event) {
+            
             // Check if the target is the SVG element itself
-            if (event.target.tagName === 'svg') {
+           //if (event.target.tagName === 'svg')
+            if (event.target.id === this.id && !event.shiftKey) {
                 console.log("Mouse down on SVG", event.x, event.y);
 
                 canvas.svg.on("pointermove", null);
@@ -266,6 +287,7 @@ export class Canvas {
             }
         });
 
+        // Add global keydown event listener to delete the selected nodes
         d3.select("body").on("keydown", function (event) {
             if (event.key === "Delete") {
                 canvas.deleteSelection();
@@ -280,19 +302,13 @@ export class Canvas {
                 // Find all nodes within the selection rectangle
                 const originalRect = canvas.tempSelectRect.node().getBBox();
 
-                 const transform = canvas.currentZoom;
+                const transform = canvas.CanvasZoom.currentTransformation;
                 const selectRect = {
                     x: (originalRect.x - transform.x) / transform.k,
                     y: (originalRect.y - transform.y) / transform.k,
                     width: originalRect.width / transform.k,
                     height: originalRect.height / transform.k
                 };
-
-                console.log("Transform", transform);
-                console.log("Original rect", originalRect);
-                console.log("Select Rec Transformed:", selectRect); 
-
-              //  const selectRect = originalRect;
 
                 canvas.dragMultipleSelection = canvas.nodeList.filter(node => {
                     const nodeX = parseFloat(node.x);
@@ -320,6 +336,7 @@ export class Canvas {
 
     attachPortListeners(node) {
         const canvas = this;
+        // Add pointerdown event listener to the output port
         node.outputPort.port.on("pointerdown", function (event) {
             const transform = d3.select(event.target.parentNode).attr("transform");
             const translateParent = transform.match(/translate\(([^,]+),([^\)]+)\)/);
@@ -350,7 +367,13 @@ export class Canvas {
 
             canvas.svg.on("pointermove", function (event) {
                 if (canvas.isLinking && canvas.tempLine) {
-                    const [x, y] = d3.pointer(event);
+                    
+                    const transform = canvas.CanvasZoom.currentTransformation; // Current zoom transform
+                    const [eventX, eventY] = d3.pointer(event);
+
+                    // Convert to real zoomed coordinates
+                    const x = (eventX - transform.x) / transform.k;
+                    const y = (eventY - transform.y) / transform.k;
 
                     if (canvas.useCubicBezier) {
                         const pathData = `M${portCenterX},${portCenterY} 
@@ -382,9 +405,11 @@ export class Canvas {
                 const startX = event.x;
                 const startY = event.y;
 
+                // Add pointermove event listener to move all selected nodes
                 canvas.svg.on("pointermove", function (event) {
-                    const dx = event.x - startX;
-                    const dy = event.y - startY;
+                   
+                    const dx = ((event.x - startX) / canvas.CanvasZoom.currentTransformation.k);
+                    const dy = ((event.y - startY) / canvas.CanvasZoom.currentTransformation.k);
 
                     initialPositions.forEach(pos => {
                         pos.node.x = pos.startX + dx;
@@ -393,6 +418,7 @@ export class Canvas {
                     });
                 });
 
+                // Add pointerup event listener to stop moving all selected nodes
                 window.addEventListener("pointerup", function () {
                     canvas.svg.on("pointermove", null);
                     canvas.isMultiNodeDragging = false;
@@ -402,7 +428,6 @@ export class Canvas {
                         node.dragEnded(null);
                     });
 
-                    canvas.dragMultipleSelection = [];
                 }, { once: true });
             }
         });

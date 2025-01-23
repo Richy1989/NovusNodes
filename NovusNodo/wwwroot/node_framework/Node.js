@@ -196,14 +196,27 @@ export class Node{
 
         //Bring the event back to visible area if it goes out of the canvas
         let needUpdate = false;
-        let x = this.x;
-        let y = this.y;
-        if(this.x < 0) { 
-            x = 100;
+        
+        const transform = this.canvas.CanvasZoom.currentTransformation;
+
+        let x = (this.x * transform.k + transform.x) / transform.k;
+        let y = (this.y * transform.k + transform.y) / transform.k;
+
+        // Check boundaries
+        if (x < 0) {
+            x = 0;
             needUpdate = true;
         }
-        if(this.y < 0) {
-            y = 100;
+        if (y < 0) {
+            y = 0;
+            needUpdate = true;
+        }
+        if (x > this.canvas.width / transform.k) {
+            x = this.canvas.width / transform.k;
+            needUpdate = true;
+        }
+        if (y > this.canvas.height / transform.k) {
+            y = this.canvas.height / transform.k;
             needUpdate = true;
         }
 
