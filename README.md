@@ -22,6 +22,11 @@ This project is a **node-based application** designed to visualize and manipulat
 
 For Node API for .NET a Shared DLL has to be compiled. More info here: https://microsoft.github.io/node-api-dotnet/scenarios/dotnet-js.html
 
+## Plugins
+In order to create a plugin the **NovusNodoPluginLibrary.dll** has to be referenced in a Razor Component Project.
+The Plugin needs to adapt the following attribute: `[NovusPlugin("7BA6BE2A-19A1-44FF-878D-3E408CA17366", "JS Function", "#ea899a")]`
+Check the "NovusNodoUIPLugin" project for a sample implementation.
+
 ## Technologies Used
 
 - **Framework**: C# Blazor for frontend and backend integration.  
@@ -30,6 +35,7 @@ For Node API for .NET a Shared DLL has to be compiled. More info here: https://m
 
 ## Acknowledgments
 This project leverages the following fantastic libraries:
-- **JointJS: A powerful JavaScript library for building and visualizing interactive diagrams and graphs.
 - **MudBlazor: A modern Blazor component library for building beautiful and functional user interfaces.
 - **Node API for .NET: Enables advanced interoperability between .NET and JavaScript in the same process.
+- **CodeMirror for easy code highlight and online edit.
+- **JsonEditor to enable beautiful visualisation of JSON objects.
