@@ -398,11 +398,13 @@ export class Canvas {
                     const dx = ((event.x - startX) / canvas.CanvasZoom.currentTransformation.k);
                     const dy = ((event.y - startY) / canvas.CanvasZoom.currentTransformation.k);
 
-                    initialPositions.forEach(pos => {
+                    for(let i = 0; i < initialPositions.length; i++){
+                        const pos = initialPositions[i];
+
                         pos.node.x = pos.startX + dx;
                         pos.node.y = pos.startY + dy;
                         pos.node.updatePosition(pos.node.x, pos.node.y);
-                    });
+                    }
                 });
 
                 // Add pointerup event listener to stop moving all selected nodes
@@ -410,11 +412,19 @@ export class Canvas {
                     canvas.svg.on("pointermove", null);
                     canvas.isMultiNodeDragging = false;
 
-                    //Invoke the dragEnded for all nodes, this will check if the node needs to be repositioned
-                    canvas.dragMultipleSelection.forEach(node => {
-                        node.dragEnded(null);
-                    });
 
+                    for(let i = 0; i < canvas.dragMultipleSelection.length; i++){
+                        const node = canvas.dragMultipleSelection[i];
+
+                        // Fire the event only for the last node, reduce calls to backend .NET
+                        let fireEvent = false;
+
+                        if (i === initialPositions.length - 1) {
+                            fireEvent = true;
+                        }
+
+                        node.dragEnded(null, fireEvent);
+                    }
                 }, { once: true });
             }
         });

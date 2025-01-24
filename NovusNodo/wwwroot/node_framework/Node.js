@@ -187,7 +187,7 @@ export class Node{
      * Handles the end of the drag event.
      * @param {d3.D3DragEvent} event - The drag event.
      */
-    dragEnded(event) {
+    dragEnded(event, fireEvent = true) {
         this.isDragging = false;
         
         //Bring the event back to visible area if it goes out of the canvas
@@ -198,7 +198,7 @@ export class Node{
         let x = (this.x * transform.k + transform.x) / transform.k;
         let y = (this.y * transform.k + transform.y) / transform.k;
 
-        this.updatePosition(x, y, true);
+        this.updatePosition(x, y);
 
         // Check boundaries
         if (x < 0) {
@@ -219,11 +219,22 @@ export class Node{
         }
 
         if(needUpdate) {
-            this.updatePosition(x, y, true);
+            this.updatePosition(x, y);
         }
+
+        console.log(`Node moved: ID=${this.id}, X=${this.x}, Y=${this.y}`);
+        // Dispatch the custom event to notify that the node has moved
+        const moveEvent = new CustomEvent("nodeMoved", {bubbles: true,
+            detail: {
+                id: this.id,
+                x: this.x,
+                y: this.y
+            }
+        });
+        this.svg.node().dispatchEvent(moveEvent);
     }
 
-    updatePosition(x, y, fireEvent = false) {
+    updatePosition(x, y) {
         this.x = x;
         this.y = y;
 
@@ -233,19 +244,6 @@ export class Node{
         }
         if (this.outputPort) {
             this.outputPort.dragLinks();
-        }
-
-        if(fireEvent) {
-            console.log(`Node moved: ID=${this.id}, X=${this.x}, Y=${this.y}`);
-            // Dispatch the custom event to notify that the node has moved
-            const moveEvent = new CustomEvent("nodeMoved", {bubbles: true,
-                detail: {
-                    id: this.id,
-                    x: this.x,
-                    y: this.y
-                }
-            });
-            this.svg.node().dispatchEvent(moveEvent);
         }
     }
 
