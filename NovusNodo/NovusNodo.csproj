@@ -30,7 +30,7 @@
     <PackageReference Include="Blazor.JsonEditor" Version="1.1.0" />
     <PackageReference Include="McMaster.NETCore.Plugins" Version="2.0.0" />
     <PackageReference Include="McMaster.NETCore.Plugins.Mvc" Version="2.0.0" />
-    <PackageReference Include="MudBlazor" Version="7.*" />
+    <PackageReference Include="MudBlazor" Version="8.0.0" />
   </ItemGroup>
 
 
