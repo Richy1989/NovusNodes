@@ -74,11 +74,19 @@ namespace NovusNodoCore.Managers
                     InputPortId = node.Value.InputPort.Id,
                     PluginBaseId = node.Value.PluginBase.Id,
                     NodeConfig = node.Value.UIConfig.Clone(),
-                    PluginConfig = node.Value.PluginConfig,
                     ConnectedPorts = []
                 };
 
-                foreach(var outputport in node.Value.OutputPorts)
+                if (node.Value.PluginIdAttribute.PluginConfigType != null)
+                {
+                    nodeSave.PluginConfig = JsonSerializer.Serialize(node.Value.PluginConfig, node.Value.PluginIdAttribute.PluginConfigType);
+                }
+                else
+                {
+                    nodeSave.PluginConfig = node.Value.PluginConfig != null ? (string)node.Value.PluginConfig : null;
+                }
+
+                foreach (var outputport in node.Value.OutputPorts)
                 {
                     nodeSave.OutputNodes.Add(outputport.Value.Id);
                 }
@@ -165,7 +173,18 @@ namespace NovusNodoCore.Managers
 
                 var node = await nodePage.CreateNode(pluginBaseType, pluginBaseAttribute, nodeModel.NodeId, true).ConfigureAwait(false);
                 node.UIConfig.CopyFrom(nodeModel.NodeConfig);
-                nodeModel.PluginConfig = nodeModel.PluginConfig;
+
+                if (pluginBaseAttribute.PluginConfigType != null)
+                {
+                    var config = JsonSerializer.Deserialize(nodeModel.PluginConfig, pluginBaseAttribute.PluginConfigType);
+                    config = Convert.ChangeType(config, pluginBaseAttribute.PluginConfigType);
+                    node.PluginBase.PluginConfig = config;
+                    
+                }
+                else
+                {
+                    node.PluginBase.PluginConfig = (string)nodeModel.PluginConfig;
+                }
 
                 // Create the input port, replace auto created ones
                 node.CreateInputPort(nodeModel.InputPortId);
@@ -197,7 +216,7 @@ namespace NovusNodoCore.Managers
                     foreach (var connection in nodeModel.ConnectedPorts)
                     {
                         var node = _executionManager.NodePages[page.PageId].AvailableNodes[nodeModel.NodeId];
-                        await _executionManager.NodePages[page.PageId].NewConnection(connection.NodeId, connection.PortId, node.Id, node.InputPort.Id).ConfigureAwait(false);
+                        await _executionManager.NodePages[page.PageId].NewConnection(connection.NodeId, connection.PortId, node.Id, node.InputPort.Id, true).ConfigureAwait(false);
                     }
                 }
             }

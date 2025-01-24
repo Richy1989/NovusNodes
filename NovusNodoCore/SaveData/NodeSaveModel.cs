@@ -14,6 +14,7 @@ namespace NovusNodoCore.SaveData
     {
         public List<string> OutputNodes { get; set; } = [];
         public string InputPortId { get; set; }
+
         /// <summary>
         /// Gets or sets the list of connected output ports to this input port.
         /// Each tuple contains the NodeId, and PortId.
@@ -38,7 +39,7 @@ namespace NovusNodoCore.SaveData
         /// <summary>
         /// Gets or sets the configuration for the plugin associated with the node.
         /// </summary>
-        public object PluginConfig { get; set; }
+        public string PluginConfig { get; set; }
 
         /// <summary>
         /// Gets or sets the base ID of the plugin.

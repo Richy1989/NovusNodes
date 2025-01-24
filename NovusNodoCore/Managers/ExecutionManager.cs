@@ -177,6 +177,7 @@ namespace NovusNodoCore.Managers
 
                 foreach (var type in derivedTypes)
                 {
+                    
                     NovusPluginAttribute baseAttribute = (NovusPluginAttribute)Attribute.GetCustomAttribute(type, typeof(NovusPluginAttribute));
 
                     if (baseAttribute == null)
@@ -193,10 +194,20 @@ namespace NovusNodoCore.Managers
                         logger.LogError("Plugin ID must be a valid GUID");
                         throw new Exception("Plugin ID must be a valid GUID");
                     }
+                    
+                    var pluginConfigType = FindConfigType(type);
+                    baseAttribute.PluginConfigType = pluginConfigType;
 
                     AvailablePlugins.Add(baseAttribute.Id, (type, baseAttribute));
                 }
             }
+        }
+
+        public Type FindConfigType(Type pluginType)
+        {
+            string name = pluginType.Name.Replace("Plugin", "Config");
+            return pluginType.Assembly.GetTypes().FirstOrDefault(x => x.Name == name);
+            
         }
 
         /// <summary>
@@ -216,7 +227,7 @@ namespace NovusNodoCore.Managers
             };
 
             DebugLog.Add(debugMessage.Id, debugMessage);
-            if (DebugLogChanged.Invoke != null)
+            if (DebugLogChanged != null)
                 await DebugLogChanged.Invoke(debugMessage.Id, debugMessage).ConfigureAwait(false);
         }
 
@@ -228,7 +239,7 @@ namespace NovusNodoCore.Managers
         public async Task OnDebugLogUpdated(DebugMessage message)
         {
             DebugLog.Add(message.Id, message);
-            if (DebugLogChanged.Invoke != null)
+            if (DebugLogChanged != null)
                 await DebugLogChanged.Invoke(message.Id, message).ConfigureAwait(false);
         }
     }

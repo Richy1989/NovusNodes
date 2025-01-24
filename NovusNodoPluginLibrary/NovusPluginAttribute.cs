@@ -4,6 +4,10 @@
     public class NovusPluginAttribute : Attribute
     {
         /// <summary>
+        /// The plugin configuration type./ Will be set when the plugin is loaded
+        /// </summary> 
+        public Type PluginConfigType { get; set; }
+        /// <summary>
         /// Gets the unique identifier for the plugin.
         /// </summary>
         public string Id { get; }
