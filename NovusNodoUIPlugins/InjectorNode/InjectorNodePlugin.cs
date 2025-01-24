@@ -21,7 +21,7 @@ namespace NovusNodoUIPlugins.InjectorNode
         /// </summary>
         public InjectorNodePlugin()
         {
-            UI = typeof(InjectorNodeUI);
+            UIType = typeof(InjectorNodeUI);
             AddWorkTask(Workload);
 
             Task.Run(async () =>

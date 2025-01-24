@@ -8,7 +8,7 @@ using NovusNodoCore.NodeDefinition;
 namespace NovusNodo.Management
 {
     /// <summary>
-    /// Manages the UI settings for the Novus application.
+    /// Manages the UIType settings for the Novus application.
     /// </summary>
     public class NovusUIManagement : IDisposable
     {
@@ -54,7 +54,7 @@ namespace NovusNodo.Management
         public event Func<bool, Task> OnDarkThemeChanged;
 
         /// <summary>
-        /// Gets or sets the type of the sidebar UI.
+        /// Gets or sets the type of the sidebar UIType.
         /// </summary>
         public Type SideBarUI { get; set; } = typeof(BlankConfig);
 
@@ -145,9 +145,9 @@ namespace NovusNodo.Management
         }
 
         /// <summary>
-        /// Gets the type of the settings UI.
+        /// Gets the type of the settings UIType.
         /// </summary>
-        /// <returns>The type of the settings UI.</returns>
+        /// <returns>The type of the settings UIType.</returns>
         public Type GetSettingsUIType()
         {
             return null;
@@ -171,9 +171,9 @@ namespace NovusNodo.Management
         {
             CurrentlySelectedNode = ExecutionManager.NodePages[pageid].AvailableNodes[id];
 
-            if (CurrentlySelectedNode != null && CurrentlySelectedNode.UI != null)
+            if (CurrentlySelectedNode != null && CurrentlySelectedNode.UIType != null)
             {
-                SideBarUI = CurrentlySelectedNode.UI;
+                SideBarUI = CurrentlySelectedNode.UIType;
             }
 
             await OnNodeDoubleClicked(CurrentlySelectedNode);

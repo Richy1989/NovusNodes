@@ -53,9 +53,9 @@ namespace NovusNodoPluginLibrary
         public ILogger Logger { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of the UI component associated with the plugin.
+        /// Gets or sets the type of the UIType component associated with the plugin.
         /// </summary>
-        public Type UI { get; set; }
+        public Type UIType { get; set; }
 
         /// <summary>
         /// Gets the type of the node.

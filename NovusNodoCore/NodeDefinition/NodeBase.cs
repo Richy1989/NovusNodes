@@ -45,9 +45,9 @@ namespace NovusNodoCore.NodeDefinition
         public Dictionary<string, OutputPort> OutputPorts { get; set; }
 
         /// <summary>
-        /// Gets or sets the UI type for the node.
+        /// Gets or sets the UIType type for the node.
         /// </summary>
-        public Type UI { get => PluginBase.UI; set => PluginBase.UI = value; }
+        public Type UIType { get => PluginBase.UIType; set => PluginBase.UIType = value; }
 
         /// <summary>Auto Reset event to ensure only one node is executed at a time</summary>
         private readonly AutoResetEvent autoResetEvent = new(true);
@@ -78,7 +78,7 @@ namespace NovusNodoCore.NodeDefinition
         public string Name { get { return UIConfig.Name; } set { UIConfig.Name = value; } }
 
         /// <summary>
-        /// Gets or sets the UI configuration for the node.
+        /// Gets or sets the UIType configuration for the node.
         /// </summary>
         public NodeUIConfig UIConfig { get; set; } = new NodeUIConfig();
 

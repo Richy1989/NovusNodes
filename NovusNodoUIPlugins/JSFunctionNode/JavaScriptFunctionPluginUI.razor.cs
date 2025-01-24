@@ -3,7 +3,7 @@
 namespace NovusNodoUIPlugins.JSFunctionNode
 {
     /// <summary>
-    /// Represents the UI component for the JavaScript function plugin.
+    /// Represents the UIType component for the JavaScript function plugin.
     /// </summary>
     public partial class JavaScriptFunctionPluginUI
     {

@@ -3,7 +3,7 @@
 namespace NovusNodoCore.NodeDefinition
 {
     /// <summary>
-    /// Represents the configuration for the UI of a node.
+    /// Represents the configuration for the UIType of a node.
     /// </summary>
     public class NodeUIConfig
     {

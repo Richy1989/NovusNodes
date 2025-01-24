@@ -14,7 +14,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         /// </summary>
         public JavaScriptFunctionPlugin()
         {
-            UI = typeof(JavaScriptFunctionPluginUI);
+            UIType = typeof(JavaScriptFunctionPluginUI);
             PluginConfig = "return msg;";
             AddWorkTask(Workload);
         }

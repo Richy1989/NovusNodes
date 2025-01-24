@@ -25,7 +25,7 @@ namespace NovusNodoCore.NodeDefinition
         Dictionary<string, OutputPort> OutputPorts { get; set; }
 
         /// <summary>
-        /// Gets or sets the UI configuration of the node.
+        /// Gets or sets the UIType configuration of the node.
         /// </summary>
         NodeUIConfig UIConfig { get; set; }
 

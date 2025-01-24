@@ -67,7 +67,7 @@ namespace NovusNodo.Components.Pages
         }
 
         /// <summary>
-        /// Handles the event when the UI requests to reset the zoom level.
+        /// Handles the event when the UIType requests to reset the zoom level.
         /// </summary>
         private async Task NovusUIManagement_OnResetZoom()
         {
@@ -96,7 +96,7 @@ namespace NovusNodo.Components.Pages
         }
 
         /// <summary>
-        /// Handles the event when the UI theme is changed.
+        /// Handles the event when the UIType theme is changed.
         /// </summary>
         /// <param name="arg">Indicates whether the dark theme is enabled.</param>
         private async Task NovusUIManagement_OnDarkThemeChanged(bool arg)
@@ -114,7 +114,7 @@ namespace NovusNodo.Components.Pages
         }
 
         /// <summary>
-        /// Sets the color palette for JointJS based on the current UI theme.
+        /// Sets the color palette for JointJS based on the current UIType theme.
         /// </summary>
         /// <param name="isDarkTheme">Indicates whether the dark theme is enabled.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>

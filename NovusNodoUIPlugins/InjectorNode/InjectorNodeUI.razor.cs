@@ -3,7 +3,7 @@
 namespace NovusNodoUIPlugins.InjectorNode
 {
     /// <summary>
-    /// Represents the UI component for the Injector Node.
+    /// Represents the UIType component for the Injector Node.
     /// </summary>
     public partial class InjectorNodeUI
     {
@@ -16,7 +16,7 @@ namespace NovusNodoUIPlugins.InjectorNode
         }
 
         /// <summary>
-        /// Saves the settings for the Injector Node UI.
+        /// Saves the settings for the Injector Node UIType.
         /// </summary>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         public override async Task SaveSettings()
@@ -26,7 +26,7 @@ namespace NovusNodoUIPlugins.InjectorNode
         }
 
         /// <summary>
-        /// Creates the configuration for the Injector Node UI.
+        /// Creates the configuration for the Injector Node UIType.
         /// </summary>
         public void CreateConfig()
         {

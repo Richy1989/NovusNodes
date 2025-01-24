@@ -45,7 +45,7 @@ namespace NovusNodoCore.SaveData
         public Color BackgroundColor { get; set; }
 
         /// <summary>
-        /// Gets or sets the UI configuration of the node.
+        /// Gets or sets the UIType configuration of the node.
         /// </summary>
         public NodeUIConfig NodeUIConfig { get; set; }
 

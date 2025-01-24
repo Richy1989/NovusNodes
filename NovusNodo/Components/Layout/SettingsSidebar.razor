@@ -139,9 +139,9 @@
     private async Task OnNodeDoubleClicked(INodeBase node)
     {
         Type ui = null;
-        if (node.UI != null)
+        if (node.UIType != null)
         {
-            ui = node.UI;
+            ui = node.UIType;
         }
         else
         {
