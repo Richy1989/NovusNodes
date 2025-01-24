@@ -19,11 +19,6 @@ namespace NovusNodoPluginLibrary
         Func<Task> SaveSettings { get; set; }
 
         /// <summary>
-        /// Gets or sets the logger instance for the plugin.
-        /// </summary>
-        ILogger Logger { get; set; }
-
-        /// <summary>
         /// Gets or sets the type of the UIType component associated with the plugin.
         /// </summary>
         Type UIType { get; set; }

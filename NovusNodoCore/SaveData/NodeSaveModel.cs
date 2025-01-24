@@ -1,62 +1,48 @@
-﻿using System.Drawing;
-using NovusNodoCore.NodeDefinition;
-using NovusNodoPluginLibrary;
+﻿using NovusNodoCore.NodeDefinition;
 
 namespace NovusNodoCore.SaveData
 {
+    public class ConnectionModel
+    {
+        public string NodeId { get; set; }
+        public string PortId { get; set; }
+    }
     /// <summary>
     /// Represents the model used to save the state of a node.
     /// </summary>
-    internal class NodeSaveModel
+    public class NodeSaveModel
     {
+        public List<string> OutputNodes { get; set; } = [];
+        public string InputPortId { get; set; }
         /// <summary>
-        /// Gets or sets the input port of the node.
+        /// Gets or sets the list of connected output ports to this input port.
+        /// Each tuple contains the NodeId, and PortId.
         /// </summary>
-        public InputPort InputPort { get; set; }
+        public List<ConnectionModel> ConnectedPorts { get; set; }
 
         /// <summary>
-        /// Gets or sets the output ports of the node.
+        /// Gets or sets the PageId of the node.
         /// </summary>
-        public Dictionary<string, OutputPort> OutputPorts { get; set; }
+        public string PageId { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the node is enabled.
+        /// Gets or sets the NodeId of the node.
         /// </summary>
-        public bool IsEnabled { get; set; }
+        public string NodeId { get; set; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the node.
+        /// Gets or sets the configuration for the UI of the node.
         /// </summary>
-        public string NodeID { get; set; }
+        public NodeUIConfig NodeConfig { get; set; }
 
         /// <summary>
-        /// Gets or sets the unique identifier of the page containing the node.
+        /// Gets or sets the configuration for the plugin associated with the node.
         /// </summary>
-        public string PageID { get; set; }
+        public object PluginConfig { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the page containing the node.
+        /// Gets or sets the base ID of the plugin.
         /// </summary>
-        public string PageName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the background color of the node.
-        /// </summary>
-        public Color BackgroundColor { get; set; }
-
-        /// <summary>
-        /// Gets or sets the UIType configuration of the node.
-        /// </summary>
-        public NodeUIConfig NodeUIConfig { get; set; }
-
-        /// <summary>
-        /// Gets or sets the type of the node.
-        /// </summary>
-        public NodeType NodeType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the base type of the plugin associated with the node.
-        /// </summary>
-        public Type PluginBaseType { get; set; }
+        public string PluginBaseId { get; set; }
     }
 }

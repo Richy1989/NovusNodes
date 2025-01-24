@@ -10,7 +10,7 @@ namespace NovusNodo
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +39,10 @@ namespace NovusNodo
             //Initialize Novus Core
             ExecutionManager executionManager = app.Services.GetRequiredService<ExecutionManager>();
             executionManager.Initialize();
+
+            //Initialize Novus LoadSaveManager
+            LoadSaveManager loadSaveManager = app.Services.GetRequiredService<LoadSaveManager>();
+            await loadSaveManager.LoadProject().ConfigureAwait(false);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

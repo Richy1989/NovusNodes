@@ -180,10 +180,7 @@ namespace NovusNodo.Components.Pages
         public async Task LinkAdded(string sourceID, string sourcePortId, string targetId, string targetPortId)
         {
             Logger.LogDebug($"Link Added {sourceID} {sourcePortId} {targetId} {targetPortId} to {TabID}");
-            await InvokeAsync(() =>
-            {
-                NodePageManager.NewConnection(sourceID, sourcePortId, targetId, targetPortId);
-            });
+            await NodePageManager.NewConnection(sourceID, sourcePortId, targetId, targetPortId);
         }
 
         /// <summary>
@@ -198,10 +195,7 @@ namespace NovusNodo.Components.Pages
         public async Task LinkRemoved(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
             Logger.LogDebug($"Link Removed {sourceId} {sourcePortId} {targetId} {targetPortId} from {TabID}");
-            await InvokeAsync(() =>
-            {
-                NodePageManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
-            });
+            await NodePageManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
         }
 
         /// <summary>
@@ -213,10 +207,7 @@ namespace NovusNodo.Components.Pages
         public async Task ElementRemoved(string elementId)
         {
             Logger.LogDebug($"Element Removed {elementId} from {TabID}");
-            await InvokeAsync(() =>
-            {
-                NodePageManager.ElementRemoved(elementId);
-            });
+            await NodePageManager.ElementRemoved(elementId);
         }
 
         /// <summary>

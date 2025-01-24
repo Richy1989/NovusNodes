@@ -155,15 +155,6 @@ export class Node{
         if(this.outputPort != null) {
             this.outputPort.updatePortPosition();
         }
-        
-        /* const nodeResizedEvent = new CustomEvent("nodeResized", {bubbles: true,
-            detail: {
-                id: this.id,
-                width: this.width,
-                height: this.height
-            }
-        });
-        this.svg.node().dispatchEvent(nodeResizedEvent); */
     }
 
     /**
@@ -198,7 +189,7 @@ export class Node{
      */
     dragEnded(event) {
         this.isDragging = false;
-
+        
         //Bring the event back to visible area if it goes out of the canvas
         let needUpdate = false;
         
@@ -206,6 +197,8 @@ export class Node{
 
         let x = (this.x * transform.k + transform.x) / transform.k;
         let y = (this.y * transform.k + transform.y) / transform.k;
+
+        this.updatePosition(x, y, true);
 
         // Check boundaries
         if (x < 0) {
@@ -226,11 +219,11 @@ export class Node{
         }
 
         if(needUpdate) {
-            this.updatePosition(x, y);
+            this.updatePosition(x, y, true);
         }
     }
 
-    updatePosition(x, y) {
+    updatePosition(x, y, fireEvent = false) {
         this.x = x;
         this.y = y;
 
@@ -242,15 +235,18 @@ export class Node{
             this.outputPort.dragLinks();
         }
 
-        // Dispatch the custom event to notify that the node has moved
-        const moveEvent = new CustomEvent("nodeMoved", {bubbles: true,
-            detail: {
-                id: this.id,
-                x: this.x,
-                y: this.y
-            }
-        });
-        this.svg.node().dispatchEvent(moveEvent);
+        if(fireEvent) {
+            console.log(`Node moved: ID=${this.id}, X=${this.x}, Y=${this.y}`);
+            // Dispatch the custom event to notify that the node has moved
+            const moveEvent = new CustomEvent("nodeMoved", {bubbles: true,
+                detail: {
+                    id: this.id,
+                    x: this.x,
+                    y: this.y
+                }
+            });
+            this.svg.node().dispatchEvent(moveEvent);
+        }
     }
 
     addInputPort(id) {

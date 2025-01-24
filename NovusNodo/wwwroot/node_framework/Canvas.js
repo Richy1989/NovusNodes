@@ -169,12 +169,6 @@ export class Canvas {
             canvas.netCanvasReference.invokeMethodAsync("NovusNode.NodeDoubleClicked", canvas.id, event.detail.id);
         });
 
-        /* // Add global event listener for nodeMoved event
-        this.svg.on("nodeResized", function (event) {
-            console.log("Node resized", event.detail.id, event.detail.width, event.detail.height);
-            canvas.netCanvasReference.invokeMethodAsync("NovusNode.NodeResized", event.detail.id, event.detail.width, event.detail.height);
-        }); */
-
         // Resize the paper when the container size changes
         window.addEventListener('resize', () => {
             canvas.resizeCanvas();

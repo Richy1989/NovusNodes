@@ -71,11 +71,11 @@
     {
         base.OnInitialized();
 
-        PluginConfig = PluginConfig == null ? InjectorNodeConfig.CreateDefault() : (InjectorNodeConfig)PluginConfig;
-        localConfig = PluginConfig as InjectorNodeConfig;
+        PluginBase.PluginConfig = PluginBase.PluginConfig == null ? InjectorNodeConfig.CreateDefault() : (InjectorNodeConfig)PluginBase.PluginConfig;
+        localConfig = PluginBase.PluginConfig as InjectorNodeConfig;
 
         //Remove this, at fix the issue
-        foreach (var entry in (PluginConfig as InjectorNodeConfig).InjectorEntries)
+        foreach (var entry in (PluginBase.PluginConfig as InjectorNodeConfig).InjectorEntries)
         {
             localInjectorEntries.Add(entry);
         }

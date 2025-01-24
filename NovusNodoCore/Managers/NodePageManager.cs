@@ -1,6 +1,5 @@
 ﻿using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
-using Microsoft.JavaScript.NodeApi;
 using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
 
@@ -8,9 +7,20 @@ namespace NovusNodoCore.Managers
 {
     public class NodePageManager
     {
+        /// <summary>
+        /// Gets or sets the Page ID.
+        /// </summary>
         public string PageID { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Page Name.
+        /// </summary>
         public string PageName { get; set; }
+
+        /// <summary>
+        /// Event fired when the project is changed, to trigger a save file.
+        /// </summary>
+        public event Func<string, Task> OnPageDataChanged;
 
         /// <summary>
         /// The NodeJS environment manager.
@@ -48,22 +58,22 @@ namespace NovusNodoCore.Managers
         public event Func<NodeBase, Task> AvailableNodesUpdated;
 
         /// <summary>
-        /// Gets or sets the available nodes
+        /// Gets or sets the available nodes.
         /// </summary>
         public IDictionary<string, NodeBase> AvailableNodes { get; set; } = new Dictionary<string, NodeBase>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
+        /// Initializes a new instance of the <see cref="NodePageManager"/> class.
         /// </summary>
         /// <param name="loggerFactory">The logger factory.</param>
+        /// <param name="executionManager">The execution manager.</param>
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager.</param>
         public NodePageManager(ILoggerFactory loggerFactory, ExecutionManager executionManager, NodeJSEnvironmentManager nodeJSEnvironmentManager)
         {
+            this.loggerFactory = loggerFactory;
             this.executionManager = executionManager;
             CancellationTokenSource = new CancellationTokenSource();
             Token = CancellationTokenSource.Token;
-
-            this.loggerFactory = loggerFactory;
 
             NodeJSEnvironmentManager = nodeJSEnvironmentManager;
         }
@@ -72,8 +82,10 @@ namespace NovusNodoCore.Managers
         /// Creates a new node from the specified plugin.
         /// </summary>
         /// <param name="pluginBase">The plugin base to create the node from.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task<NodeBase> CreateNode(Type pluginBase, NovusPluginAttribute attribute)
+        /// <param name="attribute">The plugin attribute.</param>
+        /// <param name="isStartup">Indicates whether the node is a startup node.</param>
+        /// <returns>A task representing the asynchronous operation, with the created node as the result.</returns>
+        public async Task<NodeBase> CreateNode(Type pluginBase, NovusPluginAttribute attribute, string id = null, bool isStartup = false)
         {
             var instance = Activator.CreateInstance(pluginBase);
 
@@ -87,12 +99,33 @@ namespace NovusNodoCore.Managers
             if (plugin != null)
             {
                 Logger<INodeBase> logger = (Logger<INodeBase>)loggerFactory.CreateLogger<INodeBase>();
-                NodeBase node = new(plugin, executionManager, attribute,logger, NodeJSEnvironmentManager, DebugLogChanged, Token);
+                NodeBase node = new(id, plugin, executionManager, attribute, logger, NodeJSEnvironmentManager, DebugLogChanged, Token);
                 AvailableNodes.Add(node.Id, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
+
+                if (!isStartup && OnPageDataChanged != null)
+                {
+                    await OnPageDataChanged.Invoke(PageID).ConfigureAwait(false);
+                }
+
+                node.PropertyChanged += Node_PropertyChanged;
+
                 return node;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Handles the PropertyChanged event of a node.
+        /// </summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void Node_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (OnPageDataChanged != null)
+            {
+                Task.Run(async () => await OnPageDataChanged.Invoke(PageID).ConfigureAwait(false));
+            }
         }
 
         /// <summary>
@@ -102,11 +135,16 @@ namespace NovusNodoCore.Managers
         /// <param name="sourcePortId">The ID of the source port.</param>
         /// <param name="targetId">The ID of the target node.</param>
         /// <param name="targetPortId">The ID of the target port.</param>
-        public void NewConnection(string sourceId, string sourcePortId, string targetId, string targetPortId)
+        public async Task NewConnection(string sourceId, string sourcePortId, string targetId, string targetPortId, bool isStartup = false)
         {
             if (AvailableNodes.TryGetValue(sourceId, out var sourceNode) && AvailableNodes.TryGetValue(targetId, out var targetNode))
             {
                 sourceNode.OutputPorts[sourcePortId].AddConnection(targetPortId, targetNode);
+
+                if (!isStartup && OnPageDataChanged != null)
+                {
+                    await OnPageDataChanged.Invoke(PageID).ConfigureAwait(false);
+                }
             }
         }
 
@@ -117,11 +155,16 @@ namespace NovusNodoCore.Managers
         /// <param name="sourcePortId">The ID of the source port.</param>
         /// <param name="targetId">The ID of the target node.</param>
         /// <param name="targetPortId">The ID of the target port.</param>
-        public void RemoveConnection(string sourceId, string sourcePortId, string targetId, string targetPortId)
+        public async Task RemoveConnection(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
             if (AvailableNodes.TryGetValue(sourceId, out var sourceNode))
             {
                 sourceNode.OutputPorts[sourcePortId].RemoveConnection(targetPortId);
+            }
+            
+            if (OnPageDataChanged != null)
+            {
+                await OnPageDataChanged.Invoke(PageID).ConfigureAwait(false);
             }
         }
 
@@ -129,10 +172,14 @@ namespace NovusNodoCore.Managers
         /// Removes the specified node and all its connections.
         /// </summary>
         /// <param name="id">The ID of the node to remove.</param>
-        public void ElementRemoved(string id)
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task ElementRemoved(string id)
         {
             if (AvailableNodes.TryGetValue(id, out var node))
             {
+                //Remove event handler
+                node.PropertyChanged -= Node_PropertyChanged;
+
                 AvailableNodes.Remove(id);
 
                 // Remove connections from output ports
@@ -143,6 +190,11 @@ namespace NovusNodoCore.Managers
 
                 // Remove connections from input port
                 node.InputPort.RemoveAllConnections();
+
+                if (OnPageDataChanged != null)
+                {
+                    await OnPageDataChanged.Invoke(PageID).ConfigureAwait(false);
+                }
             }
         }
 
@@ -157,7 +209,9 @@ namespace NovusNodoCore.Managers
             {
                 await Task.CompletedTask;
             }
-            await AvailableNodesUpdated.Invoke(nodeBase).ConfigureAwait(false);
+
+            if(AvailableNodesUpdated != null)
+                await AvailableNodesUpdated.Invoke(nodeBase).ConfigureAwait(false);
         }
     }
 }

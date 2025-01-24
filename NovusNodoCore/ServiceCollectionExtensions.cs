@@ -18,6 +18,7 @@ namespace NovusNodoCore
             // Register your services, components, etc., here.
             services.AddSingleton<ExecutionManager>();
             services.AddSingleton<NodeJSEnvironmentManager>();
+            services.AddSingleton<LoadSaveManager>();
             services.AddTransient<NodePageManager>();
 
             return services;

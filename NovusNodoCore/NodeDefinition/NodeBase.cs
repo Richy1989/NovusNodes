@@ -13,26 +13,37 @@ namespace NovusNodoCore.NodeDefinition
     /// <typeparam name="ConfigType">The type of the configuration object.</typeparam>
     public class NodeBase : INodeBase
     {
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private readonly ExecutionManager executionManager;
         private readonly CancellationToken token;
+        private readonly ExecutionManager executionManager;
         private readonly NodeJSEnvironmentManager nodeJSEnvironmentManager;
 
-        // Callback for executing JavaScript code
+        /// <summary>
+        /// Gets or sets the callback for executing JavaScript code.
+        /// </summary>
         public Func<string, JsonObject, Task<JsonObject>> ExecuteJavaScriptCodeCallback { get; set; }
+
+        /// <summary>Auto Reset event to ensure only one node is executed at a time</summary>
+        private readonly AutoResetEvent autoResetEvent = new(true);
 
         /// <summary>
         /// Gets the plugin base instance.
         /// </summary>
         public PluginBase PluginBase { get; }
 
+        /// <summary>
+        /// Gets the plugin ID attribute.
+        /// </summary>
         public NovusPluginAttribute PluginIdAttribute { get; }
 
         /// <summary>
         /// Gets or sets the logger instance for the plugin.
         /// </summary>
-        public ILogger Logger { get; set; }
+        private readonly ILogger<INodeBase> _logger;
 
         /// <summary>
         /// Gets or sets the input port of the node.
@@ -49,9 +60,6 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public Type UIType { get => PluginBase.UIType; set => PluginBase.UIType = value; }
 
-        /// <summary>Auto Reset event to ensure only one node is executed at a time</summary>
-        private readonly AutoResetEvent autoResetEvent = new(true);
-
         /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
@@ -65,12 +73,20 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets the unique identifier for the node.
         /// </summary>
-        public string Id { get; } = Guid.NewGuid().ToString();
+        public string Id { get; }
 
         /// <summary>
         /// Gets or sets the JSON configuration for the node.
         /// </summary>
-        public object PluginConfig { get => PluginBase.PluginConfig; set => PluginBase.PluginConfig = value; }
+        public object PluginConfig
+        {
+            get => PluginBase.PluginConfig;
+            set
+            {
+                PluginBase.PluginConfig = value;
+                OnPropertyChanged();
+            }
+        }
 
         /// <summary>
         /// Gets or sets the name of the node.
@@ -80,7 +96,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets the UIType configuration for the node.
         /// </summary>
-        public NodeUIConfig UIConfig { get; set; } = new NodeUIConfig();
+        public NodeUIConfig UIConfig { get; set; }
 
         /// <summary>
         /// Gets the dictionary of work tasks associated with the node.
@@ -91,20 +107,37 @@ namespace NovusNodoCore.NodeDefinition
         /// Initializes a new instance of the <see cref="NodeBase"/> class.
         /// </summary>
         /// <param name="basedPlugin">The plugin base instance.</param>
-        /// <param name="Logger">The logger instance.</param>
+        /// <param name="executionManager">The execution manager instance.</param>
+        /// <param name="pluginIdAttribute">The plugin ID attribute.</param>
+        /// <param name="logger">The logger instance.</param>
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager instance.</param>
         /// <param name="updateDebugFunction">The function to update the debug log.</param>
         /// <param name="token">The cancellation Token.</param>
-        public NodeBase(IPluginBase basedPlugin, ExecutionManager executionManager, NovusPluginAttribute pluginIdAttribute, ILogger<INodeBase> Logger, NodeJSEnvironmentManager nodeJSEnvironmentManager, Func<string, JsonObject, Task> updateDebugFunction, CancellationToken token)
+        public NodeBase(
+            string id,
+            IPluginBase basedPlugin,
+            ExecutionManager executionManager,
+            NovusPluginAttribute pluginIdAttribute,
+            ILogger<INodeBase> logger,
+            NodeJSEnvironmentManager nodeJSEnvironmentManager,
+            Func<string, JsonObject, Task> updateDebugFunction,
+            CancellationToken token)
         {
+            // Generate a new ID if none is provided, it is provided by load project
+            Id = id ?? Guid.NewGuid().ToString();
+
+            UIConfig = new NodeUIConfig();
+            UIConfig.PropertyChanged += (sender, e) => OnPropertyChanged(e.PropertyName);
+
             this.executionManager = executionManager;
             Name = pluginIdAttribute.Name;
-            this.PluginIdAttribute = pluginIdAttribute;
-            this.PluginBase = basedPlugin as PluginBase;
-            (this.PluginBase as PluginBase).UpdateDebugLog = updateDebugFunction;
-            this.Logger = Logger;
+            PluginIdAttribute = pluginIdAttribute;
+            PluginBase = basedPlugin as PluginBase;
+            PluginBase.UpdateDebugLog = updateDebugFunction;
+            _logger = logger;
             this.token = token;
             this.nodeJSEnvironmentManager = nodeJSEnvironmentManager;
+
             Init();
         }
 
@@ -113,26 +146,47 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public void Init()
         {
-            PluginBase.Logger = Logger;
+            PluginBase.Logger = _logger;
             PluginBase.ExecuteJavaScriptCodeCallback = ExecuteJavaScriptCode;
 
-            InputPort = new InputPort(this);
-            OutputPorts = new Dictionary<string, OutputPort>();
-
-            for (int i = 0; i < PluginBase.WorkTasks.Count; i++)
-            {
-                var outputPort = new OutputPort(this);
-                OutputPorts.Add(outputPort.Id, outputPort);
-            }
+            CreatePorts();
 
             if (PluginBase.NodeType == NodeType.Starter)
             {
                 (PluginBase as PluginBase).StarterNodeTriggered = async () =>
                 {
                     if (UIConfig.IsEnabled && executionManager.IsExecutionAllowed)
-                        await ExecuteNode([]).ConfigureAwait(false);
+                        await ExecuteNode(new JsonObject()).ConfigureAwait(false);
                 };
             }
+        }
+
+        public void CreatePorts()
+        {
+            CreateInputPort();
+            
+            OutputPorts = new Dictionary<string, OutputPort>();
+
+            for (int i = 0; i < PluginBase.WorkTasks.Count; i++)
+            {
+                AddOutputPort();
+            }
+        }
+
+        public void CreateInputPort(string id = null)
+        {
+            InputPort = new InputPort(this);
+            if(id != null)
+                InputPort.Id = id;
+        }
+
+        public void AddOutputPort(string id = null)
+        {
+            var outputPort = new OutputPort(this);
+            if (id != null)
+                outputPort.Id = id;
+
+            OutputPorts.Add(outputPort.Id, outputPort);
         }
 
         /// <summary>
@@ -156,7 +210,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ExecuteNode(JsonObject jsonData)
         {
-            if (!UIConfig.IsEnabled) return; 
+            if (!UIConfig.IsEnabled) return;
 
             autoResetEvent.WaitOne();
             // Execute all work tasks from the plugin
@@ -175,7 +229,7 @@ namespace NovusNodoCore.NodeDefinition
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "Error executing work task.");
+                    _logger.LogError(ex, "Error executing work task.");
                 }
                 i++;
             }
@@ -227,7 +281,7 @@ namespace NovusNodoCore.NodeDefinition
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, $"Error executing JavaScript code.");
+                _logger.LogError(ex, $"Error executing JavaScript code.");
             }
 
             return await Task.FromResult(new JsonObject()).ConfigureAwait(false);

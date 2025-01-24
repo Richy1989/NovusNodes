@@ -33,11 +33,18 @@ namespace NovusNodoCore.Managers
         public event Func<string, DebugMessage, Task> DebugLogChanged;
 
         /// <summary>
+        /// Event fired when the project is changed, to trigger a save file.
+        /// </summary>
+        public event Func<string, Task> ProjectChanged;
+
+        /// <summary>
         /// Event fired when the curve style is changed.
         /// </summary>
         public event Func<bool, Task> OnCurveStyleChanged;
 
-
+        /// <summary>
+        /// Event fired when the page is changed.
+        /// </summary>
         public event Func<PageAction, string, Task> OnPageChanged;
 
         /// <summary>
@@ -87,7 +94,6 @@ namespace NovusNodoCore.Managers
         {
             this.logger = logger;
             this.serviceProvider = serviceProvider;
-
             NodeJSEnvironmentManager = nodeJSEnvironmentManager;
             NodeJSEnvironmentManager.Initialize();
 
@@ -98,15 +104,29 @@ namespace NovusNodoCore.Managers
         /// Adds a new tab and returns the created <see cref="NodePageManager"/>.
         /// </summary>
         /// <returns>The created <see cref="NodePageManager"/>.</returns>
-        public NodePageManager AddNewTab()
+        public async Task<NodePageManager> AddNewTab(string id = null, bool isStartup = false)
         {
             var nodePage = (NodePageManager)serviceProvider.GetService(typeof(NodePageManager));
+
+            //Add event handler to get notified when the page data is changed, in order to save it. 
+            nodePage.OnPageDataChanged += NodePage_OnPageDataChanged;
+
             nodePage.DebugLogChanged = OnDebugLogUpdated;
-            nodePage.PageID = Guid.NewGuid().ToString();
+            nodePage.PageID = id ?? Guid.NewGuid().ToString();
             nodePage.PageName = "Nodes";
             NodePages.Add(nodePage.PageID, nodePage);
             OnPageChanged?.Invoke(PageAction.Added, nodePage.PageID);
+
+            if (ProjectChanged != null && !isStartup)
+                await ProjectChanged.Invoke(nodePage.PageID).ConfigureAwait(false);
+
             return nodePage;
+        }
+
+        private async Task NodePage_OnPageDataChanged(string pageId)
+        {
+            if(ProjectChanged != null)
+                await ProjectChanged.Invoke(pageId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -129,7 +149,6 @@ namespace NovusNodoCore.Managers
             }
         }
 
-
         /// <summary>
         /// Handles the event when a new debug log is created.
         /// </summary>
@@ -137,7 +156,7 @@ namespace NovusNodoCore.Managers
         /// <returns>A task representing the asynchronous operation.</returns>
         private async Task ExecutionManager_NewDebugLog(DebugMessage arg)
         {
-                await OnDebugLogUpdated(arg).ConfigureAwait(false);
+            await OnDebugLogUpdated(arg).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -178,16 +197,6 @@ namespace NovusNodoCore.Managers
                     AvailablePlugins.Add(baseAttribute.Id, (type, baseAttribute));
                 }
             }
-
-            LoadSavedData();
-        }
-
-        /// <summary>
-        /// Loads saved data and adds a new tab.
-        /// </summary>
-        public void LoadSavedData()
-        {
-            AddNewTab();
         }
 
         /// <summary>

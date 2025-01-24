@@ -149,9 +149,9 @@
     /// <summary>
     /// Adds a new tab.
     /// </summary>
-    public void AddTab()
+    public async Task AddTab()
     {
-        var tab = ExecutionManager.AddNewTab();
+        var tab = await ExecutionManager.AddNewTab();
         UserTabs.Add(new TabView { Id = new Guid(tab.PageID), Label = tab.PageName });
         UserIndex = UserTabs.Count - 1; // Automatically switch to the new tab.
         _stateHasChanged = true;
