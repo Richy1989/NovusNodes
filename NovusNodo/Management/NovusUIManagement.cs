@@ -12,6 +12,9 @@ namespace NovusNodo.Management
     public class NovusUIManagement : IDisposable
     {
         public event Func<string, string, string, Task> OnNodeNameChanged;
+
+        public event Func<Task> OnResetZoom;
+
         public INodeBase CurrentlySelectedNode { get; set; }
         public string CurrentlyOpenedPage { get; set; }
 
@@ -65,13 +68,16 @@ namespace NovusNodo.Management
         public bool IsDarkMode
         {
             get
-            { 
+            {
                 return isDarkMode;
             }
             set
             {
                 isDarkMode = value;
-                OnDarkThemeChanged(value);
+                if (OnDarkThemeChanged != null)
+                {
+                    OnDarkThemeChanged.Invoke(value).ConfigureAwait(false);
+                }
             }
         }
 
@@ -186,6 +192,14 @@ namespace NovusNodo.Management
             //{
             //    Logger.LogError(ex, "Failed to change node label.");
             //}
+        }
+
+        public async Task ResetZoom()
+        {
+            if (OnResetZoom != null)
+            {
+                await OnResetZoom.Invoke().ConfigureAwait(false);
+            }
         }
 
         /// <summary>

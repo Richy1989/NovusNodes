@@ -46,6 +46,15 @@ export function setLineStyle(useCubicBezier) {
     });
 }
 
+export function resetZoom() {
+    if (selectedPaperTabId == null) {
+        console.log("No Canvas Tab Selected");
+        return;
+    }
+
+    canvasTabs[selectedPaperTabId].CanvasZoom.resetZoom();
+}
+
 export function resizeCanvas(id) {
     if (selectedPaperTabId == null) {
         console.log("No Canvas Tab Selected");

@@ -10,7 +10,7 @@ namespace NovusNodo.Components.Pages
     /// <summary>
     /// Represents the JointJS Paper component for managing and rendering nodes and their connections.
     /// </summary>
-    public partial class JointJSPaper : ComponentBase, IDisposable
+    public partial class NodeCanvas : ComponentBase, IDisposable
     {
         /// <summary>
         /// Indicates whether the component has been initialized.
@@ -25,7 +25,7 @@ namespace NovusNodo.Components.Pages
         /// <summary>
         /// A reference to the current instance of the JointJS Paper component for JavaScript interop.
         /// </summary>
-        private DotNetObjectReference<JointJSPaper> canvasNetComponentRef;
+        private DotNetObjectReference<NodeCanvas> canvasNetComponentRef;
 
         /// <summary>
         /// Gets or sets the Tab ID associated with this JointJS Paper component.
@@ -33,6 +33,9 @@ namespace NovusNodo.Components.Pages
         [Parameter]
         public string TabID { get; set; }
 
+        /// <summary>
+        /// Gets or sets the reference to the JavaScript object for the canvas.
+        /// </summary>
         [Parameter]
         public IJSObjectReference CanvasReference { get; set; }
 
@@ -41,7 +44,6 @@ namespace NovusNodo.Components.Pages
         /// </summary>
         public NodePageManager NodePageManager { get; set; }
 
-        //private IJSObjectReference canvasRef;
         /// <summary>
         /// Method called when the component is initialized.
         /// </summary>
@@ -54,15 +56,30 @@ namespace NovusNodo.Components.Pages
             NodePageManager.AvailableNodesUpdated += NodesAdded;
             NovusUIManagement.OnDarkThemeChanged += NovusUIManagement_OnDarkThemeChanged;
             NovusUIManagement.OnNodeNameChanged += NovusUIManagement_OnNodeNameChanged;
+            NovusUIManagement.OnResetZoom += NovusUIManagement_OnResetZoom;
         }
 
+        /// <summary>
+        /// Handles the event when the UI requests to reset the zoom level.
+        /// </summary>
+        private async Task NovusUIManagement_OnResetZoom()
+        {
+            await CanvasReference.InvokeVoidAsync("resetZoom");
+        }
+
+        /// <summary>
+        /// Handles the event when a node's name is changed.
+        /// </summary>
+        /// <param name="tabId">The ID of the tab containing the node.</param>
+        /// <param name="nodeId">The ID of the node.</param>
+        /// <param name="name">The new name of the node.</param>
         private async Task NovusUIManagement_OnNodeNameChanged(string tabId, string nodeId, string name)
         {
             if (TabID == tabId)
             {
                 try
                 {
-                    await CanvasReference.InvokeVoidAsync("setNodeName", [$"{nodeId}", $"{name}"]);
+                    await CanvasReference.InvokeVoidAsync("setNodeName", new object[] { nodeId, name });
                 }
                 catch (Exception ex)
                 {
@@ -71,11 +88,19 @@ namespace NovusNodo.Components.Pages
             }
         }
 
+        /// <summary>
+        /// Handles the event when the UI theme is changed.
+        /// </summary>
+        /// <param name="arg">Indicates whether the dark theme is enabled.</param>
         private async Task NovusUIManagement_OnDarkThemeChanged(bool arg)
         {
             await SetColorTheme(arg);
         }
 
+        /// <summary>
+        /// Handles the event when the curve style is changed.
+        /// </summary>
+        /// <param name="arg">Indicates whether the Bezier curve style is enabled.</param>
         private async Task ExecutionManager_OnCurveStyleChanged(bool arg)
         {
             await CanvasReference.InvokeVoidAsync("setLineStyle", arg);
@@ -84,6 +109,7 @@ namespace NovusNodo.Components.Pages
         /// <summary>
         /// Sets the color palette for JointJS based on the current UI theme.
         /// </summary>
+        /// <param name="isDarkTheme">Indicates whether the dark theme is enabled.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task SetColorTheme(bool isDarkTheme)
         {
@@ -186,6 +212,12 @@ namespace NovusNodo.Components.Pages
             });
         }
 
+        /// <summary>
+        /// Invokable method to handle the double-click event on a node.
+        /// </summary>
+        /// <param name="pageId">The ID of the page containing the node.</param>
+        /// <param name="nodeId">The ID of the node.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         [JSInvokable("NovusNode.NodeDoubleClicked")]
         public async Task NodeDoubleClick(string pageId, string nodeId)
         {
@@ -205,13 +237,13 @@ namespace NovusNodo.Components.Pages
                 {
                     if (sender is NodeBase node)
                     {
-                        await CanvasReference.InvokeVoidAsync("enableDisableNode", [node.Id, node.IsEnabled]);
+                        await CanvasReference.InvokeVoidAsync("enableDisableNode", new object[] { node.Id, node.IsEnabled });
                     }
                 }
             };
 
             Logger.LogDebug($"Adding node {node.Id} to canvas {TabID}");
-            await CanvasReference.InvokeVoidAsync("createNode", [node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y, (double)node.NodeType]);
+            await CanvasReference.InvokeVoidAsync("createNode", new object[] { node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y, (double)node.NodeType });
             await AddPorts(node);
         }
 
@@ -226,9 +258,8 @@ namespace NovusNodo.Components.Pages
             if (firstRender)
             {
                 canvasNetComponentRef = DotNetObjectReference.Create(this);
-                //CanvasReference = await JS.InvokeAsync<IJSObjectReference>("import", "./node_framework/node_framework.js");
                 Logger.LogDebug("Creating canvas for tab {TabID}", TabID);
-                await CanvasReference.InvokeVoidAsync("createCanvas", [TabID, canvasNetComponentRef]);
+                await CanvasReference.InvokeVoidAsync("createCanvas", new object[] { TabID, canvasNetComponentRef });
                 await SetColorTheme(NovusUIManagement.IsDarkMode);
 
                 if (!isInitialized)
@@ -258,7 +289,7 @@ namespace NovusNodo.Components.Pages
                         string connectedPortId = nextNode.Key;
                         INodeBase connectedNode = nextNode.Value;
 
-                        await CanvasReference.InvokeVoidAsync("addLink", [node.Id, port.Id, connectedNode.Id, connectedPortId]);
+                        await CanvasReference.InvokeVoidAsync("addLink", new object[] { node.Id, port.Id, connectedNode.Id, connectedPortId });
                     }
                 }
             }
@@ -273,13 +304,13 @@ namespace NovusNodo.Components.Pages
         {
             if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Finisher)
             {
-                await CanvasReference.InvokeVoidAsync("addInputPorts", [node.Id, node.InputPort.Id]);
+                await CanvasReference.InvokeVoidAsync("addInputPorts", new object[] { node.Id, node.InputPort.Id });
             }
             if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Starter)
             {
                 foreach (var port in node.OutputPorts.Values)
                 {
-                    await CanvasReference.InvokeVoidAsync("addOutputPorts", [node.Id, port.Id]);
+                    await CanvasReference.InvokeVoidAsync("addOutputPorts", new object[] { node.Id, port.Id });
                 }
             }
         }
@@ -308,6 +339,7 @@ namespace NovusNodo.Components.Pages
                     NodePageManager.AvailableNodesUpdated -= NodesAdded;
                     NovusUIManagement.OnDarkThemeChanged -= NovusUIManagement_OnDarkThemeChanged;
                     NovusUIManagement.OnNodeNameChanged -= NovusUIManagement_OnNodeNameChanged;
+                    NovusUIManagement.OnResetZoom -= NovusUIManagement_OnResetZoom;
                     canvasNetComponentRef?.Dispose();
                 }
 

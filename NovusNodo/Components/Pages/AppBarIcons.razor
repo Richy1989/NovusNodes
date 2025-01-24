@@ -2,8 +2,15 @@
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 
 <MudPaper Class="app-bar-icon d-flex flex-row gap-4" Elevation="0">
-    <MudIconButton Icon="@(PlayPauseButtonIcon)" Color="@PlayPauseButtonColor" OnClick="@PlayPauseButtonIconToggle" />
-    <MudIconButton Icon="@LineStyleIcon" Color="@LineStyleColor" OnClick="@LineStyleToggle" />
+    <MudTooltip Text="@PlayPauseButtonToolTip">
+        <MudIconButton Icon="@(PlayPauseButtonIcon)" Color="@PlayPauseButtonColor" OnClick="@PlayPauseButtonIconToggle" />
+    </MudTooltip>
+    <MudTooltip Text="@LineStyleToolTip">
+        <MudIconButton Icon="@LineStyleIcon" Color="@Color.Surface" OnClick="@LineStyleToggle" />
+    </MudTooltip>
+    <MudTooltip Text="Reset Zoom">
+        <MudIconButton Icon="@Icons.Material.Filled.ZoomInMap" Color="@Color.Surface" OnClick="@ResetZoomToggle" />
+    </MudTooltip>
 </MudPaper>
 
 @code {
@@ -34,6 +41,12 @@
         false => Color.Tertiary,
     };
 
+    public String PlayPauseButtonToolTip => ExecutionManager.IsExecutionAllowed switch
+    {
+        true => "Stop Execution",
+        false => "Start Execution",
+    };
+
     /// <summary>
     /// Toggles the line style variable.
     /// </summary>
@@ -42,13 +55,10 @@
         ExecutionManager.UseBezierCurve = !ExecutionManager.UseBezierCurve;
     }
 
-    /// <summary>
-    /// Gets the color for the line style toggle button.
-    /// </summary>
-    public Color LineStyleColor => ExecutionManager.UseBezierCurve switch
+    public String LineStyleToolTip => ExecutionManager.UseBezierCurve switch
     {
-        true => Color.Surface,
-        false => Color.Surface,
+        true => "Linear Link",
+        false => "Bezier Curve Link",
     };
 
     /// <summary>
@@ -59,4 +69,9 @@
         true => "fa-solid fa-circle-nodes",
         false => "fa-solid fa-bezier-curve",
     };
+
+    private async Task ResetZoomToggle()
+    {
+        await NovusUIManagement.ResetZoom();
+    }
 }
