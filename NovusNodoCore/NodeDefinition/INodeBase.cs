@@ -30,11 +30,6 @@ namespace NovusNodoCore.NodeDefinition
         NodeUIConfig UIConfig { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the node is enabled.
-        /// </summary>
-        bool IsEnabled { get; set; }
-
-        /// <summary>
         /// Executes the node's workload if the node is enabled, and then triggers the execution of the next nodes.
         /// </summary>
         /// <param name="jsonData">The JSON data to be processed by the node.</param>

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Xml.Linq;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using NovusNodo.Management;
 using NovusNodoCore.Managers;
@@ -57,6 +58,12 @@ namespace NovusNodo.Components.Pages
             NovusUIManagement.OnDarkThemeChanged += NovusUIManagement_OnDarkThemeChanged;
             NovusUIManagement.OnNodeNameChanged += NovusUIManagement_OnNodeNameChanged;
             NovusUIManagement.OnResetZoom += NovusUIManagement_OnResetZoom;
+            NovusUIManagement.OnNodeEnabledChanged += NovusUIManagement_OnNodeEnabledChanged;
+        }
+
+        private async Task NovusUIManagement_OnNodeEnabledChanged(bool isEnabled)
+        {
+            await CanvasReference.InvokeVoidAsync("enableDisableNode", [NovusUIManagement.CurrentlySelectedNode.Id, isEnabled]);
         }
 
         /// <summary>
@@ -231,17 +238,6 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task NodesAdded(NodeBase node)
         {
-            node.PropertyChanged += async (sender, e) =>
-            {
-                if (e.PropertyName == "IsEnabled")
-                {
-                    if (sender is NodeBase node)
-                    {
-                        await CanvasReference.InvokeVoidAsync("enableDisableNode", [node.Id, node.IsEnabled]);
-                    }
-                }
-            };
-
             Logger.LogDebug($"Adding node {node.Id} to canvas {TabID}");
             await CanvasReference.InvokeVoidAsync("createNode", [node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.X, node.UIConfig.Y, (double)node.NodeType]);
             await AddPorts(node);
@@ -340,6 +336,7 @@ namespace NovusNodo.Components.Pages
                     NovusUIManagement.OnDarkThemeChanged -= NovusUIManagement_OnDarkThemeChanged;
                     NovusUIManagement.OnNodeNameChanged -= NovusUIManagement_OnNodeNameChanged;
                     NovusUIManagement.OnResetZoom -= NovusUIManagement_OnResetZoom;
+                    NovusUIManagement.OnNodeEnabledChanged -= NovusUIManagement_OnNodeEnabledChanged;
                     canvasNetComponentRef?.Dispose();
                 }
 

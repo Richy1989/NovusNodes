@@ -11,7 +11,7 @@ namespace NovusNodoCore.NodeDefinition
     /// Represents the base class for all nodes in the system.
     /// </summary>
     /// <typeparam name="ConfigType">The type of the configuration object.</typeparam>
-    public class NodeBase : INodeBase, INotifyPropertyChanged
+    public class NodeBase : INodeBase
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -53,23 +53,6 @@ namespace NovusNodoCore.NodeDefinition
         private readonly AutoResetEvent autoResetEvent = new(true);
 
         /// <summary>
-        /// Gets or sets a value indicating whether the node is enabled.
-        /// </summary>
-        private bool isEnabled = true;
-        public bool IsEnabled
-        {
-            get
-            {
-                return isEnabled;
-            }
-            set
-            {
-                isEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
         public IPluginBase ParentNode { get => PluginBase.ParentNode; set => PluginBase.ParentNode = value; }
@@ -92,8 +75,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets the name of the node.
         /// </summary>
-        private string name;
-        public string Name { get { return name; } set { name = value; OnPropertyChanged(); } }
+        public string Name { get { return UIConfig.Name; } set { UIConfig.Name = value; } }
 
         /// <summary>
         /// Gets or sets the UI configuration for the node.
@@ -147,7 +129,7 @@ namespace NovusNodoCore.NodeDefinition
             {
                 (PluginBase as PluginBase).StarterNodeTriggered = async () =>
                 {
-                    if (IsEnabled && executionManager.IsExecutionAllowed)
+                    if (UIConfig.IsEnabled && executionManager.IsExecutionAllowed)
                         await ExecuteNode([]).ConfigureAwait(false);
                 };
             }
@@ -174,7 +156,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ExecuteNode(JsonObject jsonData)
         {
-            if (!isEnabled) return; 
+            if (!UIConfig.IsEnabled) return; 
 
             autoResetEvent.WaitOne();
             // Execute all work tasks from the plugin

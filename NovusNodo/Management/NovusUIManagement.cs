@@ -16,6 +16,8 @@ namespace NovusNodo.Management
 
         public event Func<Task> OnResetZoom;
 
+        public event Func<bool, Task> OnNodeEnabledChanged;
+
         public INodeBase CurrentlySelectedNode { get; set; }
         public string CurrentlyOpenedPage { get; set; }
 
@@ -175,6 +177,16 @@ namespace NovusNodo.Management
             }
 
             await OnNodeDoubleClicked(CurrentlySelectedNode);
+        }
+
+        public async Task NodeEnabledChanged(bool isEnabled)
+        {
+            CurrentlySelectedNode.UIConfig.IsEnabled = isEnabled;   
+           
+            if (OnNodeEnabledChanged != null)
+            {
+                await OnNodeEnabledChanged.Invoke(isEnabled).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
