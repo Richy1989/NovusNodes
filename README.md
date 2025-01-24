@@ -23,7 +23,7 @@ This project is a **node-based application** designed to visualize and manipulat
 For Node API for .NET a Shared DLL has to be compiled. More info here: https://microsoft.github.io/node-api-dotnet/scenarios/dotnet-js.html
 
 ## Plugins
-In order to create a plugin the **NovusNodoPluginLibrary.dll** has to be referenced in a Razor Component Project.
+In order to create a plugin the **NovusNodoPluginLibrary.dll** has to be referenced in a Razor Component Project. The Plugin class needs to inherit from the **PluginBase** class and the Plugin UI (for configuration) needs to inherit from the **NovusUIPluginBase**, implement the abstract methods and your own functionality.  
 The Plugin needs to adapt the following attribute: `[NovusPlugin("7BA6BE2A-19A1-44FF-878D-3E408CA17366", "JS Function", "#ea899a")]`
 Check the "NovusNodoUIPLugin" project for a sample implementation.
 
