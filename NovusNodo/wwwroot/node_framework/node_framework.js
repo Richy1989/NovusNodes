@@ -106,14 +106,14 @@ export function resizeCanvas(id) {
  * @param {number} y - The y-coordinate of the node.
  * @param {string} nodeType - The type of the node.
  */
-export function createNode(id, color, name, width, height, x, y, nodeType) {
+export function createNode(id, color, name, x, y, nodeType) {
     if (selectedPaperTabId == null) {
         console.log("No Canvas Tab Selected");
         return;
     }
 
     const canvas = canvasTabs[selectedPaperTabId];
-    const node = new Node(id, canvas, color, name, width, height, x, y, nodeType);
+    const node = new Node(id, canvas, color, name, x, y, nodeType);
     canvas.addNode(node);
 }
 

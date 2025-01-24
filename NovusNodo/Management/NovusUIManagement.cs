@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.JSInterop;
 using MudBlazor;
 using NovusNodo.Components.Pages;
 using NovusNodoCore.Managers;
@@ -182,6 +183,7 @@ namespace NovusNodo.Management
         public async Task ChangeNodeLabelName(string newName)
         {
             await OnNodeNameChanged?.Invoke(CurrentlyOpenedPage, CurrentlySelectedNode.Id, newName);
+            CurrentlySelectedNode.Name = newName;
 
             //CurrentlySelectedNode.Name = newName;
             //try

@@ -152,14 +152,14 @@ namespace NovusNodo.Components.Pages
         /// <param name="width">The new width of the element.</param>
         /// <param name="height">The new height of the element.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        [JSInvokable("NovusNode.NodeResized")]
-        public async Task ElementResized(string id, double width, double height)
-        {
-            Logger.LogDebug($"Element Resized {id} {width} {height} in {TabID}");
-            NodePageManager.AvailableNodes[id].UIConfig.Width = width;
-            NodePageManager.AvailableNodes[id].UIConfig.Height = height;
-            await Task.CompletedTask;
-        }
+        //[JSInvokable("NovusNode.NodeResized")]
+        //public async Task ElementResized(string id, double width, double height)
+        //{
+        //    Logger.LogDebug($"Element Resized {id} {width} {height} in {TabID}");
+        //    NodePageManager.AvailableNodes[id].UIConfig.Width = width;
+        //    NodePageManager.AvailableNodes[id].UIConfig.Height = height;
+        //    await Task.CompletedTask;
+        //}
 
         /// <summary>
         /// Invokable method to handle the addition of a link.
@@ -237,13 +237,13 @@ namespace NovusNodo.Components.Pages
                 {
                     if (sender is NodeBase node)
                     {
-                        await CanvasReference.InvokeVoidAsync("enableDisableNode", new object[] { node.Id, node.IsEnabled });
+                        await CanvasReference.InvokeVoidAsync("enableDisableNode", [node.Id, node.IsEnabled]);
                     }
                 }
             };
 
             Logger.LogDebug($"Adding node {node.Id} to canvas {TabID}");
-            await CanvasReference.InvokeVoidAsync("createNode", new object[] { node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.Width, node.UIConfig.Height, node.UIConfig.X, node.UIConfig.Y, (double)node.NodeType });
+            await CanvasReference.InvokeVoidAsync("createNode", [node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.X, node.UIConfig.Y, (double)node.NodeType]);
             await AddPorts(node);
         }
 

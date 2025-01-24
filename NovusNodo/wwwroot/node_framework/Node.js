@@ -10,12 +10,12 @@ export class Node{
      * @param {number} x - The initial x-coordinate of the node.
      * @param {number} y - The initial y-coordinate of the node.
      */
-    constructor(id, canvas, color, name, width, height, x, y, nodeType) {
+    constructor(id, canvas, color, name, x, y, nodeType) {
         this.svg = canvas.svg;
         this.canvas = canvas;
         this.id = id;
-        this.width = width;
-        this.height = height;
+        this.width = 120;
+        this.height = 40;
         this.name = name;
         this.color = color;
         this.x = x;
@@ -25,6 +25,8 @@ export class Node{
         this.nodeType = nodeType;
         this.isDragging = false;
         this.group = this.createNodeGroup();
+
+        this.setLabelText(name);
     }
 
     /**
@@ -149,16 +151,19 @@ export class Node{
     updateNodeDimensions() {
         this.group.select("rect.node").attr("width", this.width);
         this.label.attr("x", this.width / 2);
-        this.outputPort.updatePortPosition();
-
-        const nodeResizedEvent = new CustomEvent("nodeResized", {bubbles: true,
+        
+        if(this.outputPort != null) {
+            this.outputPort.updatePortPosition();
+        }
+        
+        /* const nodeResizedEvent = new CustomEvent("nodeResized", {bubbles: true,
             detail: {
                 id: this.id,
                 width: this.width,
                 height: this.height
             }
         });
-        this.svg.node().dispatchEvent(nodeResizedEvent);
+        this.svg.node().dispatchEvent(nodeResizedEvent); */
     }
 
     /**

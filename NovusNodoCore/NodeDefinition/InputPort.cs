@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace NovusNodoCore.NodeDefinition
+﻿namespace NovusNodoCore.NodeDefinition
 {
     /// <summary>
     /// Represents an input port in a node.
@@ -12,6 +10,9 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public Dictionary<string, OutputPort> ConnectedOutputPort { get; set; } = [];
 
+        /// <summary>
+        /// Removes all connections from this input port.
+        /// </summary>
         public void RemoveAllConnections()
         {
             foreach (var outputPort in ConnectedOutputPort)
