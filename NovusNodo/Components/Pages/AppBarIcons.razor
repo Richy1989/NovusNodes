@@ -13,9 +13,32 @@
     <MudTooltip Text="Reset Zoom">
         <MudIconButton Icon="@Icons.Material.Filled.ZoomInMap" Color="@Color.Surface" OnClick="@ResetZoomToggle" Class="rounded-0" />
     </MudTooltip>
+    <MudTooltip Text="Auto Save">
+        <MudIconButton Icon="@AutoSaveIcon" Color="@AutoSaveColor" OnClick="@OnAutoSaveToggle" Class="rounded-0" />
+    </MudTooltip>   
 </MudPaper>
 
 @code {
+
+    private void OnAutoSaveToggle()
+    {
+        ExecutionManager.IsAutoSaveEnabled = !ExecutionManager.IsAutoSaveEnabled;
+    }
+
+    /// <summary>
+    /// Gets the color for the play pause toggle button.
+    /// </summary>
+    public Color AutoSaveColor => ExecutionManager.IsAutoSaveEnabled switch
+    {
+        true => Color.Success,
+        false => Color.Warning,
+    };
+
+    public string AutoSaveIcon => ExecutionManager.IsAutoSaveEnabled switch
+    {
+        true => Icons.Material.Rounded.AutoAwesome,
+        false => Icons.Material.Rounded.AutoAwesome
+    };
 
     /// <summary>
     /// Toggles the play pause variable.

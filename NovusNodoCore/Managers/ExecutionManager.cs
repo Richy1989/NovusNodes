@@ -37,9 +37,13 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public event Func<string, Task> ProjectChanged;
 
+        public event Func<Task> OnManualSaveTrigger;
+
         public event Func<Task> OnProjectSaved;
 
         public bool ProjectDataSynced { get; set; } = true;
+
+        public bool IsAutoSaveEnabled { get; set; } = true;
 
         /// <summary>
         /// Event fired when the curve style is changed.
@@ -123,6 +127,12 @@ namespace NovusNodoCore.Managers
             ProjectDataSynced = true;
             if (OnProjectSaved != null)
                 await OnProjectSaved.Invoke().ConfigureAwait(false);
+        }
+
+        public async Task ManualSaveTrigger()
+        {
+            if (OnManualSaveTrigger != null)
+                await OnManualSaveTrigger.Invoke().ConfigureAwait(false);
         }
 
         /// <summary>

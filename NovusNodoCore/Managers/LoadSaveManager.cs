@@ -23,7 +23,23 @@ namespace NovusNodoCore.Managers
         {
             _logger = logger;
             _executionManager = executionManager;
-            _executionManager.ProjectChanged += SaveProject;
+            _executionManager.ProjectChanged += async (id) =>
+            {
+                if (_executionManager.IsAutoSaveEnabled)
+                    await SaveProject(id).ConfigureAwait(false);
+            };
+            _executionManager.OnManualSaveTrigger += ExecutionManager_OnManualSaveTrigger;
+        }
+
+        /// <summary>
+        /// Handles the manual save trigger event.
+        /// </summary>
+        private async Task ExecutionManager_OnManualSaveTrigger()
+        {
+            foreach (var page in _executionManager.NodePages)
+            {
+                await SaveProject(page.Key).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
@@ -202,7 +218,7 @@ namespace NovusNodoCore.Managers
                     var config = JsonSerializer.Deserialize(nodeModel.PluginConfig, pluginBaseAttribute.PluginConfigType);
                     config = Convert.ChangeType(config, pluginBaseAttribute.PluginConfigType);
                     node.PluginBase.PluginConfig = config;
-                    
+
                 }
                 else
                 {

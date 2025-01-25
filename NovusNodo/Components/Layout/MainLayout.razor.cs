@@ -74,7 +74,7 @@ namespace NovusNodo.Components.Layout
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task ManualSaveTrigger()
         {
-            await ExecutionManager.NodePage_OnPageDataChanged(NovusUIManagement.CurrentlyOpenedPage);
+            await ExecutionManager.ManualSaveTrigger().ConfigureAwait(false);
         }
 
         /// <summary>
