@@ -103,6 +103,8 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Adds a new tab and returns the created <see cref="NodePageManager"/>.
         /// </summary>
+        /// <param name="id">The ID of the new tab. If null, a new GUID will be generated.</param>
+        /// <param name="isStartup">Indicates whether the tab is a startup tab.</param>
         /// <returns>The created <see cref="NodePageManager"/>.</returns>
         public async Task<NodePageManager> AddNewTab(string id = null, bool isStartup = false)
         {
@@ -123,9 +125,13 @@ namespace NovusNodoCore.Managers
             return nodePage;
         }
 
+        /// <summary>
+        /// Handles the event when the page data is changed.
+        /// </summary>
+        /// <param name="pageId">The ID of the page that was changed.</param>
         private async Task NodePage_OnPageDataChanged(string pageId)
         {
-            if(ProjectChanged != null)
+            if (ProjectChanged != null)
                 await ProjectChanged.Invoke(pageId).ConfigureAwait(false);
         }
 
@@ -177,7 +183,7 @@ namespace NovusNodoCore.Managers
 
                 foreach (var type in derivedTypes)
                 {
-                    
+
                     NovusPluginAttribute baseAttribute = (NovusPluginAttribute)Attribute.GetCustomAttribute(type, typeof(NovusPluginAttribute));
 
                     if (baseAttribute == null)
@@ -194,7 +200,8 @@ namespace NovusNodoCore.Managers
                         logger.LogError("Plugin ID must be a valid GUID");
                         throw new Exception("Plugin ID must be a valid GUID");
                     }
-                    
+
+                    // Find the configuration type for the plugin if available
                     var pluginConfigType = FindConfigType(type);
                     baseAttribute.PluginConfigType = pluginConfigType;
 
@@ -203,11 +210,16 @@ namespace NovusNodoCore.Managers
             }
         }
 
+        /// <summary>
+        /// Finds the configuration type for the specified plugin type.
+        /// </summary>
+        /// <param name="pluginType">The plugin type.</param>
+        /// <returns>The configuration type for the plugin.</returns>
         public Type FindConfigType(Type pluginType)
         {
             string name = pluginType.Name.Replace("Plugin", "Config");
             return pluginType.Assembly.GetTypes().FirstOrDefault(x => x.Name == name);
-            
+
         }
 
         /// <summary>

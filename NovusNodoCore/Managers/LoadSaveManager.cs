@@ -67,6 +67,8 @@ namespace NovusNodoCore.Managers
 
             foreach (var node in page.Value.AvailableNodes)
             {
+                _logger.LogDebug($"Saving node: {node.Key}");
+                // Create a new nodeModel save model
                 var nodeSave = new NodeSaveModel
                 {
                     PageId = page.Key,
@@ -77,25 +79,34 @@ namespace NovusNodoCore.Managers
                     ConnectedPorts = []
                 };
 
+                // If we have a config type, serialize and add the config
                 if (node.Value.PluginIdAttribute.PluginConfigType != null)
                 {
-                    nodeSave.PluginConfig = JsonSerializer.Serialize(node.Value.PluginConfig, node.Value.PluginIdAttribute.PluginConfigType);
+                    using var memoryStream = new MemoryStream();
+                    await JsonSerializer.SerializeAsync(memoryStream, node.Value.PluginConfig, node.Value.PluginIdAttribute.PluginConfigType).ConfigureAwait(false);
+                    memoryStream.Position = 0;
+                    using var streamReader = new StreamReader(memoryStream);
+                    nodeSave.PluginConfig = await streamReader.ReadToEndAsync().ConfigureAwait(false);
                 }
                 else
                 {
+                    //Otherwise, just set the config as a string
                     nodeSave.PluginConfig = node.Value.PluginConfig != null ? (string)node.Value.PluginConfig : null;
                 }
 
+                // Add the output ports
                 foreach (var outputport in node.Value.OutputPorts)
                 {
                     nodeSave.OutputNodes.Add(outputport.Value.Id);
                 }
 
+                // Add the connected ports
                 foreach (var outputPort in node.Value.InputPort.ConnectedOutputPort.Values)
                 {
                     nodeSave.ConnectedPorts.Add(new ConnectionModel { NodeId = outputPort.Node.Id, PortId = outputPort.Id });
                 }
 
+                // Add the node model to the page model
                 pageSaveModel.Nodes.Add(nodeSave);
             }
 
@@ -120,6 +131,7 @@ namespace NovusNodoCore.Managers
             List<PageSaveModel> pages = [];
             foreach (var file in Directory.EnumerateFiles(saveDir, "*.json"))
             {
+                _logger.LogDebug($"Loading page file: {file}");
                 try
                 {
                     PageSaveModel pageModel = null;
@@ -174,6 +186,7 @@ namespace NovusNodoCore.Managers
                 var node = await nodePage.CreateNode(pluginBaseType, pluginBaseAttribute, nodeModel.NodeId, true).ConfigureAwait(false);
                 node.UIConfig.CopyFrom(nodeModel.NodeConfig);
 
+                // I we have a config type, deserialize the config
                 if (pluginBaseAttribute.PluginConfigType != null)
                 {
                     var config = JsonSerializer.Deserialize(nodeModel.PluginConfig, pluginBaseAttribute.PluginConfigType);
@@ -183,6 +196,7 @@ namespace NovusNodoCore.Managers
                 }
                 else
                 {
+                    //Otherwise, just set the config as a string
                     node.PluginBase.PluginConfig = (string)nodeModel.PluginConfig;
                 }
 
