@@ -16,13 +16,7 @@ namespace NovusNodo
 
 
             builder.Logging.ClearProviders();
-            builder.Logging.AddColorConsoleLogger(configuration =>
-            {
-                // Replace warning value from appsettings.json of "Cyan"
-                configuration.LogLevelToColorMap[LogLevel.Warning] = ConsoleColor.DarkCyan;
-                // Replace warning value from appsettings.json of "Red"
-                configuration.LogLevelToColorMap[LogLevel.Error] = ConsoleColor.DarkRed;
-            });
+            builder.Logging.AddColorConsoleLogger();
 
             builder.Logging.AddNovusDebugWindowLogger();
 

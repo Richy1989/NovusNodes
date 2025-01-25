@@ -153,13 +153,15 @@ namespace NovusNodoCore.NodeDefinition
 
             if (PluginBase.NodeType == NodeType.Starter)
             {
-                (PluginBase as PluginBase).StarterNodeTriggered = async () =>
+                PluginBase.StarterNodeTriggered = async () =>
                 {
                     if (UIConfig.IsEnabled && executionManager.IsExecutionAllowed)
                         await ExecuteNode(new JsonObject()).ConfigureAwait(false);
                 };
             }
         }
+
+
 
         public void CreatePorts()
         {

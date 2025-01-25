@@ -153,22 +153,6 @@ namespace NovusNodo.Components.Pages
         }
 
         /// <summary>
-        /// Invokable method to handle the resizing of an element.
-        /// </summary>
-        /// <param name="id">The identifier of the element.</param>
-        /// <param name="width">The new width of the element.</param>
-        /// <param name="height">The new height of the element.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        //[JSInvokable("NovusNode.NodeResized")]
-        //public async Task ElementResized(string id, double width, double height)
-        //{
-        //    Logger.LogDebug($"Element Resized {id} {width} {height} in {TabID}");
-        //    NodePageManager.AvailableNodes[id].UIConfig.Width = width;
-        //    NodePageManager.AvailableNodes[id].UIConfig.Height = height;
-        //    await Task.CompletedTask;
-        //}
-
-        /// <summary>
         /// Invokable method to handle the addition of a link.
         /// </summary>
         /// <param name="sourceID">The source node identifier.</param>

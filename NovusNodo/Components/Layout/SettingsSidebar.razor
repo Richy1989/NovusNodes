@@ -95,7 +95,8 @@
             await NovusUIManagement.CurrentlySelectedNode.SaveSettings();
         }
 
-        await NovusUIManagement.ChangeNodeLabelName(CurrentSelectedNodeName);
+        if (CurrentSelectedNodeName != NovusUIManagement.CurrentlySelectedNode.Name)
+            await NovusUIManagement.ChangeNodeLabelName(CurrentSelectedNodeName);
     }
 
     /// <summary>

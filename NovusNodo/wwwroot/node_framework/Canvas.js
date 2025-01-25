@@ -423,7 +423,7 @@ export class Canvas {
                             fireEvent = true;
                         }
 
-                        node.dragEnded(null, fireEvent);
+                        node.dragEnded(null);
                     }
                 }, { once: true });
             }

@@ -20,6 +20,8 @@ export class Node{
         this.color = color;
         this.x = x;
         this.y = y;
+        this.x_old = x;
+        this.y_old = y;
         this.offsetX = 0;
         this.offsetY = 0;
         this.nodeType = nodeType;
@@ -179,7 +181,12 @@ export class Node{
      */
     dragged(event) {
         if (this.isDragging) {
-            this.updatePosition(event.x - this.offsetX, event.y - this.offsetY);
+            let x = event.x - this.offsetX;
+            let y = event.y - this.offsetY;
+
+            if(this.x != x || this.y != y) {
+                this.updatePosition(event.x - this.offsetX, event.y - this.offsetY);
+            }
         }
     }
 
@@ -187,51 +194,43 @@ export class Node{
      * Handles the end of the drag event.
      * @param {d3.D3DragEvent} event - The drag event.
      */
-    dragEnded(event, fireEvent = true) {
+    dragEnded(event) {
         this.isDragging = false;
-        
-        //Bring the event back to visible area if it goes out of the canvas
-        let needUpdate = false;
         
         const transform = this.canvas.CanvasZoom.currentTransformation;
 
         let x = (this.x * transform.k + transform.x) / transform.k;
         let y = (this.y * transform.k + transform.y) / transform.k;
 
-        this.updatePosition(x, y);
-
         // Check boundaries
         if (x < 0) {
             x = 0;
-            needUpdate = true;
         }
         if (y < 0) {
             y = 0;
-            needUpdate = true;
         }
         if (x > this.canvas.width / transform.k) {
             x = this.canvas.width / transform.k;
-            needUpdate = true;
         }
         if (y > this.canvas.height / transform.k) {
             y = this.canvas.height / transform.k;
-            needUpdate = true;
         }
 
-        if(needUpdate) {
-            this.updatePosition(x, y);
+        if (this.x_old != this.x || this.y_old != this.y) {
+            this.x_old = this.x;
+            this.y_old = this.y;
+        
+            console.log(`Node moved: ID=${this.id}, X=${this.x}, Y=${this.y}`);
+            // Dispatch the custom event to notify that the node has moved
+            const moveEvent = new CustomEvent("nodeMoved", {bubbles: true,
+                detail: {
+                    id: this.id,
+                    x: this.x,
+                    y: this.y
+                }
+            });
+            this.svg.node().dispatchEvent(moveEvent);
         }
-
-        console.log(`Node moved: ID=${this.id}, X=${this.x}, Y=${this.y}`);
-        // Dispatch the custom event to notify that the node has moved
-        const moveEvent = new CustomEvent("nodeMoved", {bubbles: true,
-            detail: {
-                id: this.id,
-                x: this.x,
-                y: this.y
-            }
-        });
-        this.svg.node().dispatchEvent(moveEvent);
     }
 
     updatePosition(x, y) {
