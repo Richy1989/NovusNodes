@@ -1,15 +1,17 @@
 ﻿@inject NovusNodo.Management.NovusUIManagement NovusUIManagement
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 
-<MudPaper Class="app-bar-icon d-flex flex-row gap-4" Elevation="0">
+@* <MudPaper Class="d-flex flex-row gap-4" Style="@($"background:rgb(0, 0, 0, 0.15);")" Elevation="0"> *@
+<MudPaper Class="d-flex justify-space-around">
     <MudTooltip Text="@PlayPauseButtonToolTip">
-        <MudIconButton Icon="@(PlayPauseButtonIcon)" Color="@PlayPauseButtonColor" OnClick="@PlayPauseButtonIconToggle" />
+        <MudIconButton Icon="@(PlayPauseButtonIcon)" Color="@PlayPauseButtonColor" OnClick="@PlayPauseButtonIconToggle" Class="rounded-0" />
     </MudTooltip>
+    <MudDivider Vertical="true" FlexItem="true" />
     <MudTooltip Text="@LineStyleToolTip">
-        <MudIconButton Icon="@LineStyleIcon" Color="@Color.Surface" OnClick="@LineStyleToggle" />
+        <MudIconButton Icon="@LineStyleIcon" Color="@Color.Surface" OnClick="@LineStyleToggle" Class="rounded-0" />
     </MudTooltip>
     <MudTooltip Text="Reset Zoom">
-        <MudIconButton Icon="@Icons.Material.Filled.ZoomInMap" Color="@Color.Surface" OnClick="@ResetZoomToggle" />
+        <MudIconButton Icon="@Icons.Material.Filled.ZoomInMap" Color="@Color.Surface" OnClick="@ResetZoomToggle" Class="rounded-0" />
     </MudTooltip>
 </MudPaper>
 
