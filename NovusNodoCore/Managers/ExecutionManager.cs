@@ -154,7 +154,7 @@ namespace NovusNodoCore.Managers
         /// Handles the event when the page data is changed.
         /// </summary>
         /// <param name="pageId">The ID of the page that was changed.</param>
-        private async Task NodePage_OnPageDataChanged(string pageId)
+        public async Task NodePage_OnPageDataChanged(string pageId)
         {
             if (ProjectChanged != null)
                 await ProjectChanged.Invoke(pageId).ConfigureAwait(false);

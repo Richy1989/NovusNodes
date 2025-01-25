@@ -58,9 +58,9 @@ namespace NovusNodo.Components.Layout
             NovusUIManagement.DrawerOpen = !NovusUIManagement.DrawerOpen;
         }
 
-        private void ManualSaveTrigger()
+        private async Task ManualSaveTrigger()
         {
-            
+           await ExecutionManager.NodePage_OnPageDataChanged(NovusUIManagement.CurrentlyOpenedPage);
         }
 
         public Color ManualSaveColor => ExecutionManager.ProjectDataSynced switch
