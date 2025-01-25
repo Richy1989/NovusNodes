@@ -26,6 +26,28 @@ namespace NovusNodo.Components.Layout
                 PaletteDark = NovusUIManagement.DarkPalette,
                 LayoutProperties = new LayoutProperties()
             };
+
+            ExecutionManager.ProjectChanged += ExecutionManager_OnProjectChanged;
+            ExecutionManager.OnProjectSaved += ExecutionManager_OnProjectSaved;
+        }
+
+        private async Task ExecutionManager_OnProjectSaved()
+        {
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        }
+
+        private async Task ExecutionManager_OnProjectChanged(string arg)
+        {
+            //Wait then update the UI if Project still not synced
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
 
         /// <summary>
@@ -35,6 +57,23 @@ namespace NovusNodo.Components.Layout
         {
             NovusUIManagement.DrawerOpen = !NovusUIManagement.DrawerOpen;
         }
+
+        private void ManualSaveTrigger()
+        {
+            
+        }
+
+        public Color ManualSaveColor => ExecutionManager.ProjectDataSynced switch
+        {
+            true => Color.Success,
+            false => Color.Warning,
+        };
+
+        public string ManualSaveText => ExecutionManager.ProjectDataSynced switch
+        {
+            true => "Data Synced",
+            false => "Sync Pending",
+        };
 
         /// <summary>
         /// Toggles the state of the settings drawer.
@@ -97,6 +136,8 @@ namespace NovusNodo.Components.Layout
             {
                 if (disposing)
                 {
+                    ExecutionManager.ProjectChanged -= ExecutionManager_OnProjectChanged;
+                    ExecutionManager.OnProjectSaved -= ExecutionManager_OnProjectSaved;
                     novusUIManagementRef?.Dispose();
                 }
 

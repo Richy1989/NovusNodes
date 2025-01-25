@@ -37,6 +37,10 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public event Func<string, Task> ProjectChanged;
 
+        public event Func<Task> OnProjectSaved;
+
+        public bool ProjectDataSynced { get; set; } = true;
+
         /// <summary>
         /// Event fired when the curve style is changed.
         /// </summary>
@@ -98,6 +102,27 @@ namespace NovusNodoCore.Managers
             NodeJSEnvironmentManager.Initialize();
 
             DebugWindowLogger.NewDebugLog += ExecutionManager_NewDebugLog;
+
+            // Subscribe to the project changed event of this class to update the ProjectDataSynced property.
+            this.ProjectChanged += ExecutionManager_ProjectChanged;
+        }
+
+        /// <summary>
+        /// Handles the event when the project is changed.
+        /// </summary>
+        /// <param name="arg">The argument indicating the project change.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        private async Task ExecutionManager_ProjectChanged(string arg)
+        {
+            ProjectDataSynced = false;
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
+        public async Task AllProjectDataSynced()
+        {
+            ProjectDataSynced = true;
+            if (OnProjectSaved != null)
+                await OnProjectSaved.Invoke().ConfigureAwait(false);
         }
 
         /// <summary>

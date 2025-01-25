@@ -17,6 +17,9 @@
         <MudSpacer />
         <AppBarIcons></AppBarIcons>
         <MudSpacer />
+        <MudButton Variant="Variant.Outlined" OnClick="@ManualSaveTrigger" EndIcon="@Icons.Material.Filled.Save" Color="@ManualSaveColor">
+            @ManualSaveText
+        </MudButton>
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
         <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.End" OnClick="@((e) => SettingsDrawerToggle())" />

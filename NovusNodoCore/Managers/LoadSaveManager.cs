@@ -33,17 +33,27 @@ namespace NovusNodoCore.Managers
         private async Task SaveProject(string pageId)
         {
             await _semaphore.WaitAsync().ConfigureAwait(false);
-            try
+            for (int retry = 0; retry < 3; retry++)
             {
-                await SavePage(pageId).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while saving the project.");
-            }
-            finally
-            {
-                _semaphore.Release();
+                try
+                {
+                    await SavePage(pageId).ConfigureAwait(false);
+                    await _executionManager.AllProjectDataSynced().ConfigureAwait(false);
+                    break; // Exit loop if successful
+                }
+                catch (IOException) when (retry < 2)
+                {
+                    _logger.LogDebug($"IO Error on saving, at try: {retry}");
+                    await Task.Delay(100); // Small delay before retry
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred while saving the project.");
+                }
+                finally
+                {
+                    _semaphore.Release();
+                }
             }
         }
 

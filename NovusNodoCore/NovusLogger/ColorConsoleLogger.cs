@@ -36,7 +36,7 @@ namespace NovusNodoCore.NovusLogger
                 ConsoleColor originalColor = Console.ForegroundColor;
 
                 Console.ForegroundColor = config.LogLevelToColorMap[logLevel];
-                Console.WriteLine($"[{eventId.Id,2}: {logLevel,-12}]");
+                Console.WriteLine($"[{eventId.Id,2} - {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}: {logLevel,-12}]");
 
                 Console.ForegroundColor = originalColor;
                 Console.Write($"     {name} - ");
