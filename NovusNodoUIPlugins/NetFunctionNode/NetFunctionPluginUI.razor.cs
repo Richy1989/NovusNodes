@@ -1,22 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NovusNodoPluginLibrary;
+﻿using Microsoft.Extensions.Logging;
 
 namespace NovusNodoUIPlugins.NetFunctionNode
 {
     public partial class NetFunctionPluginUI
     {
+        /// <summary>
+        /// Saves the settings asynchronously.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous save operation.</returns>
         public override async Task SaveSettings()
         {
+            Logger.LogDebug($"Plugin Info - New .NET Code is: \n{PluginBase.PluginConfig}");
             await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        protected override async void Dispose(bool disposing)
+        /// <summary>
+        /// Protected implementation of Dispose pattern.
+        /// </summary>
+        /// <param name="disposing">Indicates whether the method is called from Dispose.</param>
+        protected override void Dispose(bool disposing)
         {
-            await Task.CompletedTask.ConfigureAwait(false);
+            if (!DisposedValue)
+            {
+                if (disposing)
+                {
+                    Logger?.LogDebug(".NET Function component disposed");
+                }
+
+                DisposedValue = true;
+            }
         }
     }
 }

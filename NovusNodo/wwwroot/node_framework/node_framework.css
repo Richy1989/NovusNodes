@@ -17,8 +17,9 @@
 }
 
 .label {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 14px;
+    font-weight: bold;
     fill: black;
     text-anchor: middle;
     dominant-baseline: middle;

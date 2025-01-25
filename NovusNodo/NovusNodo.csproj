@@ -43,6 +43,11 @@
   </ItemGroup>
 
 
+  <ItemGroup>
+    <Folder Include="wwwroot\fonts\" />
+  </ItemGroup>
+
+
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="if exist &quot;$(ProjectDir)wwwroot\_content&quot; rmdir /S /Q &quot;$(ProjectDir)wwwroot\_content&quot;" />
   </Target>

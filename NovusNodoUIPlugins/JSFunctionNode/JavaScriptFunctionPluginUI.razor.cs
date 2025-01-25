@@ -13,7 +13,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         /// <returns>A task that represents the asynchronous save operation.</returns>
         public override async Task SaveSettings()
         {
-            Logger.LogInformation($"Plugin Info - New JS Code is: \n{PluginBase.PluginConfig}");
+            Logger.LogDebug($"Plugin Info - New JS Code is: \n{PluginBase.PluginConfig}");
             await Task.CompletedTask.ConfigureAwait(false);
         }
 

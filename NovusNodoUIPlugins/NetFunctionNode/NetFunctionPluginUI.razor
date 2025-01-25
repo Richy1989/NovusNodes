@@ -1,8 +1,38 @@
 ﻿@using NovusNodoPluginLibrary
 @inherits NovusUIPluginBase
+@using GaelJ.BlazorCodeMirror6
+@using GaelJ.BlazorCodeMirror6.Commands
+@using GaelJ.BlazorCodeMirror6.Models
 
-<h3>NetFunctionPluginUI</h3>
+@using MudBlazor
 
-@code {
 
+<h3>JavaScript Settings Node</h3>
+<div class="containerForCodeMirror">
+    <CodeMirror6Wrapper Placeholder="Enter your code.... (2)"
+                        @bind-Doc=@config
+                        Theme=@Theme
+                        Language=@CodeMirrorLanguage.Csharp
+                        AllowHorizontalResize=false
+                        AllowVerticalResize=false
+                        MaxHeight="35em"
+                        Width="100%">
+    </CodeMirror6Wrapper>
+</div>
+
+<style>
+    .containerForCodeMirror {
+    }
+
+</style>
+
+@code
+{
+    private ThemeMirrorTheme Theme = ThemeMirrorTheme.OneDark;
+
+    private string config
+    {
+        get { return (string)PluginBase.PluginConfig; }
+        set { PluginBase.PluginConfig = value; }
+    }
 }

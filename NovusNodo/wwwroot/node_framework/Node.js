@@ -89,7 +89,7 @@ export class Node{
         this.label = group.append("text")
         .attr("class", "label")
         .attr("x", this.width / 2)
-        .attr("y", this.height / 4)
+        .attr("y", this.height / 2)
         .attr("pointer-events", "none")
         .text(this.name);
 
