@@ -128,7 +128,7 @@ namespace NovusNodoUIPlugins.InjectorNode
         {
             try
             {
-                if (_cancellationTokenSource != null)
+                if (_cancellationTokenSource != null && _task != null)
                 {
                     _cancellationTokenSource.Cancel();
                     _task.Wait(TimeSpan.FromMilliseconds(500)); // Wait for the task to complete

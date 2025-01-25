@@ -13,6 +13,7 @@ namespace NovusNodo.Components.Layout
         private MudTheme _theme = null;
         private DotNetObjectReference<NovusUIManagement> novusUIManagementRef;
         private bool _disposedValue;
+
         /// <summary>
         /// Initializes the component.
         /// </summary>
@@ -31,6 +32,10 @@ namespace NovusNodo.Components.Layout
             ExecutionManager.OnProjectSaved += ExecutionManager_OnProjectSaved;
         }
 
+        /// <summary>
+        /// Handles the event when the project is saved.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task ExecutionManager_OnProjectSaved()
         {
             await InvokeAsync(() =>
@@ -39,9 +44,14 @@ namespace NovusNodo.Components.Layout
             });
         }
 
+        /// <summary>
+        /// Handles the event when the project is changed.
+        /// </summary>
+        /// <param name="arg">The argument indicating the project change.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task ExecutionManager_OnProjectChanged(string arg)
         {
-            //Wait then update the UI if Project still not synced
+            // Wait then update the UI if Project still not synced
             await Task.Delay(TimeSpan.FromMilliseconds(500));
 
             await InvokeAsync(() =>
@@ -58,17 +68,27 @@ namespace NovusNodo.Components.Layout
             NovusUIManagement.DrawerOpen = !NovusUIManagement.DrawerOpen;
         }
 
+        /// <summary>
+        /// Manually triggers the save operation.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task ManualSaveTrigger()
         {
-           await ExecutionManager.NodePage_OnPageDataChanged(NovusUIManagement.CurrentlyOpenedPage);
+            await ExecutionManager.NodePage_OnPageDataChanged(NovusUIManagement.CurrentlyOpenedPage);
         }
 
+        /// <summary>
+        /// Gets the color of the manual save button based on the project data sync state.
+        /// </summary>
         public Color ManualSaveColor => ExecutionManager.ProjectDataSynced switch
         {
             true => Color.Success,
             false => Color.Warning,
         };
 
+        /// <summary>
+        /// Gets the text of the manual save button based on the project data sync state.
+        /// </summary>
         public string ManualSaveText => ExecutionManager.ProjectDataSynced switch
         {
             true => "Data Synced",
