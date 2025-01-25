@@ -1,5 +1,4 @@
-﻿using System.Xml.Linq;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using NovusNodo.Management;
 using NovusNodoCore.Managers;

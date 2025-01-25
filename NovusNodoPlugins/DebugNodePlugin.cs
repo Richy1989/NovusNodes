@@ -33,14 +33,8 @@ namespace NovusNodoPlugins
         /// <returns>A function representing the asynchronous workload.</returns>
         public async Task<JsonObject> Workload(JsonObject jsonData)
         {
-            //var variables = await JsonVariableExtractor.ExtractVariablesAsync(jsonData).ConfigureAwait(false);
-
             var message = await PrintVariableRecursive(jsonData).ConfigureAwait(false);
 
-            //foreach (var kvp in jsonData)
-            //{
-            //    Logger.LogInformation($"{kvp.Key}: {kvp.Value}");
-            //}
             await UpdateDebugLog.Invoke(Id, jsonData).ConfigureAwait(false);
             Logger.LogInformation(message);
             return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
