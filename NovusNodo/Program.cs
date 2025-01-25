@@ -1,4 +1,5 @@
 using MudBlazor.Services;
+using NLog.Extensions.Logging;
 using NovusNodo.Components;
 using NovusNodo.Management;
 using NovusNodo.PluginManagement;
@@ -16,7 +17,8 @@ namespace NovusNodo
 
 
             builder.Logging.ClearProviders();
-            builder.Logging.AddColorConsoleLogger();
+            //builder.Logging.AddColorConsoleLogger();
+            builder.Logging.AddNLog();
 
             builder.Logging.AddNovusDebugWindowLogger();
 

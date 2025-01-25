@@ -1,0 +1,756 @@
+﻿<Config xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays" xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing" xmlns:c="http://schemas.datacontract.org/2004/07/Prosa.Log4View.Configure.Data2102" xmlns:d="http://schemas.datacontract.org/2004/07/Prosa.Log4View.Db" xmlns:f="http://schemas.datacontract.org/2004/07/Prosa.Log4View.Receiver.File" xmlns:l="http://schemas.datacontract.org/2004/07/Prosa.Log4View.Level" xmlns:m="http://schemas.datacontract.org/2004/07/Prosa.Log4View.Receiver.Msg" xmlns:n="http://schemas.datacontract.org/2004/07/Prosa.Log4View.Receiver.Net" xmlns:s="http://schemas.datacontract.org/2004/07/Prosa.Log4View.SDK" xmlns:t="http://schemas.datacontract.org/2004/07/Prosa.Log4View.LoggerTree" xmlns:u="http://schemas.datacontract.org/2004/07/Prosa.Log4View.Utils" xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.datacontract.org/2004/07/Prosa.Log4View.Configure.Data2102">
+  <c:Id>3a0b5ea4-fee5-4b89-8a8a-790d464042ab</c:Id>
+  <c:Data>
+    <c:Id>018e8d02-2465-4f74-953c-d6a5a110e884</c:Id>
+    <c:DefaultLog4NetJsonPattern>&lt;layout type='log4net.Layout.SerializedLayout, log4net.Ext.Json'&gt;
+                &lt;decorator type='log4net.Layout.Decorators.StandardTypesDecorator, log4net.Ext.Json'/&gt;
+                &lt;default/&gt; 
+                &lt;remove value='message'/&gt;
+                &lt;member value='message:messageobject'/&gt; 
+              &lt;/layout&gt;</c:DefaultLog4NetJsonPattern>
+    <c:DefaultLog4NetPattern>%d [%t] %p %logger [%x] - %m</c:DefaultLog4NetPattern>
+    <c:DefaultNlogJsonPattern>&lt;layout xsi:type="JsonLayout" includeAllProperties="true"&gt; 
+                &lt;attribute name = "time" layout = "${longdate}"/&gt;
+                &lt;attribute name = "level" layout = "${level:upperCase=true}"/&gt;
+                &lt;attribute name = "thread" layout = "${threadName}"/&gt;
+                &lt;attribute name = "logger" layout = "${logger}"/&gt;
+                &lt;attribute name = "user" layout = "${windows-identity}"/&gt; 
+                &lt;attribute name = "host" layout = "${machinename}"/&gt;
+                &lt;attribute name = "class" layout = "${callsite:classname=true:includesourcepath=false:methodName=false}"/&gt; 
+                &lt;attribute name = "method" layout = "${callsite:classname=false:includesourcepath=false:methodName=true}"/&gt;
+                &lt;attribute name = "file" layout = "${callsite:classname=false:filename=true:includesourcepath=true:methodName=false}"/&gt;
+                &lt;attribute name = "domain" layout = "${processname}"/&gt;
+                &lt;attribute name = "message" layout = "${message}"/&gt;
+                &lt;attribute name = "exception" layout = "${exception}"/&gt;
+              &lt;/layout&gt;</c:DefaultNlogJsonPattern>
+    <c:DefaultNlogPattern>${longdate}|${level}|${logger}|${message}</c:DefaultNlogPattern>
+    <c:Version>24</c:Version>
+    <c:_receivers>
+      <c:ReceiverConfig i:type="c:NetReceiverConfig">
+        <c:Id>50ede3d2-88d4-4d96-a2a2-67fa7b046e16</c:Id>
+        <c:BackColorString>#FFEBF5FF</c:BackColorString>
+        <c:BufferSize>10000000</c:BufferSize>
+        <c:Encoding>utf-8</c:Encoding>
+        <c:IgnoreReadErrors>false</c:IgnoreReadErrors>
+        <c:LevelFilter>0</c:LevelFilter>
+        <c:LogPattern>%d [%t] %p %logger [%x] - %m</c:LogPattern>
+        <c:LoggingFrameworkId>NLog</c:LoggingFrameworkId>
+        <c:Name>Network Receiver</c:Name>
+        <c:ParserType>XML</c:ParserType>
+        <c:ReadAdjacentMessages>0</c:ReadAdjacentMessages>
+        <c:ReadFrom>2000-01-01T00:00:00</c:ReadFrom>
+        <c:ReadUntil>2025-01-25T00:00:00+01:00</c:ReadUntil>
+        <c:TimeOffset>0</c:TimeOffset>
+        <c:TimeZone i:nil="true" />
+        <c:UseFilter>false</c:UseFilter>
+        <c:Window>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:Window>
+        <c:HostName>localhost</c:HostName>
+        <c:NetReceiverType>UdpClient</c:NetReceiverType>
+        <c:Port>7071</c:Port>
+      </c:ReceiverConfig>
+    </c:_receivers>
+    <c:_sources />
+  </c:Data>
+  <c:Presentation>
+    <c:Id>653d7d22-8d93-4f7e-a114-0efef943dd64</c:Id>
+    <c:DefaultLogLevel i:type="c:LogLevelSurrogated">
+      <c:LevelName>ALL</c:LevelName>
+      <c:LevelValue>0</c:LevelValue>
+    </c:DefaultLogLevel>
+    <c:NotificationLogLevel i:type="c:LogLevelSurrogated">
+      <c:LevelName>OFF</c:LevelName>
+      <c:LevelValue>2147483647</c:LevelValue>
+    </c:NotificationLogLevel>
+    <c:NotifyMinimizedOnly>false</c:NotifyMinimizedOnly>
+    <c:PlaySoundLogLevel i:type="c:LogLevelSurrogated">
+      <c:LevelName>OFF</c:LevelName>
+      <c:LevelValue>2147483647</c:LevelValue>
+    </c:PlaySoundLogLevel>
+    <c:SaveOnExit>true</c:SaveOnExit>
+    <c:Version>24</c:Version>
+    <c:_charts />
+    <c:_columns>
+      <c:ColumnConfig>
+        <c:Id>10f318b0-f0d9-45a4-908c-8a3cd99b14f0</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Comment</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>a58849b3-e5b8-44ac-ad33-1c8f9d92445c</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>ProcessId</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>63ded96b-f52b-4923-b9f3-d966f9741c1e</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Time</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>f824a36f-2348-40ad-b71e-4a0eea67869e</c:Id>
+        <c:ClipMode>ClipMiddle</c:ClipMode>
+        <c:FieldName>Logger</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>true</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>9</c:Position>
+        <c:Width>3000</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>fda9ce75-a5be-4ead-a9da-386a47130ed6</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>User</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>4ef27b1c-b5dc-4e28-b2d5-3f5087be37ef</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>File</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>93bc2318-2875-4c4a-87cd-fefcf8d03e8a</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Domain</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>8c21d4dd-6acf-4da0-b208-723a2d070e40</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Line</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>36c4deb5-fc84-463d-86ad-0a6125b449eb</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Class</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>61e49ed5-5f86-4376-a6e7-e968a1d4825c</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>UtcTime</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>c76631e0-4263-439d-85fa-4bf05590c65a</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>LogSource</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>7eab91d6-4e59-4219-b0bf-6b208e00b971</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Exception</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>18615980-8c16-47f2-8047-27080091bba9</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>ThreadId</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>3111176b-6645-4f9e-bf9d-a349ec6c6399</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Source</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>5f12e3b3-f6d1-4fb3-aa50-5fb0249599b1</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>LogLevel</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>2</c:Position>
+        <c:Width>80</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>03d1b58b-4923-4fce-a554-c752dd881088</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Level</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>37668e17-234a-4fa7-aecf-a47377ea8dcf</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Thread</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>3981f415-2fff-4ef5-b7ee-e48098dcad7a</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>StackTrace</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>1c050321-efc7-4d7a-9060-fae6d7bbe670</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Host</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>9dcbc393-cd40-4cd4-9ca1-349e5179cff1</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>AdjustedTime</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>5</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>51326755-1535-4b37-b746-adceab305cfe</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Message</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>true</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>7</c:Position>
+        <c:Width>5000</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>c81f2306-f317-418c-a356-af3c8c1e6660</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Date</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>3</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>cc78764b-0e05-409d-9501-fc73cc1c0221</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Method</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>12bfbb4d-372d-4987-a947-6e4abcfd5df8</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>31b6d618-7b88-43f2-bab6-1cf127ba1eff</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Comment</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>f1bab374-f99c-42d3-a7db-387a929c0a8e</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>ProcessId</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>e812467e-9ffa-449a-bf33-a535d4a16b66</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Time</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>ff54580a-f0e8-43d6-97c1-3f5e7e3afbf2</c:Id>
+        <c:ClipMode>ClipMiddle</c:ClipMode>
+        <c:FieldName>Logger</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>true</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>9</c:Position>
+        <c:Width>3000</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>6d87b3b9-083d-4f40-bf13-91759cc2a6af</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>User</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>fb6cf75c-0391-4b58-b34b-c05f5343ba40</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>File</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>8c74337d-458b-459c-8a9d-6d2919b02c98</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Domain</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>9b0f69cc-3a1c-4ec3-8f32-9d1635b9e30a</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Line</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>5757d765-d0a7-44df-9eb8-e396f6430b17</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Class</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>f450f2af-c7ff-499f-a56c-7e7efe825995</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>UtcTime</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>ce570df2-7366-4a98-8a32-d0ff44135bf5</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>LogSource</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>1fb54b00-f130-424c-8618-032205ee1196</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Exception</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>28934fdb-9e1c-4419-b8c4-9f3b22205fb2</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>ThreadId</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>a0a63275-3731-4db6-aa91-46c284433361</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Source</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>d9d6bcc1-a9bf-4f8e-84c8-ff34b246f591</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>LogLevel</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>2</c:Position>
+        <c:Width>80</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>63a67dba-dcb0-4870-9a3d-0ccdb8756e83</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Level</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>f2e12e72-ab3e-4eab-8832-ba2723928261</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Thread</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>ca9fc844-518f-4601-89a4-25cdb3af3579</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>StackTrace</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>2cef03b5-b018-4c19-a863-25ea528e176f</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Host</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>20822d6b-5315-4af0-af00-1a6152938efd</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>AdjustedTime</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>5</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>6a25df25-f4c7-4168-b125-827bcdafd578</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Message</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>true</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>7</c:Position>
+        <c:Width>5000</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>c1b537fa-633e-4e58-9fff-28b5623e7f80</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Date</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>3</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+      <c:ColumnConfig>
+        <c:Id>24aee069-f22d-4336-9b27-52cac1ec5381</c:Id>
+        <c:ClipMode>ClipRight</c:ClipMode>
+        <c:FieldName>Method</c:FieldName>
+        <c:FixedStyle>None</c:FixedStyle>
+        <c:IsStar>false</c:IsStar>
+        <c:Name i:nil="true" />
+        <c:Position>-1</c:Position>
+        <c:Width>100</c:Width>
+        <c:WindowId>b6cbc02c-de3f-43a2-be40-09ed08e963bb</c:WindowId>
+      </c:ColumnConfig>
+    </c:_columns>
+    <c:_filters />
+    <c:_formats>
+      <c:LoggerFormatConfig>
+        <c:Id>d7da5f9a-284d-48b3-810b-1044e92a611e</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 0</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FFC8C8C8</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>10910436-213b-48ff-b287-58eebfbd4eb2</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 10000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FFB4B4B4</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>49a06228-d90f-4401-9546-5d650744c1fc</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 20000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FFA0A0A0</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>e86a22ac-86a6-4265-8e22-0986913db370</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 30000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FF8064A2</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>5e75ee8d-468f-48a5-8b5a-d14d4a484461</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 40000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FFF2F2F2</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>1631b5d9-66ea-4671-a7e6-9c79597aa15b</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 50000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FF397B39</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>f2645d92-fb11-4d92-903f-e6e942d0e8f8</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 60000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FFFF7F00</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>6cc369df-598a-429e-b04e-e844625dfb7e</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 70000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FFFF0000</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>398259b4-3c84-4c95-9b03-0bd3641a5550</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 80000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FFE3021F</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>44d82b03-c550-4a5b-848b-f9bcaf90f79a</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 90000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FFAB0E39</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>b3afe4a2-d8e4-4e17-a805-0edebf29b899</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#FFFF0000</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 100000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FFFFFFFF</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>09608880-1b92-47ff-80ee-76b97e526637</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 110000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FF8B2899</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+      <c:LoggerFormatConfig>
+        <c:Id>003f57f4-b871-47e1-ab68-9b1f18f3641b</c:Id>
+        <c:Active>true</c:Active>
+        <c:BackcolorString>#00FFFFFF</c:BackcolorString>
+        <c:Condition>[Level] &gt;= 120000</c:Condition>
+        <c:Description i:nil="true" />
+        <c:FontName>Segoe UI</c:FontName>
+        <c:FontSize>12</c:FontSize>
+        <c:ForecolorString>#FF76237D</c:ForecolorString>
+        <c:Italic>false</c:Italic>
+        <c:OpenTypeWeight>400</c:OpenTypeWeight>
+        <c:Underline>false</c:Underline>
+      </c:LoggerFormatConfig>
+    </c:_formats>
+    <c:_logLevels />
+    <c:_loggers />
+  </c:Presentation>
+  <c:Version>24</c:Version>
+</Config>
