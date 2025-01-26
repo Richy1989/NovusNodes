@@ -1,7 +1,14 @@
 .node {
     rx: 6px;
     stroke-width: 2px;
+    cursor: pointer;
 }
+
+/* When the node is being dragged
+.node:active {
+    cursor: grabbing;
+  }
+ */
 
 .button {
     fill: orange;

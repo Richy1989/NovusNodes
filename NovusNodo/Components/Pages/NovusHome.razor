@@ -32,7 +32,7 @@
                         {
                             @foreach (var tab in UserTabs)
                             {
-                                <MudTabPanel Text="@tab.Label" ShowCloseIcon="@tab.ShowCloseIcon">
+                                <MudTabPanel Text="@tab.Label" ID="tab.Id" ShowCloseIcon="@tab.ShowCloseIcon">
                                     <NodeCanvas TabID="@tab.Id.ToString()" CanvasReference="CanvasReference"></NodeCanvas>
                                 </MudTabPanel>
                             }
@@ -106,6 +106,7 @@
     /// </summary>
     void RestoreUserTabs()
     {
+        UserTabs.Clear();
         foreach (var tab in ExecutionManager.NodePages)
         {
             UserTabs.Add(new TabView { Id = new Guid(tab.Value.PageID), Label = tab.Value.PageName });
@@ -172,6 +173,7 @@
             await CanvasReference.InvokeVoidAsync("removeCanvasTab", panel.ID);
             ExecutionManager.RemoveTab(tabView.Id.ToString());
             UserTabs.Remove(tabView);
+            await OnTabIndexChanged();
             _stateHasChanged = true;
         }
     }

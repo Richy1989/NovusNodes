@@ -273,18 +273,27 @@ export class Node{
         let x = (this.x * transform.k + transform.x) / transform.k;
         let y = (this.y * transform.k + transform.y) / transform.k;
 
+        let updateNeeded = false;
         // Check boundaries
         if (x < 0) {
-            x = 0;
+            x = 40;
+            updateNeeded = true;
         }
         if (y < 0) {
-            y = 0;
+            y = 40;
+            updateNeeded = true;
         }
+
         if (x > this.canvas.width / transform.k) {
             x = this.canvas.width / transform.k;
         }
+
         if (y > this.canvas.height / transform.k) {
             y = this.canvas.height / transform.k;
+        }
+
+        if(updateNeeded) {
+            this.updatePosition(x, y);
         }
 
         if (this.x_old != this.x || this.y_old != this.y) {

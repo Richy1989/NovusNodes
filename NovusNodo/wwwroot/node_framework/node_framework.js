@@ -43,6 +43,10 @@ export function createCanvas(id, reference) {
  */
 export function removeCanvasTab(id) {
     console.log("Removing Canvas Tab " + id, canvasTabs[id]);
+    
+    if(canvasTabs[id] == null)
+        return;
+        
     canvasTabs[id].delete();
     delete canvasTabs[id];
 }
