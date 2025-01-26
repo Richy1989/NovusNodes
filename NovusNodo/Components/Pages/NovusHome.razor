@@ -107,9 +107,10 @@
     void RestoreUserTabs()
     {
         UserTabs.Clear();
+        int index = 1;
         foreach (var tab in ExecutionManager.NodePages)
         {
-            UserTabs.Add(new TabView { Id = new Guid(tab.Value.PageID), Label = tab.Value.PageName });
+            UserTabs.Add(new TabView { Id = new Guid(tab.Value.PageID), Label = tab.Value.PageName + $" {index++}" });
         }
         _stateHasChanged = true;
     }

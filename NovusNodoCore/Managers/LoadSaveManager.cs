@@ -82,67 +82,74 @@ namespace NovusNodoCore.Managers
         {
             _logger.LogInformation("Saving project...");
 
-            var page = _executionManager.NodePages.FirstOrDefault(x => x.Key == pageId);
+            //var page = _executionManager.NodePages.FirstOrDefault(x => x.Key == pageId);
 
-            PageSaveModel pageSaveModel = new()
-            {
-                PageId = page.Key,
-                PageName = page.Value.PageName,
-                Nodes = []
-            };
+            FlowModel flowModel = new();
 
-            foreach (var node in page.Value.AvailableNodes)
+            foreach (var page in _executionManager.NodePages)
             {
-                _logger.LogDebug($"Saving node: {node.Key}");
-                // Create a new nodeModel save model
-                var nodeSave = new NodeSaveModel
+                PageSaveModel pageSaveModel = new()
                 {
                     PageId = page.Key,
-                    NodeId = node.Key,
-                    InputPortId = node.Value.InputPort.Id,
-                    PluginBaseId = node.Value.PluginBase.Id,
-                    NodeConfig = node.Value.UIConfig.Clone(),
-                    ConnectedPorts = []
+                    PageName = page.Value.PageName,
+                    Nodes = []
                 };
 
-                // If we have a config type, serialize and add the config
-                if (node.Value.PluginIdAttribute.PluginConfigType != null)
+                foreach (var node in page.Value.AvailableNodes)
                 {
-                    using var memoryStream = new MemoryStream();
-                    await JsonSerializer.SerializeAsync(memoryStream, node.Value.PluginConfig, node.Value.PluginIdAttribute.PluginConfigType).ConfigureAwait(false);
-                    memoryStream.Position = 0;
-                    using var streamReader = new StreamReader(memoryStream);
-                    nodeSave.PluginConfig = await streamReader.ReadToEndAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    //Otherwise, just set the config as a string
-                    nodeSave.PluginConfig = node.Value.PluginConfig != null ? (string)node.Value.PluginConfig : null;
+                    _logger.LogDebug($"Saving node: {node.Key}");
+                    // Create a new nodeModel save model
+                    var nodeSave = new NodeSaveModel
+                    {
+                        PageId = page.Key,
+                        NodeId = node.Key,
+                        InputPortId = node.Value.InputPort.Id,
+                        PluginBaseId = node.Value.PluginBase.Id,
+                        NodeConfig = node.Value.UIConfig.Clone(),
+                        ConnectedPorts = []
+                    };
+
+                    // If we have a config type, serialize and add the config
+                    if (node.Value.PluginIdAttribute.PluginConfigType != null)
+                    {
+                        using var memoryStream = new MemoryStream();
+                        await JsonSerializer.SerializeAsync(memoryStream, node.Value.PluginConfig, node.Value.PluginIdAttribute.PluginConfigType).ConfigureAwait(false);
+                        memoryStream.Position = 0;
+                        using var streamReader = new StreamReader(memoryStream);
+                        nodeSave.PluginConfig = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        //Otherwise, just set the config as a string
+                        nodeSave.PluginConfig = node.Value.PluginConfig != null ? (string)node.Value.PluginConfig : null;
+                    }
+
+                    // Add the output ports
+                    foreach (var outputport in node.Value.OutputPorts)
+                    {
+                        nodeSave.OutputNodes.Add(outputport.Value.Id);
+                    }
+
+                    // Add the connected ports
+                    foreach (var outputPort in node.Value.InputPort.ConnectedOutputPort.Values)
+                    {
+                        nodeSave.ConnectedPorts.Add(new ConnectionModel { NodeId = outputPort.Node.Id, PortId = outputPort.Id });
+                    }
+
+                    // Add the node model to the page model
+                    pageSaveModel.Nodes.Add(nodeSave);
                 }
 
-                // Add the output ports
-                foreach (var outputport in node.Value.OutputPorts)
-                {
-                    nodeSave.OutputNodes.Add(outputport.Value.Id);
-                }
-
-                // Add the connected ports
-                foreach (var outputPort in node.Value.InputPort.ConnectedOutputPort.Values)
-                {
-                    nodeSave.ConnectedPorts.Add(new ConnectionModel { NodeId = outputPort.Node.Id, PortId = outputPort.Id });
-                }
-
-                // Add the node model to the page model
-                pageSaveModel.Nodes.Add(nodeSave);
+                flowModel.Pages.Add(pageSaveModel);
             }
 
-            var filePath = Path.Combine(saveDir, $"{page.Key}.json");
+            var filePath = Path.Combine(saveDir, $"project.json");
 
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
             using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                await JsonSerializer.SerializeAsync(fileStream, pageSaveModel).ConfigureAwait(false);
+                await JsonSerializer.SerializeAsync(fileStream, flowModel).ConfigureAwait(false);
             }
 
             _logger.LogInformation("Project saved successfully.");
@@ -155,29 +162,37 @@ namespace NovusNodoCore.Managers
         public async Task LoadProject()
         {
             List<PageSaveModel> pages = [];
-            foreach (var file in Directory.EnumerateFiles(saveDir, "*.json"))
+            //foreach (var file in Directory.EnumerateFiles(saveDir, "*.json"))
+            var file = Path.Combine(saveDir, $"project.json");
+
+            if (File.Exists(file))
             {
+
+
                 _logger.LogDebug($"Loading page file: {file}");
                 try
                 {
-                    PageSaveModel pageModel = null;
+                    FlowModel flowModel = null;
                     using FileStream fileStream = new(file, FileMode.Open, FileAccess.Read, FileShare.Read);
                     {
-                        pageModel = await JsonSerializer.DeserializeAsync<PageSaveModel>(fileStream).ConfigureAwait(false);
+                        flowModel = await JsonSerializer.DeserializeAsync<FlowModel>(fileStream).ConfigureAwait(false);
                     }
-                    if (pageModel != null)
+                    if (flowModel != null)
                     {
-                        await LoadPage(pageModel).ConfigureAwait(false);
-                        pages.Add(pageModel);
+                        foreach (var pageModel in flowModel.Pages)
+                        {
+                            await LoadPage(pageModel).ConfigureAwait(false);
+                            pages.Add(pageModel);
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"An error occurred while loading the page file: {file}.");
                 }
-            }
 
-            await LoadLinks(pages).ConfigureAwait(false);
+                await LoadLinks(pages).ConfigureAwait(false);
+            }
 
             if (_executionManager.NodePages.Count == 0)
             {
