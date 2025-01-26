@@ -29,8 +29,7 @@ namespace NovusNodoUIPlugins.NetFunctionNode
         public NetFunctionPlugin()
         {
             UIType = typeof(NetFunctionPluginUI);
-            StartIconPath = "cSharpIcon.png";
-
+            StartIconPath = "Logo_C_sharp.svg";
 
             PluginConfig =
 @"using System;

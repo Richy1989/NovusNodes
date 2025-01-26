@@ -32,9 +32,7 @@ export class Node{
         this.width = 120;
         this.height = 40;
 
-        this.iconWidth = this.height;
-        //this.endIconPath = "./pluginicons/NovusNodoUIPlugins/cSharpIcon.png";
-        //this.endIconPath = this.startIconPath;
+        this.iconWidth = this.height - 6;
 
         this.calculateWiddth();
         this.group = this.createNodeGroup();
@@ -74,21 +72,11 @@ export class Node{
 
         //Append the start icon
         if(this.startIconPath != null) {
-
-           /*  // Append an image inside the group
-            group.append('rect')
-                .attr('x', 5)   // Position of the image
-                .attr('y', 0)
-                .attr('width', this.height)  // Width of the image
-                .attr('height', this.height) // Height of the image
-                .attr('class', 'node-icon');    // Add a class for additional styling */
-
             // Append an image inside the group
             group.append('image')
-                .attr('x', 5)   // Position of the image
-                .attr('y', 0)
-                .attr('width', this.height)  // Width of the image
-                .attr('height', this.height) // Height of the image
+                .attr('x', 8)   // Position of the image
+                .attr('y', (this.height - this.iconWidth) / 2)
+                .attr('height', this.iconWidth) // Height of the image
                 .attr('href', this.startIconPath);    // Add a class for additional styling
         }
 
@@ -133,10 +121,8 @@ export class Node{
             this.endIcon = group.append('image')
                 .attr('x', this.width - this.iconWidth - 5)   // Position of the image
                 .attr('y', (this.height - this.iconWidth) / 2)
-                .attr('width', this.height)  // Width of the image
-                .attr('height', this.height) // Height of the image
+                .attr('height', this.iconWidth) // Height of the image
                 .attr('href', this.endIconPath)  // Path to the image file
-                .attr('class', 'node-icon');    // Add a class for additional styling
         }
 
         return group;
