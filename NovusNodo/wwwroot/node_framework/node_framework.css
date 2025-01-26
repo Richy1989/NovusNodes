@@ -16,6 +16,12 @@
     cursor: pointer;
 }
 
+.node-icon {
+    stroke-width: 0.5px;
+    rx: 4.5px;
+    fill: transparent;
+}
+
 .label {
     font-family: 'Roboto', sans-serif;
     font-size: 14px;

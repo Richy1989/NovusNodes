@@ -35,6 +35,9 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public PluginBase PluginBase { get; }
 
+        public string StartIconPath { get; set; } = null;
+        public string EndIconPath { get; set; } = null;
+
         /// <summary>
         /// Gets the plugin ID attribute.
         /// </summary>
@@ -123,6 +126,8 @@ namespace NovusNodoCore.NodeDefinition
             Func<string, JsonObject, Task> updateDebugFunction,
             CancellationToken token)
         {
+            _logger = logger;
+
             // Generate a new ID if none is provided, it is provided by load project
             Id = id ?? Guid.NewGuid().ToString();
 
@@ -134,7 +139,7 @@ namespace NovusNodoCore.NodeDefinition
             PluginIdAttribute = pluginIdAttribute;
             PluginBase = basedPlugin as PluginBase;
             PluginBase.UpdateDebugLog = updateDebugFunction;
-            _logger = logger;
+            
             this.token = token;
             this.nodeJSEnvironmentManager = nodeJSEnvironmentManager;
 
@@ -146,6 +151,12 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public void Init()
         {
+
+            if (PluginBase.StartIconPath != null)
+            {
+                StartIconPath = Path.Combine("pluginicons", this.PluginIdAttribute.AssemblyName, PluginBase.StartIconPath);
+            }
+
             PluginBase.Logger = _logger;
             PluginBase.ExecuteJavaScriptCodeCallback = ExecuteJavaScriptCode;
 

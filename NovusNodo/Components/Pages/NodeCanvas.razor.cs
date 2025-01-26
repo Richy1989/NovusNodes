@@ -213,7 +213,7 @@ namespace NovusNodo.Components.Pages
         private async Task NodesAdded(NodeBase node)
         {
             Logger.LogDebug($"Adding node {node.Id} to canvas {TabID}");
-            await CanvasReference.InvokeVoidAsync("createNode", [node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.X, node.UIConfig.Y, (double)node.NodeType]);
+            await CanvasReference.InvokeVoidAsync("createNode", [node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.X, node.UIConfig.Y, (double)node.NodeType, node.StartIconPath, node.EndIconPath]);
             await AddPorts(node);
         }
 

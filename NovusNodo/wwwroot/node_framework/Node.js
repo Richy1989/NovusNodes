@@ -10,12 +10,11 @@ export class Node{
      * @param {number} x - The initial x-coordinate of the node.
      * @param {number} y - The initial y-coordinate of the node.
      */
-    constructor(id, canvas, color, name, x, y, nodeType) {
+    constructor(id, canvas, color, name, x, y, nodeType, startIconPath = null, endIconPath = null) {
         this.svg = canvas.svg;
         this.canvas = canvas;
         this.id = id;
-        this.width = 120;
-        this.height = 40;
+
         this.name = name;
         this.color = color;
         this.x = x;
@@ -26,8 +25,19 @@ export class Node{
         this.offsetY = 0;
         this.nodeType = nodeType;
         this.isDragging = false;
-        this.group = this.createNodeGroup();
+        
+        this.startIconPath = startIconPath;
+        this.endIconPath = endIconPath;
 
+        this.width = 120;
+        this.height = 40;
+
+        this.iconWidth = this.height;
+        //this.endIconPath = "./pluginicons/NovusNodoUIPlugins/cSharpIcon.png";
+        //this.endIconPath = this.startIconPath;
+
+        this.calculateWiddth();
+        this.group = this.createNodeGroup();
         this.setLabelText(name);
     }
 
@@ -44,7 +54,7 @@ export class Node{
                 .on("drag", this.dragged.bind(this))
                 .on("end", this.dragEnded.bind(this)));
 
-
+        // Append the body rectangle to the group
         group.append("rect")
             .attr("id", this.id)
             .attr("class", "node")
@@ -62,9 +72,29 @@ export class Node{
                 this.onNodeBodyDoubleClick();
             });
 
+        //Append the start icon
+        if(this.startIconPath != null) {
+
+           /*  // Append an image inside the group
+            group.append('rect')
+                .attr('x', 5)   // Position of the image
+                .attr('y', 0)
+                .attr('width', this.height)  // Width of the image
+                .attr('height', this.height) // Height of the image
+                .attr('class', 'node-icon');    // Add a class for additional styling */
+
+            // Append an image inside the group
+            group.append('image')
+                .attr('x', 5)   // Position of the image
+                .attr('y', 0)
+                .attr('width', this.height)  // Width of the image
+                .attr('height', this.height) // Height of the image
+                .attr('href', this.startIconPath);    // Add a class for additional styling
+        }
+
+        //Append the injector button
         let node = this;
         if(this.nodeType == 1) {
-
             let buttonHeight =  this.height - 10;
             let buttonWidth =  30;
 
@@ -85,7 +115,9 @@ export class Node{
                 node.svg.node().dispatchEvent(moveEvent);
             });
         }
-            
+    
+        console.log(`Node width before label: ${this.width}`);
+        //Append the text label
         this.label = group.append("text")
         .attr("class", "label")
         .attr("x", this.width / 2)
@@ -93,7 +125,85 @@ export class Node{
         .attr("pointer-events", "none")
         .text(this.name);
 
+        this.calculateWiddth();
+
+        //Append the start icon
+        if(this.endIconPath != null) {
+            // Append an image inside the group
+            this.endIcon = group.append('image')
+                .attr('x', this.width - this.iconWidth - 5)   // Position of the image
+                .attr('y', (this.height - this.iconWidth) / 2)
+                .attr('width', this.height)  // Width of the image
+                .attr('height', this.height) // Height of the image
+                .attr('href', this.endIconPath)  // Path to the image file
+                .attr('class', 'node-icon');    // Add a class for additional styling
+        }
+
         return group;
+    }
+
+    calculateWiddth() {
+        let textWidth = 120;
+        if(this.label != null)
+            textWidth = this.label.node().getBBox().width;
+        
+        let multiplier = 0;
+        if(this.startIconPath != null)
+            multiplier++;
+        if(this.endIconPath != null)
+            multiplier++;
+
+        this.width = Math.max(120, textWidth + (this.iconWidth + 20) * multiplier + 20);
+    }
+
+      /**
+     * Updates the dimensions of the node and moved the port positions accordingly.
+     */
+    /**
+     * Updates the dimensions of the node by recalculating its width and adjusting the positions of its elements.
+     * 
+     * This method performs the following actions:
+     * 1. Recalculates the width of the node.
+     * 2. Updates the width attribute of the rectangle representing the node.
+     * 3. Adjusts the x-coordinate of the label based on the presence of start and end icons.
+     * 4. Updates the position of the output port if it exists.
+     * 
+     * @method updateNodeDimensions
+     */
+      updateNodeDimensions() {
+        this.calculateWiddth();
+        this.group.select("rect.node").attr("width", this.width);
+        
+        let isStartIcon = 0;
+        if(this.startIconPath != null)
+            isStartIcon = 1;
+
+        let isEndIcon = 0;
+        if(this.endIconPath != null)
+            isEndIcon = 1;
+
+        let xcoord = this.iconWidth * isStartIcon + (this.width - this.iconWidth * isStartIcon - this.iconWidth * isEndIcon) / 2;
+
+        this.label.attr("x", xcoord);
+        if(this.endIcon != null)
+            this.endIcon.attr("x", this.width - this.iconWidth - 5);
+        
+        if(this.outputPort != null) {
+            this.outputPort.updatePortPosition();
+        }
+
+        if (this.outputPort) {
+            this.outputPort.dragLinks();
+        }
+    }
+
+    /**
+     * Sets the text of the label and resizes the node if necessary.
+     * @param {string} text - The text to set.
+     */
+    setLabelText(text) {
+        this.label.text(text);
+        this.updateNodeDimensions();
     }
 
     setEnabled(enabled) {
@@ -132,31 +242,6 @@ export class Node{
 
     markAsSelected() {
         this.svg.select('[id=\"' + this.id + '\"]').attr("stroke", "orange");
-    }
-
-    /**
-     * Sets the text of the label and resizes the node if necessary.
-     * @param {string} text - The text to set.
-     */
-    setLabelText(text) {
-        this.label.text(text);
-        const textWidth = this.label.node().getBBox().width;
-        if (textWidth > this.width) {
-            this.width = textWidth + 20; // Add some padding
-            this.updateNodeDimensions();
-        }
-    }
-
-    /**
-     * Updates the dimensions of the node and moved the port positions accordingly.
-     */
-    updateNodeDimensions() {
-        this.group.select("rect.node").attr("width", this.width);
-        this.label.attr("x", this.width / 2);
-        
-        if(this.outputPort != null) {
-            this.outputPort.updatePortPosition();
-        }
     }
 
     /**

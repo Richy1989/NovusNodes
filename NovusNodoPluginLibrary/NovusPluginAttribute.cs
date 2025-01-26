@@ -3,6 +3,7 @@
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
     public class NovusPluginAttribute : Attribute
     {
+        public string AssemblyName { get; set; }
         /// <summary>
         /// The plugin configuration type./ Will be set when the plugin is loaded
         /// </summary> 

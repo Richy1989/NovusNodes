@@ -68,7 +68,20 @@
     </c:PlaySoundLogLevel>
     <c:SaveOnExit>true</c:SaveOnExit>
     <c:Version>24</c:Version>
-    <c:_charts />
+    <c:_charts>
+      <c:ChartConfig>
+        <c:Id>83548419-e40f-49c0-a0b1-552c9e431f14</c:Id>
+        <c:ChartType>Frequency</c:ChartType>
+        <c:FieldName>Message</c:FieldName>
+        <c:IncludeChildren>false</c:IncludeChildren>
+        <c:Logger>
+          <s:_x003C_FullName_x003E_k__BackingField>NovusNodoCore.NodeDefinition.INodeBase</s:_x003C_FullName_x003E_k__BackingField>
+          <s:_x003C_ReceiverId_x003E_k__BackingField>50ede3d2-88d4-4d96-a2a2-67fa7b046e16</s:_x003C_ReceiverId_x003E_k__BackingField>
+        </c:Logger>
+        <c:Name>INodeBase</c:Name>
+        <c:ReceiverId>50ede3d2-88d4-4d96-a2a2-67fa7b046e16</c:ReceiverId>
+      </c:ChartConfig>
+    </c:_charts>
     <c:_columns>
       <c:ColumnConfig>
         <c:Id>10f318b0-f0d9-45a4-908c-8a3cd99b14f0</c:Id>

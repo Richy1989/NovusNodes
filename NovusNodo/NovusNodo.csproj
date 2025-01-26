@@ -1,55 +1,63 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>disable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+	<TargetFramework>net9.0</TargetFramework>
+	<Nullable>disable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="plugins\**" />
-    <Compile Remove="wwwroot\_content\**" />
-    <Content Remove="plugins\**" />
-    <Content Remove="wwwroot\_content\**" />
-    <EmbeddedResource Remove="plugins\**" />
-    <EmbeddedResource Remove="wwwroot\_content\**" />
-    <None Remove="plugins\**" />
-    <None Remove="wwwroot\_content\**" />
+	<Compile Remove="plugins\**" />
+	<Compile Remove="wwwroot\_content\**" />
+	<Compile Remove="wwwroot\pluginicons\**" />
+	  
+	<Content Remove="plugins\**" />
+	<Content Remove="wwwroot\_content\**" />
+	<Content Remove="wwwroot\pluginicons\**" />
+	
+	<EmbeddedResource Remove="plugins\**" />
+	<EmbeddedResource Remove="wwwroot\_content\**" />
+	<EmbeddedResource Remove="wwwroot\pluginicons\**" />
+	
+	<None Remove="plugins\**" />
+	<None Remove="wwwroot\_content\**" />
+	<None Remove="wwwroot\pluginicons\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="Components\Pages\Node.razor" />
+	<Content Remove="Components\Pages\Node.razor" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Components\Pages\Node.razor.css" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <PackageReference Include="Blazor.JsonEditor" Version="1.1.0" />
-    <PackageReference Include="McMaster.NETCore.Plugins" Version="2.0.0" />
-    <PackageReference Include="McMaster.NETCore.Plugins.Mvc" Version="2.0.0" />
-    <PackageReference Include="MudBlazor" Version="8.0.0" />
-    <PackageReference Include="NLog" Version="5.3.4" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.15" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.15" />
+	<None Remove="Components\Pages\Node.razor.css" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <ProjectReference Include="..\NovusNodoCore\NovusNodoCore.csproj" />
-    <ProjectReference Include="..\NovusNodoPluginLibrary\NovusNodoPluginLibrary.csproj" />
+	<PackageReference Include="Blazor.JsonEditor" Version="1.1.0" />
+	<PackageReference Include="McMaster.NETCore.Plugins" Version="2.0.0" />
+	<PackageReference Include="McMaster.NETCore.Plugins.Mvc" Version="2.0.0" />
+	<PackageReference Include="MudBlazor" Version="8.0.0" />
+	<PackageReference Include="NLog" Version="5.3.4" />
+	<PackageReference Include="NLog.Extensions.Logging" Version="5.3.15" />
+	<PackageReference Include="NLog.Web.AspNetCore" Version="5.3.15" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <Folder Include="wwwroot\fonts\" />
+	<ProjectReference Include="..\NovusNodoCore\NovusNodoCore.csproj" />
+	<ProjectReference Include="..\NovusNodoPluginLibrary\NovusNodoPluginLibrary.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+	<Folder Include="wwwroot\fonts\" />
   </ItemGroup>
 
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="if exist &quot;$(ProjectDir)wwwroot\_content&quot; rmdir /S /Q &quot;$(ProjectDir)wwwroot\_content&quot;" />
+	<Exec Command="if exist &quot;$(ProjectDir)wwwroot\_content&quot; rmdir /S /Q &quot;$(ProjectDir)wwwroot\_content&quot;" />
+	<Exec Command="if exist &quot;$(ProjectDir)wwwroot\pluginicons&quot; rmdir /S /Q &quot;$(ProjectDir)wwwroot\pluginicons&quot;" />
   </Target>
 
 </Project>

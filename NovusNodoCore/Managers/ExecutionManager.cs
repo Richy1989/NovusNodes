@@ -239,6 +239,7 @@ namespace NovusNodoCore.Managers
                     // Find the configuration type for the plugin if available
                     var pluginConfigType = FindConfigType(type);
                     baseAttribute.PluginConfigType = pluginConfigType;
+                    baseAttribute.AssemblyName = assembly.GetName().Name;
 
                     AvailablePlugins.Add(baseAttribute.Id, (type, baseAttribute));
                 }

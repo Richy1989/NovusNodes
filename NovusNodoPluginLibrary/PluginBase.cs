@@ -11,6 +11,21 @@ namespace NovusNodoPluginLibrary
     public abstract class PluginBase : IPluginBase
     {
         /// <summary>
+        /// Gets or sets the unique identifier for the plugin.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the path to the start icon.
+        /// </summary>
+        public string StartIconPath { get; set; } = null;
+
+        /// <summary>
+        /// Gets or sets the path to the end icon.
+        /// </summary>
+        public string EndIconPath { get; set; } = null;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PluginBase"/> class.
         /// </summary>
         public PluginBase()
@@ -21,11 +36,6 @@ namespace NovusNodoPluginLibrary
             NovusPluginAttribute attribute = (NovusPluginAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(NovusPluginAttribute));
             Id = attribute.Id;
         }
-
-        /// <summary>
-        /// Gets or sets the unique identifier for the plugin.
-        /// </summary>
-        public string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the function to save settings asynchronously.

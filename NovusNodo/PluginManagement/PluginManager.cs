@@ -89,9 +89,9 @@ namespace NovusNodo.PluginManagement
         public static IServiceCollection LoadStaticFilesOfPlugins(this IServiceCollection services)
         {
             var executingDir = Directory.GetCurrentDirectory();
-            foreach (var pluginDirs in Directory.GetDirectories(PluginPath))
+            foreach (var pluginDir in Directory.GetDirectories(PluginPath))
             {
-                var staticFileDir = Directory.GetDirectories(pluginDirs, "wwwroot");
+                var staticFileDir = Directory.GetDirectories(pluginDir, "wwwroot");
 
                 if (staticFileDir.Length > 0)
                 {
@@ -120,6 +120,14 @@ namespace NovusNodo.PluginManagement
                             string fileName = Path.GetFileName(Path.TrimEndingDirectorySeparator(filePath));
                             File.Copy(filePath, Path.Combine(localwwwRootPath, fileName), true); // Overwrite if exists
                         }
+                    }
+
+                    var iconFilesPath = Path.Combine(staticFileDir[0], "icons");
+                    var iconDestinationPath = Path.Combine(executingDir, "wwwroot", "pluginicons", Path.GetFileName(pluginDir));
+                    Directory.CreateDirectory(iconDestinationPath);
+                    foreach (var iconFile in Directory.GetFiles(iconFilesPath))
+                    {
+                        File.Copy(iconFile, Path.Combine(iconDestinationPath, Path.GetFileName(iconFile)), true);
                     }
                 }
             }
