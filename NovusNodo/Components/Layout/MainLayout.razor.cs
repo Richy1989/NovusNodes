@@ -28,7 +28,7 @@ namespace NovusNodo.Components.Layout
                 LayoutProperties = new LayoutProperties()
             };
 
-            ExecutionManager.ProjectChanged += ExecutionManager_OnProjectChanged;
+            ExecutionManager.OnProjectChanged += ExecutionManager_OnProjectChanged;
             ExecutionManager.OnProjectSaved += ExecutionManager_OnProjectSaved;
         }
 
@@ -156,7 +156,7 @@ namespace NovusNodo.Components.Layout
             {
                 if (disposing)
                 {
-                    ExecutionManager.ProjectChanged -= ExecutionManager_OnProjectChanged;
+                    ExecutionManager.OnProjectChanged -= ExecutionManager_OnProjectChanged;
                     ExecutionManager.OnProjectSaved -= ExecutionManager_OnProjectSaved;
                     novusUIManagementRef?.Dispose();
                 }

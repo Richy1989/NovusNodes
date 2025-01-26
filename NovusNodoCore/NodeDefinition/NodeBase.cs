@@ -21,6 +21,7 @@ namespace NovusNodoCore.NodeDefinition
         private readonly CancellationToken token;
         private readonly ExecutionManager executionManager;
         private readonly NodeJSEnvironmentManager nodeJSEnvironmentManager;
+        private NodePageManager nodePageManager;
 
         /// <summary>
         /// Gets or sets the callback for executing JavaScript code.
@@ -35,7 +36,14 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public PluginBase PluginBase { get; }
 
+        /// <summary>
+        /// Gets or sets the path to the start icon.
+        /// </summary>
         public string StartIconPath { get; set; } = null;
+
+        /// <summary>
+        /// Gets or sets the path to the end icon.
+        /// </summary>
         public string EndIconPath { get; set; } = null;
 
         /// <summary>
@@ -109,19 +117,22 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Initializes a new instance of the <see cref="NodeBase"/> class.
         /// </summary>
+        /// <param name="logger">The logger instance.</param>
+        /// <param name="id">The unique identifier for the node.</param>
         /// <param name="basedPlugin">The plugin base instance.</param>
         /// <param name="executionManager">The execution manager instance.</param>
         /// <param name="pluginIdAttribute">The plugin ID attribute.</param>
-        /// <param name="logger">The logger instance.</param>
+        /// <param name="nodePageManager">The node page manager instance.</param>
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager instance.</param>
         /// <param name="updateDebugFunction">The function to update the debug log.</param>
-        /// <param name="token">The cancellation Token.</param>
+        /// <param name="token">The cancellation token.</param>
         public NodeBase(
+            ILogger<INodeBase> logger,
             string id,
             IPluginBase basedPlugin,
             ExecutionManager executionManager,
             NovusPluginAttribute pluginIdAttribute,
-            ILogger<INodeBase> logger,
+            NodePageManager nodePageManager,
             NodeJSEnvironmentManager nodeJSEnvironmentManager,
             Func<string, JsonObject, Task> updateDebugFunction,
             CancellationToken token)
@@ -134,12 +145,13 @@ namespace NovusNodoCore.NodeDefinition
             UIConfig = new NodeUIConfig();
             UIConfig.PropertyChanged += (sender, e) => OnPropertyChanged(e.PropertyName);
 
+            this.nodePageManager = nodePageManager;
             this.executionManager = executionManager;
             Name = pluginIdAttribute.Name;
             PluginIdAttribute = pluginIdAttribute;
             PluginBase = basedPlugin as PluginBase;
             PluginBase.UpdateDebugLog = updateDebugFunction;
-            
+
             this.token = token;
             this.nodeJSEnvironmentManager = nodeJSEnvironmentManager;
 
@@ -151,7 +163,6 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public void Init()
         {
-
             if (PluginBase.StartIconPath != null)
             {
                 StartIconPath = Path.Combine("pluginicons", this.PluginIdAttribute.AssemblyName, PluginBase.StartIconPath);
@@ -167,17 +178,18 @@ namespace NovusNodoCore.NodeDefinition
                 PluginBase.StarterNodeTriggered = async () =>
                 {
                     if (UIConfig.IsEnabled && executionManager.IsExecutionAllowed)
-                        await ExecuteNode(new JsonObject()).ConfigureAwait(false);
+                        await ExecuteNode([]).ConfigureAwait(false);
                 };
             }
         }
 
-
-
+        /// <summary>
+        /// Creates the input and output ports for the node.
+        /// </summary>
         public void CreatePorts()
         {
             CreateInputPort();
-            
+
             OutputPorts = new Dictionary<string, OutputPort>();
 
             for (int i = 0; i < PluginBase.WorkTasks.Count; i++)
@@ -186,13 +198,21 @@ namespace NovusNodoCore.NodeDefinition
             }
         }
 
+        /// <summary>
+        /// Creates the input port for the node.
+        /// </summary>
+        /// <param name="id">The unique identifier for the input port.</param>
         public void CreateInputPort(string id = null)
         {
             InputPort = new InputPort(this);
-            if(id != null)
+            if (id != null)
                 InputPort.Id = id;
         }
 
+        /// <summary>
+        /// Adds an output port to the node.
+        /// </summary>
+        /// <param name="id">The unique identifier for the output port.</param>
         public void AddOutputPort(string id = null)
         {
             var outputPort = new OutputPort(this);
@@ -214,7 +234,14 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets the function to save settings.
         /// </summary>
-        public Func<Task> SaveSettings { get => PluginBase.SaveSettings; set => PluginBase.SaveSettings = value; }
+        public async Task SaveSettings()
+        {
+            //Trigger the plugin to save its settings
+            await PluginBase.SaveSettings().ConfigureAwait(false);
+
+            //Notify that the project has changed!
+            await executionManager.NodePage_OnPageDataChanged(nodePageManager.PageID).ConfigureAwait(false);
+        }
 
         /// <summary>
         /// Executes the node's workload if the node is enabled, and then triggers the execution of the next nodes.
@@ -226,6 +253,7 @@ namespace NovusNodoCore.NodeDefinition
             if (!UIConfig.IsEnabled) return;
 
             autoResetEvent.WaitOne();
+
             // Execute all work tasks from the plugin
             // Then trigger all the connected nodes from the according output port
             int i = 0;

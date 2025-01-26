@@ -18,7 +18,7 @@ namespace NovusNodo.Management
 
         public event Func<bool, Task> OnNodeEnabledChanged;
 
-        public INodeBase CurrentlySelectedNode { get; set; }
+        public NodeBase CurrentlySelectedNode { get; set; }
         public string CurrentlyOpenedPage { get; set; }
 
         private readonly ILogger<NovusUIManagement> Logger;

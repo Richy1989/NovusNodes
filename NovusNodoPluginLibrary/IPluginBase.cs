@@ -14,11 +14,6 @@ namespace NovusNodoPluginLibrary
         string Id { get; }
 
         /// <summary>
-        /// Gets or sets the function to save settings asynchronously.
-        /// </summary>
-        Func<Task> SaveSettings { get; set; }
-
-        /// <summary>
         /// Gets or sets the type of the UIType component associated with the plugin.
         /// </summary>
         Type UIType { get; set; }

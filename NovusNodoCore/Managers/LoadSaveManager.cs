@@ -23,7 +23,7 @@ namespace NovusNodoCore.Managers
         {
             _logger = logger;
             _executionManager = executionManager;
-            _executionManager.ProjectChanged += async (id) =>
+            _executionManager.OnProjectChanged += async (id) =>
             {
                 if (_executionManager.IsAutoSaveEnabled)
                     await SaveProject(id).ConfigureAwait(false);

@@ -99,7 +99,7 @@ namespace NovusNodoCore.Managers
             if (plugin != null)
             {
                 Logger<INodeBase> logger = (Logger<INodeBase>)loggerFactory.CreateLogger<INodeBase>();
-                NodeBase node = new(id, plugin, executionManager, attribute, logger, NodeJSEnvironmentManager, DebugLogChanged, Token);
+                NodeBase node = new(logger, id, plugin, executionManager, attribute, this, NodeJSEnvironmentManager, DebugLogChanged, Token);
                 AvailableNodes.Add(node.Id, node);
                 await OnAvailableNodesUpdated(node).ConfigureAwait(false);
 

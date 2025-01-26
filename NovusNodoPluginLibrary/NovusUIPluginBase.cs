@@ -15,7 +15,7 @@ namespace NovusNodoPluginLibrary
         /// Gets or sets the base plugin instance.
         /// </summary>
         [Parameter]
-        public IPluginBase PluginBase { get; set; }
+        public PluginBase PluginBase { get; set; }
 
         // To detect redundant calls
         protected bool DisposedValue { get; set; }

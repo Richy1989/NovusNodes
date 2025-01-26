@@ -35,7 +35,7 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Event fired when the project is changed, to trigger a save file.
         /// </summary>
-        public event Func<string, Task> ProjectChanged;
+        public event Func<string, Task> OnProjectChanged;
 
         public event Func<Task> OnManualSaveTrigger;
 
@@ -108,7 +108,7 @@ namespace NovusNodoCore.Managers
             DebugWindowLogger.NewDebugLog += ExecutionManager_NewDebugLog;
 
             // Subscribe to the project changed event of this class to update the ProjectDataSynced property.
-            this.ProjectChanged += ExecutionManager_ProjectChanged;
+            this.OnProjectChanged += ExecutionManager_ProjectChanged;
         }
 
         /// <summary>
@@ -154,8 +154,8 @@ namespace NovusNodoCore.Managers
             NodePages.Add(nodePage.PageID, nodePage);
             OnPageChanged?.Invoke(PageAction.Added, nodePage.PageID);
 
-            if (ProjectChanged != null && !isStartup)
-                await ProjectChanged.Invoke(nodePage.PageID).ConfigureAwait(false);
+            if (OnProjectChanged != null && !isStartup)
+                await OnProjectChanged.Invoke(nodePage.PageID).ConfigureAwait(false);
 
             return nodePage;
         }
@@ -166,8 +166,8 @@ namespace NovusNodoCore.Managers
         /// <param name="pageId">The ID of the page that was changed.</param>
         public async Task NodePage_OnPageDataChanged(string pageId)
         {
-            if (ProjectChanged != null)
-                await ProjectChanged.Invoke(pageId).ConfigureAwait(false);
+            if (OnProjectChanged != null)
+                await OnProjectChanged.Invoke(pageId).ConfigureAwait(false);
         }
 
         /// <summary>
