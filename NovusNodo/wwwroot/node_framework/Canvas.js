@@ -48,6 +48,7 @@ export class Canvas {
 
     setRasterSize(size) { 
         this.rasterSize = size;
+        this.drawGrid();
     }
 
     getLinkColor() {
@@ -55,7 +56,7 @@ export class Canvas {
     }
 
     getNodeStrokeColor() {
-        return this.isDarkMode ? "#666" : "black";
+        return this.isDarkMode ? "#666" : "#A9A9A9";
     }
 
     getBackgroundColor() {
@@ -91,46 +92,20 @@ export class Canvas {
         const canvas = this;
         
         this.CanvasZoom = new CanvasZoom(this);
-
-        /* const zoom = d3.zoom()
-                .scaleExtent([0.5, 32])
-                .translateExtent([[0, 0], [canvas.width, canvas.height]])
-                .extent([[0, 0], [canvas.width, canvas.height]])
-                .wheelDelta((e) => {
-                    console.log("Wheel delta", e);
-                    return -e.deltaY * (e.deltaMode ? 120 : 1) / 1500;
-                }).on("zoom", (e) => {
-
-                if (e.sourceEvent && e.sourceEvent.shiftKey) {
-                    const transform = e.transform;
-                    canvas.nodeGroup.attr('transform', transform);
-                    canvas.linkGroup.attr('transform', transform);
-                    canvas.this.CanvasZoom.currentTransformation = transform;
-                    console.log("Zooming", e);
-                }
-
-                //Prevent browser zoom when min / max zoom is reached
-                e.sourceEvent.preventDefault();
-                e.sourceEvent.stopImmediatePropagation();
-        });
-
-        //d3.select("#main_container").call(zoom);
-        d3.select('[id=\"' + this.id + '\"]').call(zoom); */
         return localSVG;
-    }
-
-    createZoon(){
-
-
     }
 
     //Draws a grid on the canvas
     drawGrid() {
+        //ToDo: Not sure if we need to change that with raster size.
+        let spacing = 20;
+        if (spacing < 5) {
+            spacing = 5;
+        }
 
         // Grid configuration
-        const rows = Math.ceil(this.height / 20);
-        const cols = Math.ceil(this.width / 20);
-        const spacing = 20; // Distance between dots
+        const rows = Math.ceil(this.height / spacing);
+        const cols = Math.ceil(this.width / spacing);
         const dotRadius = 0.5;
 
         // Generate grid data

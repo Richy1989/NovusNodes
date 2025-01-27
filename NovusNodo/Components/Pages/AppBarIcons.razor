@@ -26,20 +26,25 @@
 </MudPaper>
 
 @code {
-
-
+    /// <summary>
+    /// Handles the event when the slider value changes.
+    /// </summary>
+    /// <param name="value">The new value of the slider.</param>
     private async Task OnSliderValueChanged(int value)
     {
         await NovusUIManagement.ChangeCanvasRasterSize(value);
     }
 
+    /// <summary>
+    /// Toggles the auto-save feature.
+    /// </summary>
     private void OnAutoSaveToggle()
     {
         ExecutionManager.IsAutoSaveEnabled = !ExecutionManager.IsAutoSaveEnabled;
     }
 
     /// <summary>
-    /// Gets the color for the play pause toggle button.
+    /// Gets the color for the auto-save toggle button.
     /// </summary>
     public Color AutoSaveColor => ExecutionManager.IsAutoSaveEnabled switch
     {
@@ -47,6 +52,9 @@
         false => Color.Warning,
     };
 
+    /// <summary>
+    /// Gets the icon for the auto-save toggle button.
+    /// </summary>
     public string AutoSaveIcon => ExecutionManager.IsAutoSaveEnabled switch
     {
         true => Icons.Material.Rounded.AutoAwesome,
@@ -54,7 +62,7 @@
     };
 
     /// <summary>
-    /// Toggles the play pause variable.
+    /// Toggles the play/pause execution state.
     /// </summary>
     private void PlayPauseButtonIconToggle()
     {
@@ -62,7 +70,7 @@
     }
 
     /// <summary>
-    /// Gets the icon for the play pause toggle button.
+    /// Gets the icon for the play/pause toggle button.
     /// </summary>
     public string PlayPauseButtonIcon => ExecutionManager.IsExecutionAllowed switch
     {
@@ -71,7 +79,7 @@
     };
 
     /// <summary>
-    /// Gets the color for the play pause toggle button.
+    /// Gets the color for the play/pause toggle button.
     /// </summary>
     public Color PlayPauseButtonColor => ExecutionManager.IsExecutionAllowed switch
     {
@@ -79,21 +87,27 @@
         false => Color.Tertiary,
     };
 
-    public String PlayPauseButtonToolTip => ExecutionManager.IsExecutionAllowed switch
+    /// <summary>
+    /// Gets the tooltip text for the play/pause toggle button.
+    /// </summary>
+    public string PlayPauseButtonToolTip => ExecutionManager.IsExecutionAllowed switch
     {
         true => "Stop Execution",
         false => "Start Execution",
     };
 
     /// <summary>
-    /// Toggles the line style variable.
+    /// Toggles the line style between linear and Bezier curve.
     /// </summary>
     private void LineStyleToggle()
     {
         ExecutionManager.UseBezierCurve = !ExecutionManager.UseBezierCurve;
     }
 
-    public String LineStyleToolTip => ExecutionManager.UseBezierCurve switch
+    /// <summary>
+    /// Gets the tooltip text for the line style toggle button.
+    /// </summary>
+    public string LineStyleToolTip => ExecutionManager.UseBezierCurve switch
     {
         true => "Linear Link",
         false => "Bezier Curve Link",
@@ -108,6 +122,9 @@
         false => "fa-solid fa-bezier-curve",
     };
 
+    /// <summary>
+    /// Resets the zoom level.
+    /// </summary>
     private async Task ResetZoomToggle()
     {
         await NovusUIManagement.ResetZoom();

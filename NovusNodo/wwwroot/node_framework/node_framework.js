@@ -64,6 +64,14 @@ export function setDarkMode(isInDarkMode) {
     });
 }
 
+/**
+ * Sets the raster size for the canvas.
+ *
+ * This function updates the raster size for all canvas tabs. If no canvas tab is selected,
+ * it logs a message and returns without making any changes.
+ *
+ * @param {number} rasterSize - The new raster size to be set for the canvas.
+ */
 export function setCanvasRasterSize(rasterSize) {
     if (selectedPaperTabId == null) {
         console.log("No Canvas Tab Selected");

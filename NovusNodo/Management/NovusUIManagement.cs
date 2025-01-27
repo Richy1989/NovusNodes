@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 using MudBlazor;
 using NovusNodo.Components.Pages;
 using NovusNodoCore.Managers;
@@ -12,16 +11,39 @@ namespace NovusNodo.Management
     /// </summary>
     public class NovusUIManagement : IDisposable
     {
+        /// <summary>
+        /// Occurs when the node name is changed.
+        /// </summary>
         public event Func<string, string, string, Task> OnNodeNameChanged;
 
+        /// <summary>
+        /// Occurs when the zoom is reset.
+        /// </summary>
         public event Func<Task> OnResetZoom;
 
+        /// <summary>
+        /// Occurs when the node enabled state is changed.
+        /// </summary>
         public event Func<bool, Task> OnNodeEnabledChanged;
+
+        /// <summary>
+        /// Occurs when the canvas raster size is changed.
+        /// </summary>
         public event Func<Task> OnCanvasRasterSizeChanged;
 
+        /// <summary>
+        /// Gets or sets the raster size.
+        /// </summary>
         public int RasterSize { get; set; } = 30;
 
+        /// <summary>
+        /// Gets or sets the currently selected node.
+        /// </summary>
         public NodeBase CurrentlySelectedNode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the currently opened page.
+        /// </summary>
         public string CurrentlyOpenedPage { get; set; }
 
         private readonly ILogger<NovusUIManagement> Logger;
@@ -29,6 +51,7 @@ namespace NovusNodo.Management
         /// <summary>
         /// Initializes a new instance of the <see cref="NovusUIManagement"/> class with the specified execution manager.
         /// </summary>
+        /// <param name="logger">The logger instance.</param>
         /// <param name="executionManager">The execution manager.</param>
         public NovusUIManagement(ILogger<NovusUIManagement> logger, ExecutionManager executionManager)
         {
@@ -71,6 +94,10 @@ namespace NovusNodo.Management
         ///   <c>true</c> if dark mode is enabled; otherwise, <c>false</c>.
         /// </value>
         public bool isDarkMode { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the dark mode is enabled.
+        /// </summary>
         public bool IsDarkMode
         {
             get
@@ -88,9 +115,13 @@ namespace NovusNodo.Management
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the drawer settings are open.
+        /// Gets or sets a value indicating whether the settings drawer is open.
         /// </summary>
         public bool SettingsDrawerOpen { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the drawer is open.
+        /// </summary>
         public bool DrawerOpen { get; set; } = true;
 
         /// <summary>
@@ -138,6 +169,10 @@ namespace NovusNodo.Management
             OverlayLight = "#1e1e2d80",
         };
 
+        /// <summary>
+        /// Gets the current palette based on the dark mode setting.
+        /// </summary>
+        /// <returns>The current palette.</returns>
         public Palette GetCurrentPalette()
         {
             if (IsDarkMode)
@@ -168,6 +203,7 @@ namespace NovusNodo.Management
         /// <summary>
         /// Handles the node double-click event from JavaScript.
         /// </summary>
+        /// <param name="pageid">The ID of the page.</param>
         /// <param name="id">The ID of the node.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task NodeDoubleClicked(string pageid, string id)
@@ -182,10 +218,15 @@ namespace NovusNodo.Management
             await OnNodeDoubleClicked(CurrentlySelectedNode);
         }
 
+        /// <summary>
+        /// Handles the node enabled state change event.
+        /// </summary>
+        /// <param name="isEnabled">Indicates whether the node is enabled.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task NodeEnabledChanged(bool isEnabled)
         {
-            CurrentlySelectedNode.UIConfig.IsEnabled = isEnabled;   
-           
+            CurrentlySelectedNode.UIConfig.IsEnabled = isEnabled;
+
             if (OnNodeEnabledChanged != null)
             {
                 await OnNodeEnabledChanged.Invoke(isEnabled).ConfigureAwait(false);
@@ -195,12 +236,19 @@ namespace NovusNodo.Management
         /// <summary>
         /// Changes the name of the currently selected node.
         /// </summary>
+        /// <param name="newName">The new name of the node.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ChangeNodeLabelName(string newName)
         {
             await OnNodeNameChanged?.Invoke(CurrentlyOpenedPage, CurrentlySelectedNode.Id, newName);
             CurrentlySelectedNode.Name = newName;
         }
 
+        /// <summary>
+        /// Changes the canvas raster size.
+        /// </summary>
+        /// <param name="newSize">The new raster size.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ChangeCanvasRasterSize(int newSize)
         {
             RasterSize = newSize;
@@ -210,6 +258,10 @@ namespace NovusNodo.Management
             }
         }
 
+        /// <summary>
+        /// Resets the zoom.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ResetZoom()
         {
             if (OnResetZoom != null)
