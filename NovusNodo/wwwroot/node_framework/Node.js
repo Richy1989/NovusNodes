@@ -72,14 +72,7 @@ export class Node{
 
         //Append the start icon
         if(this.startIconPath != null) {
-            // Append an image inside the group
-            group.append('image')
-                .attr('x', 8)   // Position of the image
-                .attr('y', (this.height - this.iconWidth) / 2)
-                .attr('width', this.iconWidth) // Width of the image
-                .attr('height', this.iconWidth) // Height of the image
-                .attr("pointer-events", "none")
-                .attr('href', this.startIconPath);    // Add a class for additional styling
+            this.createIconGroup(group, this.startIconPath, true);
         }
 
         //Append the injector button
@@ -119,19 +112,70 @@ export class Node{
 
         //Append the start icon
         if(this.endIconPath != null) {
-            // Append an image inside the group
-            this.endIcon = group.append('image')
-                .attr('x', this.width - this.iconWidth - 5)   // Position of the image
-                .attr('y', (this.height - this.iconWidth) / 2)
-                .attr('width', this.iconWidth) // Width of the image
-                .attr('height', this.iconWidth) // Height of the image
-                .attr("pointer-events", "none")
-                .attr('href', this.endIconPath)  // Path to the image file
+          this.endIcon = this.createIconGroup(group, this.endIconPath, false);
         }
 
         return group;
     }
 
+    //Append the start and end icons
+    createIconGroup(group, iconPath, isStartIcon)
+    {
+        let xcoord = 0;
+        if(isStartIcon)
+            xcoord = 1;
+        else
+            xcoord = this.width - (this.iconWidth + 8) - 1;
+
+        let iconGroup = group.append("g")
+            .attr("class", "icon-group")
+            .attr("pointer-events", "none")
+            .attr("fill", "green")
+            .attr("transform", `translate(${xcoord},1)`);
+
+        let rectHeight = this.height - 2;
+
+        iconGroup.append("path")
+        .attr("fill", "white")
+        .attr("opacity", 0.2) // Adjust opacity as needed
+        .attr("d", this.rounded_rect(0, 0, this.iconWidth + 8, rectHeight, 4.5, isStartIcon, !isStartIcon, isStartIcon, !isStartIcon));
+        //.attr("d", this.rightRoundedRect(0, 0, this.iconWidth + 8, rectHeight, 10));
+
+        let imageX = 8;
+        if(!isStartIcon)
+            imageX = 6;
+         // Append an image inside the group
+        iconGroup.append('image')
+            .attr('x', imageX)   // Position of the image
+            .attr('y', rectHeight / 2 - (this.iconWidth - 5) / 2)
+            .attr('width', this.iconWidth - 5) // Width of the image
+            .attr('height', this.iconWidth - 5) // Height of the image
+            .attr('href', iconPath);  // Path to the image file
+
+        return iconGroup;
+    }
+
+    //Create a rounded rectangle with an arbitrary number of rounded corners
+    rounded_rect(x, y, w, h, r, tl, tr, bl, br) {
+        var retval;
+        retval  = "M" + (x + r) + "," + y;
+        retval += "h" + (w - 2*r);
+        if (tr) { retval += "a" + r + "," + r + " 0 0 1 " + r + "," + r; }
+        else { retval += "h" + r; retval += "v" + r; }
+        retval += "v" + (h - 2*r);
+        if (br) { retval += "a" + r + "," + r + " 0 0 1 " + -r + "," + r; }
+        else { retval += "v" + r; retval += "h" + -r; }
+        retval += "h" + (2*r - w);
+        if (bl) { retval += "a" + r + "," + r + " 0 0 1 " + -r + "," + -r; }
+        else { retval += "h" + -r; retval += "v" + -r; }
+        retval += "v" + (2*r - h);
+        if (tl) { retval += "a" + r + "," + r + " 0 0 1 " + r + "," + -r; }
+        else { retval += "v" + -r; retval += "h" + r; }
+        retval += "z";
+        return retval;
+    }
+
+    //Create a rounded rectangle with all corners rounded
     calculateWiddth() {
         let textWidth = 120;
         if(this.label != null)
@@ -176,7 +220,7 @@ export class Node{
 
         this.label.attr("x", xcoord);
         if(this.endIcon != null)
-            this.endIcon.attr("x", this.width - this.iconWidth - 5);
+            this.endIcon.attr("transform", `translate(${this.width - (this.iconWidth + 8) - 1},1)`);
         
         if(this.outputPort != null) {
             this.outputPort.updatePortPosition();

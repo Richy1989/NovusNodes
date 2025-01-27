@@ -37,7 +37,16 @@
     private string config
     {
         get { return ((NetFunctionConfig)PluginBase.PluginConfig).SourceCode; }
-        set { ((NetFunctionConfig)PluginBase.PluginConfig).SourceCode = value; }
+        set
+        {
+            if (((NetFunctionConfig)PluginBase.PluginConfig).SourceCode == value)
+            {
+                return;
+            }
+
+            ((NetFunctionConfig)PluginBase.PluginConfig).SourceCode = value;
+            ((NetFunctionConfig)PluginBase.PluginConfig).LastCompileSuccess = false;
+        }
     }
 
     /// <summary>

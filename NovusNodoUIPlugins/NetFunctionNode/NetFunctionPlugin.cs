@@ -29,7 +29,7 @@ namespace NovusNodoUIPlugins.NetFunctionNode
         public NetFunctionPlugin()
         {
             UIType = typeof(NetFunctionPluginUI);
-            StartIconPath = "Logo_C_sharp.svg";
+            StartIconPath = "Logo_C_sharp.png";
             AddWorkTask(Workload);
         }
 
