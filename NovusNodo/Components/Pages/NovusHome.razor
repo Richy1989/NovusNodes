@@ -154,7 +154,7 @@
     public async Task AddTab()
     {
         var tab = await ExecutionManager.AddNewTab();
-        UserTabs.Add(new TabView { Id = new Guid(tab.PageID), Label = tab.PageName });
+        UserTabs.Add(new TabView { Id = new Guid(tab.PageID), Label = tab.PageName + $" {UserTabs.Count + 1}" });
         UserIndex = UserTabs.Count - 1; // Automatically switch to the new tab.
         _stateHasChanged = true;
         Logger.LogDebug($"Added a new tab with ID: {tab.PageID}");
@@ -188,6 +188,11 @@
         {
             await AddTab();
             UserIndex = 0;
+        }
+
+        if (UserIndex >= UserTabs.Count)
+        {
+            UserIndex = UserTabs.Count - 1;
         }
 
         currentNodePageManager = ExecutionManager.NodePages[UserTabs[UserIndex].Id.ToString()];

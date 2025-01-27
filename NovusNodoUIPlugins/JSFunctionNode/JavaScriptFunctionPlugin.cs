@@ -15,6 +15,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         public JavaScriptFunctionPlugin()
         {
             UIType = typeof(JavaScriptFunctionPluginUI);
+            StartIconPath = "jslogo.png";
             PluginConfig = "return msg;";
             AddWorkTask(Workload);
         }

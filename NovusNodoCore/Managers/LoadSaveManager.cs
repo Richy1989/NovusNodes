@@ -23,10 +23,10 @@ namespace NovusNodoCore.Managers
         {
             _logger = logger;
             _executionManager = executionManager;
-            _executionManager.OnProjectChanged += async (id) =>
+            _executionManager.OnProjectChanged += async () =>
             {
                 if (_executionManager.IsAutoSaveEnabled)
-                    await SaveProject(id).ConfigureAwait(false);
+                    await SaveProject().ConfigureAwait(false);
             };
             _executionManager.OnManualSaveTrigger += ExecutionManager_OnManualSaveTrigger;
         }
@@ -36,24 +36,21 @@ namespace NovusNodoCore.Managers
         /// </summary>
         private async Task ExecutionManager_OnManualSaveTrigger()
         {
-            foreach (var page in _executionManager.NodePages)
-            {
-                await SaveProject(page.Key).ConfigureAwait(false);
-            }
+                await SaveProject().ConfigureAwait(false);
         }
 
         /// <summary>
         /// Saves the current project asynchronously.
         /// </summary>
         /// <param name="pageId">The ID of the page to save.</param>
-        private async Task SaveProject(string pageId)
+        private async Task SaveProject()
         {
             await _semaphore.WaitAsync().ConfigureAwait(false);
             for (int retry = 0; retry < 3; retry++)
             {
                 try
                 {
-                    await SavePage(pageId).ConfigureAwait(false);
+                    await SavePages().ConfigureAwait(false);
                     await _executionManager.AllProjectDataSynced().ConfigureAwait(false);
                     break; // Exit loop if successful
                 }
@@ -78,7 +75,7 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="pageId">The ID of the page to save.</param>
         /// <returns>A task representing the asynchronous save operation.</returns>
-        public async Task SavePage(string pageId)
+        public async Task SavePages()
         {
             _logger.LogInformation("Saving project...");
 

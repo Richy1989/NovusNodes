@@ -20,7 +20,7 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Event fired when the project is changed, to trigger a save file.
         /// </summary>
-        public event Func<string, Task> OnPageDataChanged;
+        public event Func<Task> OnPageDataChanged;
 
         /// <summary>
         /// The NodeJS environment manager.
@@ -105,7 +105,7 @@ namespace NovusNodoCore.Managers
 
                 if (!isStartup && OnPageDataChanged != null)
                 {
-                    await OnPageDataChanged.Invoke(PageID).ConfigureAwait(false);
+                    await OnPageDataChanged.Invoke().ConfigureAwait(false);
                 }
 
                 node.PropertyChanged += Node_PropertyChanged;
@@ -124,7 +124,7 @@ namespace NovusNodoCore.Managers
         {
             if (OnPageDataChanged != null)
             {
-                Task.Run(async () => await OnPageDataChanged.Invoke(PageID).ConfigureAwait(false));
+                Task.Run(async () => await OnPageDataChanged.Invoke().ConfigureAwait(false));
             }
         }
 
@@ -143,7 +143,7 @@ namespace NovusNodoCore.Managers
 
                 if (!isStartup && OnPageDataChanged != null)
                 {
-                    await OnPageDataChanged.Invoke(PageID).ConfigureAwait(false);
+                    await OnPageDataChanged.Invoke().ConfigureAwait(false);
                 }
             }
         }
@@ -164,7 +164,7 @@ namespace NovusNodoCore.Managers
             
             if (OnPageDataChanged != null)
             {
-                await OnPageDataChanged.Invoke(PageID).ConfigureAwait(false);
+                await OnPageDataChanged.Invoke().ConfigureAwait(false);
             }
         }
 
@@ -193,7 +193,7 @@ namespace NovusNodoCore.Managers
 
                 if (OnPageDataChanged != null)
                 {
-                    await OnPageDataChanged.Invoke(PageID).ConfigureAwait(false);
+                    await OnPageDataChanged.Invoke().ConfigureAwait(false);
                 }
             }
         }

@@ -47,9 +47,8 @@ namespace NovusNodo.Components.Layout
         /// <summary>
         /// Handles the event when the project is changed.
         /// </summary>
-        /// <param name="arg">The argument indicating the project change.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        private async Task ExecutionManager_OnProjectChanged(string arg)
+        private async Task ExecutionManager_OnProjectChanged()
         {
             // Wait then update the UI if Project still not synced
             await Task.Delay(TimeSpan.FromMilliseconds(500));

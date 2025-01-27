@@ -240,7 +240,7 @@ namespace NovusNodoCore.NodeDefinition
             await PluginBase.SaveSettings().ConfigureAwait(false);
 
             //Notify that the project has changed!
-            await executionManager.NodePage_OnPageDataChanged(nodePageManager.PageID).ConfigureAwait(false);
+            await executionManager.NodePage_OnPageDataChanged().ConfigureAwait(false);
         }
 
         /// <summary>

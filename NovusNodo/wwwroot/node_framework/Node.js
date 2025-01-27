@@ -76,6 +76,7 @@ export class Node{
             group.append('image')
                 .attr('x', 8)   // Position of the image
                 .attr('y', (this.height - this.iconWidth) / 2)
+                .attr('width', this.iconWidth) // Width of the image
                 .attr('height', this.iconWidth) // Height of the image
                 .attr('href', this.startIconPath);    // Add a class for additional styling
         }
@@ -121,6 +122,7 @@ export class Node{
             this.endIcon = group.append('image')
                 .attr('x', this.width - this.iconWidth - 5)   // Position of the image
                 .attr('y', (this.height - this.iconWidth) / 2)
+                .attr('width', this.iconWidth) // Width of the image
                 .attr('height', this.iconWidth) // Height of the image
                 .attr('href', this.endIconPath)  // Path to the image file
         }
