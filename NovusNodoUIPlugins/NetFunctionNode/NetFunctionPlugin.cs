@@ -73,8 +73,7 @@ namespace NovusNodoUIPlugins.NetFunctionNode
 
                     if (innerException != null)
                     {
-                        Logger.LogError($"Exception in invoked method: {innerException.Message}");
-                        Logger.LogError($"Stack Trace: {innerException.StackTrace}");
+                        Logger.LogError(innerException, $"Exception in invoked method");
                     }
                     else
                     {
@@ -84,8 +83,7 @@ namespace NovusNodoUIPlugins.NetFunctionNode
                 catch (Exception ex)
                 {
                     // Catch any other unexpected exceptions
-                    Logger.LogError($"Unexpected exception: {ex.Message}");
-                    Logger.LogError($"Stack Trace: {ex.StackTrace}");
+                    Logger.LogError(ex, $"Unexpected exception");
                 }
             }
 
@@ -136,7 +134,7 @@ namespace NovusNodoUIPlugins.NetFunctionNode
                 }
                 else
                 {
-                    Logger.LogDebug("Compile .NET custom code Successfully");
+                    Logger.LogDebug("Compiled .NET custom code Successfully");
                     ((NetFunctionConfig)PluginConfig).LastCompileSuccess = true;
                     // Load this 'virtual' DLL so that we can use
                     ms.Seek(0, SeekOrigin.Begin);

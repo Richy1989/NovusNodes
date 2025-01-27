@@ -58,6 +58,12 @@ namespace NovusNodo.Components.Pages
             NovusUIManagement.OnNodeNameChanged += NovusUIManagement_OnNodeNameChanged;
             NovusUIManagement.OnResetZoom += NovusUIManagement_OnResetZoom;
             NovusUIManagement.OnNodeEnabledChanged += NovusUIManagement_OnNodeEnabledChanged;
+            NovusUIManagement.OnCanvasRasterSizeChanged += NovusUIManagement_OnCanvasRasterSizeChanged;
+        }
+
+        private async Task NovusUIManagement_OnCanvasRasterSizeChanged()
+        {
+            await CanvasReference.InvokeVoidAsync("setCanvasRasterSize", [NovusUIManagement.RasterSize]);
         }
 
         private async Task NovusUIManagement_OnNodeEnabledChanged(bool isEnabled)
@@ -311,6 +317,7 @@ namespace NovusNodo.Components.Pages
                     NovusUIManagement.OnNodeNameChanged -= NovusUIManagement_OnNodeNameChanged;
                     NovusUIManagement.OnResetZoom -= NovusUIManagement_OnResetZoom;
                     NovusUIManagement.OnNodeEnabledChanged -= NovusUIManagement_OnNodeEnabledChanged;
+                    NovusUIManagement.OnCanvasRasterSizeChanged -= NovusUIManagement_OnCanvasRasterSizeChanged;
                     canvasNetComponentRef?.Dispose();
                 }
 

@@ -37,12 +37,24 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public event Func<Task> OnProjectChanged;
 
+        /// <summary>
+        /// Event fired when a manual save is triggered.
+        /// </summary>
         public event Func<Task> OnManualSaveTrigger;
 
+        /// <summary>
+        /// Event fired when the project is saved.
+        /// </summary>
         public event Func<Task> OnProjectSaved;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the project data is synced.
+        /// </summary>
         public bool ProjectDataSynced { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether auto-save is enabled.
+        /// </summary>
         public bool IsAutoSaveEnabled { get; set; } = true;
 
         /// <summary>
@@ -53,7 +65,7 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Event fired when the page is changed.
         /// </summary>
-        public event Func<PageAction, string, Task> OnPageChanged;
+        public event Func<PageAction, string, Task> OnPagesModified;
 
         /// <summary>
         /// Gets or sets a value indicating whether execution is allowed.
@@ -122,6 +134,10 @@ namespace NovusNodoCore.Managers
             await Task.CompletedTask.ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Sets the project data as synced and invokes the OnProjectSaved event.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task AllProjectDataSynced()
         {
             ProjectDataSynced = true;
@@ -129,6 +145,10 @@ namespace NovusNodoCore.Managers
                 await OnProjectSaved.Invoke().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Triggers a manual save and invokes the OnManualSaveTrigger event.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task ManualSaveTrigger()
         {
             if (OnManualSaveTrigger != null)
@@ -152,7 +172,7 @@ namespace NovusNodoCore.Managers
             nodePage.PageID = id ?? Guid.NewGuid().ToString();
             nodePage.PageName = "Nodes";
             NodePages.Add(nodePage.PageID, nodePage);
-            OnPageChanged?.Invoke(PageAction.Added, nodePage.PageID);
+            OnPagesModified?.Invoke(PageAction.Added, nodePage.PageID);
 
             if (OnProjectChanged != null && !isStartup)
                 await OnProjectChanged.Invoke().ConfigureAwait(false);
@@ -174,13 +194,13 @@ namespace NovusNodoCore.Managers
         /// Removes the tab with the specified page ID.
         /// </summary>
         /// <param name="pageID">The ID of the page to remove.</param>
-        public void RemoveTab(string pageID)
+        public async Task RemoveTab(string pageID)
         {
             var nodePage = NodePages[pageID];
             nodePage.CancellationTokenSource.Cancel();
             NodePages.Remove(pageID);
 
-            OnPageChanged?.Invoke(PageAction.Removed, nodePage.PageID);
+            OnPagesModified?.Invoke(PageAction.Removed, nodePage.PageID);
 
             foreach (var node in nodePage.AvailableNodes)
             {
@@ -188,6 +208,9 @@ namespace NovusNodoCore.Managers
                 node.Value.OutputPorts = null;
                 node.Value.InputPort = null;
             }
+
+            if (OnProjectChanged != null)
+                await OnProjectChanged.Invoke().ConfigureAwait(false);
         }
 
         /// <summary>

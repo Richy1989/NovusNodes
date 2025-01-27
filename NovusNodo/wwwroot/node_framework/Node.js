@@ -83,30 +83,30 @@ export class Node{
 
             // Append a rectangle (button) to the group
             group.append("rect")
-            .attr("class", "injectorButton")
-            .attr("x", -buttonWidth)
-            .attr("y", this.height / 2 - buttonHeight / 2)
-            .attr("width", buttonWidth)
-            .attr("height", buttonHeight)
-            .on("click", function() {
-                // Dispatch the custom event to notify that the button has been clicked
-                const moveEvent = new CustomEvent("nodeInjectorButtonClicked", {bubbles: true,
-                    detail: {
-                        id: node.id
-                    }
-                });
-                node.svg.node().dispatchEvent(moveEvent);
+                .attr("class", "injectorButton")
+                .attr("x", -buttonWidth)
+                .attr("y", this.height / 2 - buttonHeight / 2)
+                .attr("width", buttonWidth)
+                .attr("height", buttonHeight)
+                .on("click", function() {
+                    // Dispatch the custom event to notify that the button has been clicked
+                    const moveEvent = new CustomEvent("nodeInjectorButtonClicked", {bubbles: true,
+                        detail: {
+                            id: node.id
+                        }
+                    });
+                    node.svg.node().dispatchEvent(moveEvent);
             });
         }
     
         console.log(`Node width before label: ${this.width}`);
         //Append the text label
         this.label = group.append("text")
-        .attr("class", "label")
-        .attr("x", this.width / 2)
-        .attr("y", this.height / 2)
-        .attr("pointer-events", "none")
-        .text(this.name);
+            .attr("class", "label")
+            .attr("x", this.width / 2)
+            .attr("y", this.height / 2)
+            .attr("pointer-events", "none")
+            .text(this.name);
 
         this.calculateWiddth();
 
@@ -190,7 +190,7 @@ export class Node{
         this.width = Math.max(120, textWidth + (this.iconWidth + 20) * multiplier + 20);
     }
 
-      /**
+    /**
      * Updates the dimensions of the node and moved the port positions accordingly.
      */
     /**
@@ -303,8 +303,8 @@ export class Node{
             let x = event.x - this.offsetX;
             let y = event.y - this.offsetY;
 
-            if(this.x != x || this.y != y) {
-                this.updatePosition(event.x - this.offsetX, event.y - this.offsetY);
+            if (this.x !== x || this.y !== y) {
+                this.updatePosition(x, y);
             }
         }
     }
@@ -362,6 +362,13 @@ export class Node{
     }
 
     updatePosition(x, y) {
+        
+        if(this.canvas.rasterSize > 0){
+            // Snap the position to the raster grid
+            x = Math.round(x / this.canvas.rasterSize) * this.canvas.rasterSize;
+            y = Math.round(y / this.canvas.rasterSize) * this.canvas.rasterSize;
+        }
+        
         this.x = x;
         this.y = y;
 

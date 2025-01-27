@@ -18,6 +18,8 @@ export class Canvas {
     dragMultipleSelection = [];
     isMultiNodeDragging = false;
 
+    rasterSize = 30;
+
     linkGroup = null;
     nodeGroup = null;
 
@@ -42,6 +44,10 @@ export class Canvas {
 
     delete() {
         this.svg.remove();
+    }
+
+    setRasterSize(size) { 
+        this.rasterSize = size;
     }
 
     getLinkColor() {

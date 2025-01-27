@@ -2,7 +2,7 @@
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 
 @* <MudPaper Class="d-flex flex-row gap-4" Style="@($"background:rgb(0, 0, 0, 0.15);")" Elevation="0"> *@
-<MudPaper Class="d-flex justify-space-around">
+<MudPaper Class="d-flex justify-center align-center">
     <MudTooltip Text="@PlayPauseButtonToolTip">
         <MudIconButton Icon="@(PlayPauseButtonIcon)" Color="@PlayPauseButtonColor" OnClick="@PlayPauseButtonIconToggle" Class="rounded-0" />
     </MudTooltip>
@@ -13,12 +13,25 @@
     <MudTooltip Text="Reset Zoom">
         <MudIconButton Icon="@Icons.Material.Filled.ZoomInMap" Color="@Color.Surface" OnClick="@ResetZoomToggle" Class="rounded-0" />
     </MudTooltip>
+    <MudDivider Vertical="true" FlexItem="true" />
+    <MudTooltip Text="@string.Format($"Raster Size: {NovusUIManagement.RasterSize}")">
+        <MudPaper Class="pr-4 ps-4" Elevation="0">
+            <MudSlider TickMarks="true" T="int" Step="5" Min="0" Max="50" Value="NovusUIManagement.RasterSize" ValueChanged=" async (a) => {await OnSliderValueChanged(a);}" />
+        </MudPaper>
+    </MudTooltip>
+    <MudDivider Vertical="true" FlexItem="true" />
     <MudTooltip Text="Auto Save">
-        <MudIconButton Icon="@AutoSaveIcon" Color="@AutoSaveColor" OnClick="@OnAutoSaveToggle" Class="rounded-0" />
-    </MudTooltip>   
+        <MudIconButton Icon="@AutoSaveIcon" Color="@AutoSaveColor" OnClick="@OnAutoSaveToggle" Class="rounded-0" />  
+    </MudTooltip>
 </MudPaper>
 
 @code {
+
+
+    private async Task OnSliderValueChanged(int value)
+    {
+        await NovusUIManagement.ChangeCanvasRasterSize(value);
+    }
 
     private void OnAutoSaveToggle()
     {

@@ -17,6 +17,9 @@ namespace NovusNodo.Management
         public event Func<Task> OnResetZoom;
 
         public event Func<bool, Task> OnNodeEnabledChanged;
+        public event Func<Task> OnCanvasRasterSizeChanged;
+
+        public int RasterSize { get; set; } = 30;
 
         public NodeBase CurrentlySelectedNode { get; set; }
         public string CurrentlyOpenedPage { get; set; }
@@ -196,16 +199,15 @@ namespace NovusNodo.Management
         {
             await OnNodeNameChanged?.Invoke(CurrentlyOpenedPage, CurrentlySelectedNode.Id, newName);
             CurrentlySelectedNode.Name = newName;
+        }
 
-            //CurrentlySelectedNode.Name = newName;
-            //try
-            //{
-            //    await CanvasRef.InvokeVoidAsync("setNodeName", [$"{CurrentlySelectedNode.Id}", $"{newName}"]);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Logger.LogError(ex, "Failed to change node label.");
-            //}
+        public async Task ChangeCanvasRasterSize(int newSize)
+        {
+            RasterSize = newSize;
+            if (OnCanvasRasterSizeChanged != null)
+            {
+                await OnCanvasRasterSizeChanged.Invoke().ConfigureAwait(false);
+            }
         }
 
         public async Task ResetZoom()

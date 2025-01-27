@@ -64,6 +64,17 @@ export function setDarkMode(isInDarkMode) {
     });
 }
 
+export function setCanvasRasterSize(rasterSize) {
+    if (selectedPaperTabId == null) {
+        console.log("No Canvas Tab Selected");
+        return;
+    }
+
+    for (const [key, value] of Object.entries(canvasTabs)) {
+        value.setRasterSize(rasterSize);
+    }
+}
+
 /**
  * Sets the line style for all canvases.
  * @param {boolean} useCubicBezier - Whether to use cubic bezier for lines.

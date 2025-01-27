@@ -5,6 +5,7 @@
 @using System.Linq;
 @using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
+@using NovusNodo.Components.Dialogs
 @using NovusNodo.Components.Layout
 @using NovusNodoCore.Enumerations
 @using NovusNodoCore.Managers
@@ -13,6 +14,7 @@
 @inject NovusNodoCore.Managers.ExecutionManager ExecutionManager
 @inject NovusNodo.Management.NovusUIManagement NovusUIManagement
 @inject IJSRuntime JS
+@inject IDialogService DialogService
 @inject ILogger<NovusHome> Logger
 @implements IDisposable
 
@@ -49,9 +51,9 @@
         </aside>
     </div>
 </MudContainer>
+<MudDialogProvider />
 
 @code {
-
     /// <summary>
     /// Represents a view model for a tab.
     /// </summary>
@@ -172,9 +174,10 @@
         {
             Logger.LogDebug($"Removing tab with ID: {id}");
             await CanvasReference.InvokeVoidAsync("removeCanvasTab", panel.ID);
-            ExecutionManager.RemoveTab(tabView.Id.ToString());
+            await ExecutionManager.RemoveTab(tabView.Id.ToString());
             UserTabs.Remove(tabView);
             await OnTabIndexChanged();
+            
             _stateHasChanged = true;
         }
     }
