@@ -78,6 +78,7 @@ export class Node{
                 .attr('y', (this.height - this.iconWidth) / 2)
                 .attr('width', this.iconWidth) // Width of the image
                 .attr('height', this.iconWidth) // Height of the image
+                .attr("pointer-events", "none")
                 .attr('href', this.startIconPath);    // Add a class for additional styling
         }
 
@@ -124,6 +125,7 @@ export class Node{
                 .attr('y', (this.height - this.iconWidth) / 2)
                 .attr('width', this.iconWidth) // Width of the image
                 .attr('height', this.iconWidth) // Height of the image
+                .attr("pointer-events", "none")
                 .attr('href', this.endIconPath)  // Path to the image file
         }
 

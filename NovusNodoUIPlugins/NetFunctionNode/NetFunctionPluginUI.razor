@@ -6,33 +6,63 @@
 
 @using MudBlazor
 
-
 <h3>.NET Settings Node</h3>
 <div class="containerForCodeMirror">
     <CodeMirror6Wrapper Placeholder="Enter your code.... (2)"
-                        @bind-Doc=@config
-                        Theme=@Theme
-                        Language=@CodeMirrorLanguage.Csharp
-                        AllowHorizontalResize=false
-                        AllowVerticalResize=false
-                        MaxHeight="35em"
-                        Width="100%">
+    @bind-Doc=@config
+    Theme=@Theme
+    Language=@CodeMirrorLanguage.Csharp
+    AllowHorizontalResize=false
+    AllowVerticalResize=false
+    MaxHeight="35em"
+    Width="100%">
     </CodeMirror6Wrapper>
 </div>
-
+<MudButton OnClick="CompileCode" Variant="Variant.Filled" Color="ButtonCompileColor">Compile Code</MudButton>
 <style>
     .containerForCodeMirror {
     }
-
 </style>
 
 @code
 {
+    /// <summary>
+    /// The theme used for the CodeMirror editor.
+    /// </summary>
     private ThemeMirrorTheme Theme = ThemeMirrorTheme.OneDark;
 
+    /// <summary>
+    /// Gets or sets the source code configuration.
+    /// </summary>
     private string config
     {
-        get { return (string)PluginBase.PluginConfig; }
-        set { PluginBase.PluginConfig = value; }
+        get { return ((NetFunctionConfig)PluginBase.PluginConfig).SourceCode; }
+        set { ((NetFunctionConfig)PluginBase.PluginConfig).SourceCode = value; }
+    }
+
+    /// <summary>
+    /// Compiles the code asynchronously.
+    /// </summary>
+    private async Task CompileCode()
+    {
+        await PluginBase.PrepareWorkloadAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Gets the color of the compile button based on the last compile success status.
+    /// </summary>
+    public Color ButtonCompileColor => ((NetFunctionConfig)PluginBase.PluginConfig).LastCompileSuccess switch
+    {
+        true => Color.Success,
+        false => Color.Warning,
+    };
+
+    /// <summary>
+    /// Method invoked when the component is initialized.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        PluginBase.PluginConfig = PluginBase.PluginConfig == null ? new NetFunctionConfig() : (NetFunctionConfig)PluginBase.PluginConfig;
     }
 }

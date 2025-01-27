@@ -30,25 +30,13 @@ namespace NovusNodoUIPlugins.NetFunctionNode
         {
             UIType = typeof(NetFunctionPluginUI);
             StartIconPath = "Logo_C_sharp.svg";
-
-            PluginConfig =
-@"using System;
-using System.Text.Json.Nodes;
-
-namespace DotNetFunctionPlugin.DotNetCustomClass
-{
-    public class DotNetCustomCode
-    {
-        public JsonObject RunCustomCode(JsonObject jsonData)
-        {
-            jsonData[""testVariable""] = ""Test from the inside!"";
-            Console.WriteLine(""Hello From Inside"");
-            return jsonData;
-        }
-    }
-}";
-
             AddWorkTask(Workload);
+        }
+
+        public override Task PrepareWorkloadAsync()
+        {
+            PrepareCode();
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -60,21 +48,45 @@ namespace DotNetFunctionPlugin.DotNetCustomClass
         {
             Logger.LogDebug($"Executing custom code: \n {PluginConfig}");
 
-            if (oldSourceCode != (string)PluginConfig)
+            if (oldSourceCode != ((NetFunctionConfig)PluginConfig).SourceCode)
             {
                 if (PrepareCode())
-                    oldSourceCode = (string)PluginConfig;
+                    oldSourceCode = ((NetFunctionConfig)PluginConfig).SourceCode;
             }
 
             if (type != null && instance != null)
             {
-                var userReturn = type.InvokeMember("RunCustomCode",
-                            BindingFlags.Default | BindingFlags.InvokeMethod,
-                            null,
-                            instance,
-                            [jsonData]);
+                try
+                {
+                    var userReturn = type.InvokeMember("RunCustomCode",
+                                BindingFlags.Default | BindingFlags.InvokeMethod,
+                                null,
+                                instance,
+                                [jsonData]);
 
-                return await Task.FromResult((JsonObject)userReturn).ConfigureAwait(false);
+                    return await Task.FromResult((JsonObject)userReturn).ConfigureAwait(false);
+                }
+                catch (TargetInvocationException ex)
+                {
+                    // Unwrap the inner exception to get the actual exception thrown by the invoked method
+                    Exception innerException = ex.InnerException;
+
+                    if (innerException != null)
+                    {
+                        Logger.LogError($"Exception in invoked method: {innerException.Message}");
+                        Logger.LogError($"Stack Trace: {innerException.StackTrace}");
+                    }
+                    else
+                    {
+                        Logger.LogError("TargetInvocationException occurred, but no inner exception is present.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Catch any other unexpected exceptions
+                    Logger.LogError($"Unexpected exception: {ex.Message}");
+                    Logger.LogError($"Stack Trace: {ex.StackTrace}");
+                }
             }
 
             return await Task.FromResult(jsonData).ConfigureAwait(false);
@@ -86,7 +98,7 @@ namespace DotNetFunctionPlugin.DotNetCustomClass
         /// <returns><c>true</c> if the code was successfully compiled and loaded; otherwise, <c>false</c>.</returns>
         public bool PrepareCode()
         {
-            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText((string)PluginConfig);
+            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(((NetFunctionConfig)PluginConfig).SourceCode);
 
             string assemblyName = Path.GetRandomFileName();
             var references = AppDomain.CurrentDomain.GetAssemblies()
@@ -97,7 +109,7 @@ namespace DotNetFunctionPlugin.DotNetCustomClass
             // Analyze and generate IL code from syntax tree
             CSharpCompilation compilation = CSharpCompilation.Create(
                 assemblyName,
-                syntaxTrees: new[] { syntaxTree },
+                syntaxTrees: [syntaxTree],
                 references: references,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
@@ -108,6 +120,9 @@ namespace DotNetFunctionPlugin.DotNetCustomClass
 
                 if (!result.Success)
                 {
+                    Logger.LogDebug("Error when Compile .NET custom code");
+                    ((NetFunctionConfig)PluginConfig).LastCompileSuccess = false;
+
                     // Handle exceptions
                     IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
                         diagnostic.IsWarningAsError ||
@@ -121,6 +136,8 @@ namespace DotNetFunctionPlugin.DotNetCustomClass
                 }
                 else
                 {
+                    Logger.LogDebug("Compile .NET custom code Successfully");
+                    ((NetFunctionConfig)PluginConfig).LastCompileSuccess = true;
                     // Load this 'virtual' DLL so that we can use
                     ms.Seek(0, SeekOrigin.Begin);
                     Assembly assembly = Assembly.Load(ms.ToArray());

@@ -32,6 +32,9 @@ In order to create a plugin the **NovusNodoPluginLibrary.dll** has to be referen
 The Plugin needs to adapt the following attribute: `[NovusPlugin("7BA6BE2A-19A1-44FF-878D-3E408CA17366", "JS Function", "#ea899a")]`
 Check the "NovusNodoUIPLugin" project for a sample implementation.
 
+The Plugin has to be named: **"<PluginName>Plugin.cs"**
+The config file (if needed) has to be named: **"<PluginName>Config.cs"**
+
 ### Important:
 These restrictions are not permanent, please do not mention them as bugs, I'm well aware of them. 
 - The **NovusUIPluginBase** has to be derived from in the .razor class (compiler will throw an error!)
