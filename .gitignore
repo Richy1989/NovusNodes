@@ -4,6 +4,7 @@
 # Ignore the entire folder
 libnode
 NovusNodo/plugins
+NovusNodo/projectSaveData
 NovusNodo/wwwroot/_content
 
 ### Csharp ###
