@@ -102,10 +102,18 @@
     fill: #167900;
 }
 
+.switchButtonOn:active {
+    fill: #115f00; /* Even darker shade when pressed */
+}
+
 .switchButtonOff {
     fill: #c6c6c6;
 }
 
 .switchButtonOff:hover {
     fill: #727272;
+}
+
+.switchButtonOff:active {
+    fill: #535353; /* Even darker shade when pressed */
 }

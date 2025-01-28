@@ -49,6 +49,12 @@ namespace NovusNodoCore.Tools
             return nodeSave;
         }
 
+
+        /// <summary>
+        /// Translated all Ids to new ones, which will create a new set of connected nodes, which can be added to the project. 
+        /// Used for Copy Paste functionality.
+        /// </summary>
+        /// <param name="nodeSaveModels"></param>
         public void CreateIdTranslatedModel(List<NodeSaveModel> nodeSaveModels)
         {
             // Create a dictionary to store the translated models
@@ -85,7 +91,5 @@ namespace NovusNodoCore.Tools
             idTranslation.Add(id, newId);
             return newId;
         }
-
-
     }
 }
