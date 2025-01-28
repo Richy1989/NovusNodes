@@ -1,4 +1,5 @@
 ﻿using NovusNodoCore.NodeDefinition;
+using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.SaveData
 {
@@ -45,5 +46,7 @@ namespace NovusNodoCore.SaveData
         /// Gets or sets the base ID of the plugin.
         /// </summary>
         public string PluginBaseId { get; set; }
+
+        public PluginSettings PluginSettings { get; set; }
     }
 }

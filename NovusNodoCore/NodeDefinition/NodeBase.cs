@@ -37,16 +37,6 @@ namespace NovusNodoCore.NodeDefinition
         public PluginBase PluginBase { get; }
 
         /// <summary>
-        /// Gets or sets the path to the start icon.
-        /// </summary>
-        public string StartIconPath { get; set; } = null;
-
-        /// <summary>
-        /// Gets or sets the path to the end icon.
-        /// </summary>
-        public string EndIconPath { get; set; } = null;
-
-        /// <summary>
         /// Gets the plugin ID attribute.
         /// </summary>
         public NovusPluginAttribute PluginIdAttribute { get; }
@@ -77,9 +67,9 @@ namespace NovusNodoCore.NodeDefinition
         public IPluginBase ParentNode { get => PluginBase.ParentNode; set => PluginBase.ParentNode = value; }
 
         /// <summary>
-        /// Gets the type of the node.
+        /// Gets or sets the plugin settings.
         /// </summary>
-        public NodeType NodeType => PluginBase.NodeType;
+        public PluginSettings PluginSettings { get => PluginBase.PluginSettings; set => PluginBase.PluginSettings = value; }
 
         /// <summary>
         /// Gets the unique identifier for the node.
@@ -163,9 +153,16 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public void Init()
         {
-            if (PluginBase.StartIconPath != null)
+            // Set the start icon paths
+            if (PluginSettings.StartIconPath != null)
             {
-                StartIconPath = Path.Combine("pluginicons", this.PluginIdAttribute.AssemblyName, PluginBase.StartIconPath);
+                PluginSettings.StartIconPath = Path.Combine("pluginicons", this.PluginIdAttribute.AssemblyName, PluginSettings.StartIconPath);
+            }
+
+            // Set the end icon paths
+            if (PluginSettings.EndIconPath != null)
+            {
+                PluginSettings.EndIconPath = Path.Combine("pluginicons", this.PluginIdAttribute.AssemblyName, PluginSettings.EndIconPath);
             }
 
             PluginBase.Logger = _logger;
@@ -173,7 +170,7 @@ namespace NovusNodoCore.NodeDefinition
 
             CreatePorts();
 
-            if (PluginBase.NodeType == NodeType.Starter)
+            if (PluginSettings.NodeType == NodeType.Starter)
             {
                 PluginBase.StarterNodeTriggered = async () =>
                 {

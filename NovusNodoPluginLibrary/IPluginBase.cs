@@ -14,6 +14,11 @@ namespace NovusNodoPluginLibrary
         string Id { get; }
 
         /// <summary>
+        /// Gets or sets the logger instance for the plugin.
+        /// </summary>
+        PluginSettings PluginSettings { get; set; }
+
+        /// <summary>
         /// Gets or sets the type of the UIType component associated with the plugin.
         /// </summary>
         Type UIType { get; set; }
@@ -27,11 +32,6 @@ namespace NovusNodoPluginLibrary
         /// Gets or sets the parent node.
         /// </summary>
         IPluginBase ParentNode { get; set; }
-
-        /// <summary>
-        /// Gets the type of the node.
-        /// </summary>
-        NodeType NodeType { get; }
 
         /// <summary>
         /// Prepares the workload asynchronously.

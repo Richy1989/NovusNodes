@@ -10,7 +10,7 @@ export class Node{
      * @param {number} x - The initial x-coordinate of the node.
      * @param {number} y - The initial y-coordinate of the node.
      */
-    constructor(id, canvas, color, name, x, y, nodeType, startIconPath = null, endIconPath = null) {
+    constructor(id, canvas, color, name, x, y, pluginSettings) {
         this.svg = canvas.svg;
         this.canvas = canvas;
         this.id = id;
@@ -23,11 +23,9 @@ export class Node{
         this.y_old = y;
         this.offsetX = 0;
         this.offsetY = 0;
-        this.nodeType = nodeType;
         this.isDragging = false;
         
-        this.startIconPath = startIconPath;
-        this.endIconPath = endIconPath;
+        this.pluginSettings = pluginSettings;
 
         this.width = 120;
         this.height = 40;
@@ -44,6 +42,11 @@ export class Node{
      * @returns {d3.Selection} The created SVG group element.
      */
     createNodeGroup() {
+        let node = this;
+
+        let buttonHeight =  this.height - 10;
+        let buttonWidth =  30;
+
         const group = this.canvas.nodeGroup.append("g")
             .attr("class", "node-group")
             .attr("transform", `translate(${this.x},${this.y})`)
@@ -71,16 +74,12 @@ export class Node{
             });
 
         //Append the start icon
-        if(this.startIconPath != null) {
-            this.createIconGroup(group, this.startIconPath, true);
+        if(this.pluginSettings.startIconPath != null) {
+            this.createIconGroup(group, this.pluginSettings.startIconPath, true);
         }
-
+        
         //Append the injector button
-        let node = this;
-        if(this.nodeType == 1) {
-            let buttonHeight =  this.height - 10;
-            let buttonWidth =  30;
-
+        if(this.pluginSettings.isManualInjectable) {
             // Append a rectangle (button) to the group
             group.append("rect")
                 .attr("class", "injectorButton")
@@ -98,6 +97,35 @@ export class Node{
                     node.svg.node().dispatchEvent(moveEvent);
             });
         }
+
+        //Append switch off button and the end
+        if(this.pluginSettings.isSwitchable) {
+            // Append a rectangle (button) to the group
+            this.switchButton = group.append("rect")
+                .attr("class", node.pluginSettings.isSwitchedOn ? "switchButton switchButtonOn" : "switchButton switchButtonOff")
+                .attr("x", this.width)
+                .attr("y", this.height / 2 - buttonHeight / 2)
+                .attr("width", buttonWidth)
+                .attr("height", buttonHeight)
+                .on("click", function() {
+                    node.pluginSettings.isSwitchedOn = !node.pluginSettings.isSwitchedOn;
+                    // Dispatch the custom event to notify that the button has been clicked
+                    const moveEvent = new CustomEvent("pluginSettingsChanged", {bubbles: true,
+                        detail: {
+                            id: node.id,
+                            pluginSettings: node.pluginSettings
+                        }
+                    });
+                    node.svg.node().dispatchEvent(moveEvent);
+                    
+                    if(node.pluginSettings.isSwitchedOn) {
+                        node.switchButton.attr("class", "switchButton switchButtonOn");
+                    }
+                    else {
+                        node.switchButton.attr("class", "switchButton switchButtonOff");
+                    }
+            });
+        }
     
         console.log(`Node width before label: ${this.width}`);
         //Append the text label
@@ -111,8 +139,8 @@ export class Node{
         this.calculateWiddth();
 
         //Append the start icon
-        if(this.endIconPath != null) {
-          this.endIcon = this.createIconGroup(group, this.endIconPath, false);
+        if(this.pluginSettings.endIconPath != null) {
+          this.endIcon = this.createIconGroup(group, this.pluginSettings.endIconPath, false);
         }
 
         return group;
@@ -182,9 +210,9 @@ export class Node{
             textWidth = this.label.node().getBBox().width;
         
         let multiplier = 0;
-        if(this.startIconPath != null)
+        if(this.pluginSettings.startIconPath != null)
             multiplier++;
-        if(this.endIconPath != null)
+        if(this.pluginSettings.endIconPath != null)
             multiplier++;
 
         this.width = Math.max(120, textWidth + (this.iconWidth + 20) * multiplier + 20);
@@ -209,11 +237,11 @@ export class Node{
         this.group.select("rect.node").attr("width", this.width);
         
         let isStartIcon = 0;
-        if(this.startIconPath != null)
+        if(this.pluginSettings.startIconPath != null)
             isStartIcon = 1;
 
         let isEndIcon = 0;
-        if(this.endIconPath != null)
+        if(this.pluginSettings.endIconPath != null)
             isEndIcon = 1;
 
         let xcoord = this.iconWidth * isStartIcon + (this.width - this.iconWidth * isStartIcon - this.iconWidth * isEndIcon) / 2;
@@ -222,6 +250,9 @@ export class Node{
         if(this.endIcon != null)
             this.endIcon.attr("transform", `translate(${this.width - (this.iconWidth + 8) - 1},1)`);
         
+        if(this.switchButton != null)
+            this.switchButton.attr("x", this.width+1);
+
         if(this.outputPort != null) {
             this.outputPort.updatePortPosition();
         }

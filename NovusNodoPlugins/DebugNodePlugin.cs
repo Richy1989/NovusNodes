@@ -11,20 +11,26 @@ namespace NovusNodoPlugins
     public class DebugNodePlugin : PluginBase
     {
         /// <summary>
+        /// Gets or sets the plugin settings.
+        /// </summary>
+        public override PluginSettings PluginSettings { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DebugNodePlugin"/> class.
         /// </summary>
         public DebugNodePlugin()
         {
             PluginConfig = "{\"DebugPath\": \"msg.time\"}";
 
+            PluginSettings = new PluginSettings
+            {
+                NodeType = NodeType.Finisher,
+                IsSwitchable = true,
+            };
+
             //Adding the task to the list of tasks
             base.AddWorkTask(Workload);
         }
-
-        /// <summary>
-        /// Gets the type of the node.
-        /// </summary>
-        public override NodeType NodeType { get; } = NodeType.Finisher;
 
         /// <summary>
         /// Defines the workload to be executed by the node.
@@ -33,10 +39,13 @@ namespace NovusNodoPlugins
         /// <returns>A function representing the asynchronous workload.</returns>
         public async Task<JsonObject> Workload(JsonObject jsonData)
         {
-            var message = await PrintVariableRecursive(jsonData).ConfigureAwait(false);
+            if (PluginSettings.IsSwitchedOn)
+            {
+                var message = await PrintVariableRecursive(jsonData).ConfigureAwait(false);
 
-            await UpdateDebugLog.Invoke(Id, jsonData).ConfigureAwait(false);
-            Logger.LogInformation(message);
+                await UpdateDebugLog.Invoke(Id, jsonData).ConfigureAwait(false);
+                Logger.LogInformation(message);
+            }
             return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
         }
 

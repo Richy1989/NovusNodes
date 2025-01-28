@@ -17,12 +17,23 @@ namespace NovusNodoUIPlugins.InjectorNode
         private Task _task;
 
         /// <summary>
+        /// Gets or sets the plugin settings.
+        /// </summary>
+        public override PluginSettings PluginSettings { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="InjectorNodePlugin"/> class.
         /// </summary>
         public InjectorNodePlugin()
         {
             UIType = typeof(InjectorNodeUI);
             AddWorkTask(Workload);
+
+            PluginSettings = new PluginSettings
+            {
+                NodeType = NodeType.Starter,
+                IsManualInjectable = true,
+            };
 
             Task.Run(async () =>
             {
@@ -34,11 +45,6 @@ namespace NovusNodoUIPlugins.InjectorNode
                 await Restart().ConfigureAwait(false);
             };
         }
-
-        /// <summary>
-        /// Gets the type of the node.
-        /// </summary>
-        public override NodeType NodeType { get; } = NodeType.Starter;
 
         /// <summary>
         /// Defines the workload to be executed by the node.

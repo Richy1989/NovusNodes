@@ -210,6 +210,14 @@ namespace NovusNodo.Components.Pages
         {
             await NovusUIManagement.NodeDoubleClicked(pageId, nodeId);
         }
+        
+        
+        [JSInvokable("NovusNode.PluginSettingsChanged")]
+        public async Task PluginSettingsChanged(string nodeId, PluginSettings pluginSettings)
+        {
+            ExecutionManager.NodePages[TabID].AvailableNodes[nodeId].PluginSettings = pluginSettings;
+            await ExecutionManager.NodePage_OnPageDataChanged();
+        }
 
         /// <summary>
         /// Event handler for when nodes are added.
@@ -219,7 +227,7 @@ namespace NovusNodo.Components.Pages
         private async Task NodesAdded(NodeBase node)
         {
             Logger.LogDebug($"Adding node {node.Id} to canvas {TabID}");
-            await CanvasReference.InvokeVoidAsync("createNode", [node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.X, node.UIConfig.Y, (double)node.NodeType, node.StartIconPath, node.EndIconPath]);
+            await CanvasReference.InvokeVoidAsync("createNode", [node.Id, node.PluginIdAttribute.Background, node.Name, node.UIConfig.X, node.UIConfig.Y, node.PluginSettings]);
             await AddPorts(node);
         }
 
@@ -278,11 +286,11 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task AddPorts(NodeBase node)
         {
-            if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Finisher)
+            if (node.PluginSettings.NodeType == NodeType.Worker || node.PluginSettings.NodeType == NodeType.Finisher)
             {
                 await CanvasReference.InvokeVoidAsync("addInputPorts", new object[] { node.Id, node.InputPort.Id });
             }
-            if (node.NodeType == NodeType.Worker || node.NodeType == NodeType.Starter)
+            if (node.PluginSettings.NodeType == NodeType.Worker || node.PluginSettings.NodeType == NodeType.Starter)
             {
                 foreach (var port in node.OutputPorts.Values)
                 {

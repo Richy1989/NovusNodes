@@ -14,14 +14,12 @@ namespace NovusNodoUIPlugins.NetFunctionNode
     [NovusPlugin("B72CBE0A-F8D6-494D-B18E-FAE5A2369B60", ".NET Function", "#9966CC")]
     public class NetFunctionPlugin : PluginBase
     {
-        /// <summary>
-        /// Gets the type of the node, which is a worker.
-        /// </summary>
-        public override NodeType NodeType => NodeType.Worker;
-
         private object instance;
         private Type type;
         private string oldSourceCode;
+
+
+        public override PluginSettings PluginSettings { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NetFunctionPlugin"/> class.
@@ -29,7 +27,13 @@ namespace NovusNodoUIPlugins.NetFunctionNode
         public NetFunctionPlugin()
         {
             UIType = typeof(NetFunctionPluginUI);
-            StartIconPath = "Logo_C_sharp.png";
+
+            PluginSettings = new PluginSettings
+            {
+                StartIconPath = "Logo_C_sharp.png",
+                NodeType = NodeType.Worker,
+            };
+
             AddWorkTask(Workload);
         }
 

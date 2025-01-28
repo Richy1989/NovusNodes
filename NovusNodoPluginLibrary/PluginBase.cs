@@ -16,14 +16,9 @@ namespace NovusNodoPluginLibrary
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the path to the start icon.
+        /// Gets or sets the settings for the plugin.
         /// </summary>
-        public string StartIconPath { get; set; } = null;
-
-        /// <summary>
-        /// Gets or sets the path to the end icon.
-        /// </summary>
-        public string EndIconPath { get; set; } = null;
+        public abstract PluginSettings PluginSettings { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PluginBase"/> class.
@@ -66,11 +61,6 @@ namespace NovusNodoPluginLibrary
         /// Gets or sets the type of the UIType component associated with the plugin.
         /// </summary>
         public Type UIType { get; set; }
-
-        /// <summary>
-        /// Gets the type of the node.
-        /// </summary>
-        public abstract NodeType NodeType { get; }
 
         /// <summary>
         /// Gets or sets the configuration object.

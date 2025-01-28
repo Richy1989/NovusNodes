@@ -103,7 +103,8 @@ namespace NovusNodoCore.Managers
                         InputPortId = node.Value.InputPort.Id,
                         PluginBaseId = node.Value.PluginBase.Id,
                         NodeConfig = node.Value.UIConfig.Clone(),
-                        ConnectedPorts = []
+                        ConnectedPorts = [],
+                        PluginSettings = node.Value.PluginSettings
                     };
 
                     // If we have a config type, serialize and add the config
@@ -237,6 +238,9 @@ namespace NovusNodoCore.Managers
                     //Otherwise, just set the config as a string
                     node.PluginBase.PluginConfig = (string)nodeModel.PluginConfig;
                 }
+
+                // Set the plugin settings
+                node.PluginSettings = nodeModel.PluginSettings;
 
                 // Create the input port, replace auto created ones
                 node.CreateInputPort(nodeModel.InputPortId);

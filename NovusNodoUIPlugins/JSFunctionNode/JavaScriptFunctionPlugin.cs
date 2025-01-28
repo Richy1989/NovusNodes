@@ -10,20 +10,25 @@ namespace NovusNodoUIPlugins.JSFunctionNode
     public class JavaScriptFunctionPlugin : PluginBase
     {
         /// <summary>
+        /// Gets or sets the plugin configuration.
+        /// </summary>
+        public override PluginSettings PluginSettings { get; set; }
+        
+        /// <summary>
         /// Initializes a new instance of the <see cref="JavaScriptFunctionPlugin"/> class.
         /// </summary>
         public JavaScriptFunctionPlugin()
         {
             UIType = typeof(JavaScriptFunctionPluginUI);
-            StartIconPath = "jslogo.png";
+            PluginSettings = new PluginSettings
+            {
+                StartIconPath = "jslogo.png",
+                NodeType = NodeType.Worker,
+            };
+
             PluginConfig = "return msg;";
             AddWorkTask(Workload);
         }
-
-        /// <summary>
-        /// Gets the type of the node.
-        /// </summary>
-        public override NodeType NodeType => NodeType.Worker;
 
         /// <summary>
         /// Defines the workload to be executed by the node.
