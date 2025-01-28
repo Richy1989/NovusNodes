@@ -286,11 +286,12 @@ namespace NovusNodoCore.NodeDefinition
 
             foreach (var nextNode in outputPort.NextNodes)
             {
+                // Clone the JsonObject / otherwise we have references with will influence each other
+                var clone = JsonNode.Parse(jsonData.ToJsonString()).AsObject();
+
                 nextNode.Value.ParentNode = this;
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 if (!token.IsCancellationRequested)
-                    nextNode.Value.ExecuteNode(jsonData);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    _ = nextNode.Value.ExecuteNode(clone);
             }
             await Task.CompletedTask;
         }

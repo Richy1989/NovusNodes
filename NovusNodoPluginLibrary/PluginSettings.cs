@@ -33,6 +33,6 @@
         /// <summary>
         /// Gets or sets a value indicating whether the plugin is switched on.
         /// </summary>
-        public bool IsSwitchedOn { get; set; }
+        public bool IsSwitchedOn { get; set; } = true;
     }
 }

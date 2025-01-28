@@ -100,11 +100,6 @@ namespace NovusNodoCore.Managers
         public IDictionary<string, NodePageManager> NodePages { get; set; } = new Dictionary<string, NodePageManager>();
 
         /// <summary>
-        /// Gets or sets the debug log.
-        /// </summary>
-        //public IDictionary<string, DebugMessage> DebugLog { get; set; } = new Dictionary<string, DebugMessage>();
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
         /// </summary>
         /// <param name="logger">The logger instance.</param>

@@ -219,9 +219,6 @@ export class Node{
     }
 
     /**
-     * Updates the dimensions of the node and moved the port positions accordingly.
-     */
-    /**
      * Updates the dimensions of the node by recalculating its width and adjusting the positions of its elements.
      * 
      * This method performs the following actions:
@@ -379,7 +376,6 @@ export class Node{
             this.x_old = this.x;
             this.y_old = this.y;
         
-            console.log(`Node moved: ID=${this.id}, X=${this.x}, Y=${this.y}`);
             // Dispatch the custom event to notify that the node has moved
             const moveEvent = new CustomEvent("nodeMoved", {bubbles: true,
                 detail: {
