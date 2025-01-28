@@ -112,7 +112,10 @@ namespace NovusNodoPluginLibrary
             WorkTasks.Add(Guid.NewGuid().ToString(), task);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Prepares the workload asynchronously.
+        /// </summary>
+        /// <returns></returns>
         public virtual Task PrepareWorkloadAsync()
         {
             return Task.CompletedTask;

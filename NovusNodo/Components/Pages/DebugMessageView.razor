@@ -6,12 +6,12 @@
 @inject ILoggerFactory LoggerFactory
 
 <MudContainer Class="pa-0 d-flex flex-column flex-grow-1" Style="width: 100%; height:100%;" MaxWidth="MaxWidth.False">
-    <div style="display: flex; flex-direction: row; justify-content: space-around; margin:5px 0px 5px 0px;">
+    <div style="display: flex; flex-direction: row; justify-content: space-around; margin:5px 5px 5px 5px;">
         <MudButton Onclick="ClearDebugLog" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ClearAll" Color="Color.Primary" FullWidth="true">Clear Debug Log</MudButton>
         <MudSwitch @bind-Value="autoScrollDebugWindow" Style="padding-left:10px;" Color="Color.Primary" Label="Auto Scroll" UncheckedColor="Color.Warning" />
     </div>
     <MudContainer id="scrollable-drawer-content" Class="scrollable-drawer-content d-flex flex-column overflow-x-auto" Style="padding: 5px 0px 5px 0px; width: 100%; height:100%;" MaxWidth="MaxWidth.False">
-        <MudTable Items="@ExecutionManager.DebugLog" Hover="true" Breakpoint="Breakpoint.Sm">
+        <MudTable Items="@Logs" Hover="true" Breakpoint="Breakpoint.Sm">
             <RowTemplate>
                 <MudTd Class="pa-1"><DebugEntry MessageID="@context.Key" Message="@context.Value"></DebugEntry></MudTd>
             </RowTemplate>
@@ -23,6 +23,8 @@
 
     private bool _disposedValue;
     private bool autoScrollDebugWindow = true;
+    private Dictionary<string, DebugMessage> Logs = new();
+
 
     /// <summary>
     /// Initializes the component.
@@ -36,7 +38,7 @@
 
     public async Task ClearDebugLog()
     {
-        ExecutionManager.DebugLog.Clear();
+        Logs.Clear();
         await InvokeAsync(() =>
         {
             StateHasChanged();
@@ -50,10 +52,19 @@
     /// <param name="arg">The argument containing the debug log information.</param>
     private async Task ExecutionManager_DebugLogChanged(string id, DebugMessage arg)
     {
-        await InvokeAsync(() =>
-        {
-            StateHasChanged();
-        });
+       await InvokeAsync(() =>
+       {
+           Logs.Add(id, arg);
+
+           // Limit to last 100 entries for performance
+           if (Logs.Count > 100)
+           {
+                var oldestKey = Logs.Keys.Min();
+                Logs.Remove(oldestKey);
+           }
+
+           StateHasChanged(); // Update the UI
+       });
     }
 
     protected override async void OnAfterRender(bool firstRender)

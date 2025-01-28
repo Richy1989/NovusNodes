@@ -46,6 +46,8 @@ namespace NovusNodoUIPlugins.NetFunctionNode
         /// <returns>A task that represents the asynchronous operation and returns a JSON object result.</returns>
         public async Task<JsonObject> Workload(JsonObject jsonData)
         {
+            PluginConfig = PluginConfig == null ? new NetFunctionConfig() : (NetFunctionConfig)PluginConfig;
+
             Logger.LogDebug($"Executing custom code: \n {PluginConfig}");
 
             if (oldSourceCode != ((NetFunctionConfig)PluginConfig).SourceCode)
@@ -99,17 +101,45 @@ namespace NovusNodoUIPlugins.NetFunctionNode
             SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(((NetFunctionConfig)PluginConfig).SourceCode);
 
             string assemblyName = Path.GetRandomFileName();
+
+            //var references = AppDomain.CurrentDomain.GetAssemblies()
+            //    .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
+            //    .Select(a => MetadataReference.CreateFromFile(a.Location))
+            //    .ToList();
+
+            
+
+            string assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location);
+
+            //IEnumerable<PortableExecutableReference> defaultReferences = new[]
+            //{
+            //    MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "mscorlib.dll")),
+            //    MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.dll")),
+            //    MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Core.dll")),
+            //    MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Runtime.dll")),
+            //    MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Linq.dll")),
+            //    MetadataReference.CreateFromFile(typeof(List<>).Assembly.Location),
+            //    MetadataReference.CreateFromFile(typeof(JsonObject).Assembly.Location),
+            //    MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
+            //};
+
             var references = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
                 .Select(a => MetadataReference.CreateFromFile(a.Location))
                 .ToList();
+
+            //references.AddRange(defaultReferences);
+
+            CSharpCompilationOptions defaultCompilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+            .WithOverflowChecks(true)
+            .WithOptimizationLevel(OptimizationLevel.Release);
 
             // Analyze and generate IL code from syntax tree
             CSharpCompilation compilation = CSharpCompilation.Create(
                 assemblyName,
                 syntaxTrees: [syntaxTree],
                 references: references,
-                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                options: defaultCompilationOptions);
 
             using (var ms = new MemoryStream())
             {

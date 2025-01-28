@@ -102,7 +102,7 @@ namespace NovusNodoCore.Managers
         /// <summary>
         /// Gets or sets the debug log.
         /// </summary>
-        public IDictionary<string, DebugMessage> DebugLog { get; set; } = new Dictionary<string, DebugMessage>();
+        //public IDictionary<string, DebugMessage> DebugLog { get; set; } = new Dictionary<string, DebugMessage>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionManager"/> class.
@@ -297,7 +297,7 @@ namespace NovusNodoCore.Managers
                 Sender = senderId
             };
 
-            DebugLog.Add(debugMessage.Id, debugMessage);
+            //DebugLog.Add(debugMessage.Id, debugMessage);
             if (DebugLogChanged != null)
                 await DebugLogChanged.Invoke(debugMessage.Id, debugMessage).ConfigureAwait(false);
         }
@@ -309,7 +309,7 @@ namespace NovusNodoCore.Managers
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task OnDebugLogUpdated(DebugMessage message)
         {
-            DebugLog.Add(message.Id, message);
+            //DebugLog.Add(message.Id, message);
             if (DebugLogChanged != null)
                 await DebugLogChanged.Invoke(message.Id, message).ConfigureAwait(false);
         }
