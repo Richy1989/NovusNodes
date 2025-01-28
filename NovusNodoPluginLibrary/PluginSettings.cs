@@ -34,5 +34,18 @@
         /// Gets or sets a value indicating whether the plugin is switched on.
         /// </summary>
         public bool IsSwitchedOn { get; set; } = true;
+
+        public PluginSettings Clone()
+        {
+            return new PluginSettings
+            {
+                NodeType = NodeType,
+                StartIconPath = StartIconPath,
+                EndIconPath = EndIconPath,
+                IsManualInjectable = IsManualInjectable,
+                IsSwitchable = IsSwitchable,
+                IsSwitchedOn = IsSwitchedOn
+            };
+        }
     }
 }

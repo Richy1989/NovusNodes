@@ -3,9 +3,19 @@ using NovusNodoPluginLibrary;
 
 namespace NovusNodoCore.SaveData
 {
+    /// <summary>
+    /// Represents a connection model containing NodeId and PortId.
+    /// </summary>
     public class ConnectionModel
     {
+        /// <summary>
+        /// Gets or sets the NodeId of the connection.
+        /// </summary>
         public string NodeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the PortId of the connection.
+        /// </summary>
         public string PortId { get; set; }
     }
     /// <summary>
@@ -13,15 +23,6 @@ namespace NovusNodoCore.SaveData
     /// </summary>
     public class NodeSaveModel
     {
-        public List<string> OutputNodes { get; set; } = [];
-        public string InputPortId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the list of connected output ports to this input port.
-        /// Each tuple contains the NodeId, and PortId.
-        /// </summary>
-        public List<ConnectionModel> ConnectedPorts { get; set; }
-
         /// <summary>
         /// Gets or sets the PageId of the node.
         /// </summary>
@@ -31,6 +32,22 @@ namespace NovusNodoCore.SaveData
         /// Gets or sets the NodeId of the node.
         /// </summary>
         public string NodeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of output ports ids.
+        /// </summary>
+        public List<string> OutputPortsIds { get; set; } = [];
+
+        /// <summary>
+        /// Gets or sets the InputPortId of the node.
+        /// </summary>
+        public string InputPortId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of connected output ports to this input port.
+        /// Each tuple contains the NodeId, and PortId.
+        /// </summary>
+        public List<ConnectionModel> ConnectedPorts { get; set; }
 
         /// <summary>
         /// Gets or sets the configuration for the UI of the node.
@@ -47,6 +64,9 @@ namespace NovusNodoCore.SaveData
         /// </summary>
         public string PluginBaseId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the settings for the plugin.
+        /// </summary>
         public PluginSettings PluginSettings { get; set; }
     }
 }

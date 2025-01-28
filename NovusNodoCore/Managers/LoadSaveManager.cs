@@ -79,8 +79,6 @@ namespace NovusNodoCore.Managers
         {
             _logger.LogInformation("Saving project...");
 
-            //var page = _executionManager.NodePages.FirstOrDefault(x => x.Key == pageId);
-
             FlowModel flowModel = new();
 
             foreach (var page in _executionManager.NodePages)
@@ -100,7 +98,7 @@ namespace NovusNodoCore.Managers
                     {
                         PageId = page.Key,
                         NodeId = node.Key,
-                        InputPortId = node.Value.InputPort.Id,
+                        InputPortId = node.Value.InputPort == null ? null : node.Value.InputPort.Id,
                         PluginBaseId = node.Value.PluginBase.Id,
                         NodeConfig = node.Value.UIConfig.Clone(),
                         ConnectedPorts = [],
@@ -125,13 +123,16 @@ namespace NovusNodoCore.Managers
                     // Add the output ports
                     foreach (var outputport in node.Value.OutputPorts)
                     {
-                        nodeSave.OutputNodes.Add(outputport.Value.Id);
+                        nodeSave.OutputPortsIds.Add(outputport.Value.Id);
                     }
 
-                    // Add the connected ports
-                    foreach (var outputPort in node.Value.InputPort.ConnectedOutputPort.Values)
+                    if (node.Value.InputPort != null)
                     {
-                        nodeSave.ConnectedPorts.Add(new ConnectionModel { NodeId = outputPort.Node.Id, PortId = outputPort.Id });
+                        // Add the connected ports
+                        foreach (var outputPort in node.Value.InputPort.ConnectedOutputPort.Values)
+                        {
+                            nodeSave.ConnectedPorts.Add(new ConnectionModel { NodeId = outputPort.Node.Id, PortId = outputPort.Id });
+                        }
                     }
 
                     // Add the node model to the page model
@@ -224,7 +225,10 @@ namespace NovusNodoCore.Managers
 
                 var node = await nodePage.CreateNode(pluginBaseType, pluginBaseAttribute, nodeModel.NodeId, true).ConfigureAwait(false);
                 node.UIConfig.CopyFrom(nodeModel.NodeConfig);
-
+                
+                // Set the plugin settings
+                node.PluginSettings = nodeModel.PluginSettings;
+                
                 // I we have a config type, deserialize the config
                 if (pluginBaseAttribute.PluginConfigType != null)
                 {
@@ -239,15 +243,14 @@ namespace NovusNodoCore.Managers
                     node.PluginBase.PluginConfig = (string)nodeModel.PluginConfig;
                 }
 
-                // Set the plugin settings
-                node.PluginSettings = nodeModel.PluginSettings;
-
-                // Create the input port, replace auto created ones
-                node.CreateInputPort(nodeModel.InputPortId);
+                if (nodeModel.InputPortId != null)
+                {   // Create the input port, replace auto created ones
+                    node.CreateInputPort(nodeModel.InputPortId);
+                }
 
                 // Create the output ports, replace auto created ones
                 node.OutputPorts.Clear();
-                foreach (var outputNodeId in nodeModel.OutputNodes)
+                foreach (var outputNodeId in nodeModel.OutputPortsIds)
                 {
                     node.AddOutputPort(outputNodeId);
                 }

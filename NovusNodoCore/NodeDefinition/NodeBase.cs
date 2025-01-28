@@ -185,13 +185,16 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public void CreatePorts()
         {
-            CreateInputPort();
+            if(PluginSettings.NodeType != NodeType.Starter)
+                CreateInputPort();
 
             OutputPorts = new Dictionary<string, OutputPort>();
-
-            for (int i = 0; i < PluginBase.WorkTasks.Count; i++)
+            if (PluginSettings.NodeType != NodeType.Finisher)
             {
-                AddOutputPort();
+                for (int i = 0; i < PluginBase.WorkTasks.Count; i++)
+                {
+                    AddOutputPort();
+                }
             }
         }
 
@@ -263,7 +266,9 @@ namespace NovusNodoCore.NodeDefinition
                     if (token.IsCancellationRequested)
                         break;
 
-                    await TriggerNextNodes(OutputPorts.Values.ElementAt(i), result).ConfigureAwait(false);
+                    //Finisher nodes do not have an output port
+                    if(OutputPorts.Values.Count > i)
+                        await TriggerNextNodes(OutputPorts.Values.ElementAt(i), result).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -293,7 +298,6 @@ namespace NovusNodoCore.NodeDefinition
                 if (!token.IsCancellationRequested)
                     _ = nextNode.Value.ExecuteNode(clone);
             }
-            await Task.CompletedTask;
         }
 
         /// <summary>
