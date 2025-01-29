@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using NovusNodoCore.SaveData;
+using NovusNodoCore.Tools;
 
 namespace NovusNodoCore.Managers
 {
@@ -12,6 +13,7 @@ namespace NovusNodoCore.Managers
         private readonly ILogger _logger;
         private readonly string saveDir = Path.Combine(Directory.GetCurrentDirectory(), "projectSaveData");
         private readonly ExecutionManager _executionManager;
+        private readonly NovusModelCreator _novusModelCreator;
         private static readonly SemaphoreSlim _semaphore = new(1, 1);
 
         /// <summary>
@@ -19,9 +21,10 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="logger">The logger instance for logging information and errors.</param>
         /// <param name="executionManager">The execution manager responsible for managing nodeModel pages and nodes.</param>
-        public LoadSaveManager(ILogger<LoadSaveManager> logger, ExecutionManager executionManager)
+        public LoadSaveManager(ILogger<LoadSaveManager> logger, NovusModelCreator novusModelCreator, ExecutionManager executionManager)
         {
             _logger = logger;
+            _novusModelCreator = novusModelCreator;
             _executionManager = executionManager;
             _executionManager.OnProjectChanged += async () =>
             {
@@ -36,7 +39,7 @@ namespace NovusNodoCore.Managers
         /// </summary>
         private async Task ExecutionManager_OnManualSaveTrigger()
         {
-                await SaveProject().ConfigureAwait(false);
+            await SaveProject().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -93,50 +96,11 @@ namespace NovusNodoCore.Managers
                 foreach (var node in page.Value.AvailableNodes)
                 {
                     _logger.LogDebug($"Saving node: {node.Key}");
-                    // Create a new nodeModel save model
-                    var nodeSave = new NodeSaveModel
-                    {
-                        PageId = page.Key,
-                        NodeId = node.Key,
-                        InputPortId = node.Value.InputPort == null ? null : node.Value.InputPort.Id,
-                        PluginBaseId = node.Value.PluginBase.Id,
-                        NodeConfig = node.Value.UIConfig.Clone(),
-                        ConnectedPorts = [],
-                        PluginSettings = node.Value.PluginSettings
-                    };
-
-                    // If we have a config type, serialize and add the config
-                    if (node.Value.PluginIdAttribute.PluginConfigType != null)
-                    {
-                        using var memoryStream = new MemoryStream();
-                        await JsonSerializer.SerializeAsync(memoryStream, node.Value.PluginConfig, node.Value.PluginIdAttribute.PluginConfigType).ConfigureAwait(false);
-                        memoryStream.Position = 0;
-                        using var streamReader = new StreamReader(memoryStream);
-                        nodeSave.PluginConfig = await streamReader.ReadToEndAsync().ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        //Otherwise, just set the config as a string
-                        nodeSave.PluginConfig = node.Value.PluginConfig != null ? (string)node.Value.PluginConfig : null;
-                    }
-
-                    // Add the output ports
-                    foreach (var outputport in node.Value.OutputPorts)
-                    {
-                        nodeSave.OutputPortsIds.Add(outputport.Value.Id);
-                    }
-
-                    if (node.Value.InputPort != null)
-                    {
-                        // Add the connected ports
-                        foreach (var outputPort in node.Value.InputPort.ConnectedOutputPort.Values)
-                        {
-                            nodeSave.ConnectedPorts.Add(new ConnectionModel { NodeId = outputPort.Node.Id, PortId = outputPort.Id });
-                        }
-                    }
+                    var nodeSaveModel = await _novusModelCreator.CreateNodeSaveModel(node.Value).ConfigureAwait(false);
+                    nodeSaveModel.PageId = page.Key;
 
                     // Add the node model to the page model
-                    pageSaveModel.Nodes.Add(nodeSave);
+                    pageSaveModel.Nodes.Add(nodeSaveModel);
                 }
 
                 flowModel.Pages.Add(pageSaveModel);
@@ -160,14 +124,10 @@ namespace NovusNodoCore.Managers
         /// <returns>A task representing the asynchronous load operation.</returns>
         public async Task LoadProject()
         {
-            List<PageSaveModel> pages = [];
-            //foreach (var file in Directory.EnumerateFiles(saveDir, "*.json"))
             var file = Path.Combine(saveDir, $"project.json");
 
             if (File.Exists(file))
             {
-
-
                 _logger.LogDebug($"Loading page file: {file}");
                 try
                 {
@@ -180,8 +140,7 @@ namespace NovusNodoCore.Managers
                     {
                         foreach (var pageModel in flowModel.Pages)
                         {
-                            await LoadPage(pageModel).ConfigureAwait(false);
-                            pages.Add(pageModel);
+                            await _novusModelCreator.LoadPage(pageModel).ConfigureAwait(false);
                         }
                     }
                 }
@@ -189,95 +148,11 @@ namespace NovusNodoCore.Managers
                 {
                     _logger.LogError(ex, $"An error occurred while loading the page file: {file}.");
                 }
-
-                await LoadLinks(pages).ConfigureAwait(false);
             }
 
             if (_executionManager.NodePages.Count == 0)
             {
                 await _executionManager.AddNewTab(null, true).ConfigureAwait(false);
-            }
-        }
-
-        /// <summary>
-        /// Loads a specific page asynchronously.
-        /// </summary>
-        /// <param name="pageModel">The model of the page to load.</param>
-        /// <returns>A task representing the asynchronous load operation.</returns>
-        public async Task LoadPage(PageSaveModel pageModel)
-        {
-            _logger.LogInformation("Loading project...");
-
-            var nodePage = await _executionManager.AddNewTab(pageModel.PageId, true).ConfigureAwait(false);
-
-            nodePage.PageName = pageModel.PageName;
-
-            foreach (var nodeModel in pageModel.Nodes)
-            {
-                if (!_executionManager.AvailablePlugins.ContainsKey(nodeModel.PluginBaseId))
-                {
-                    _logger.LogError($"Plugin with ID {nodeModel.PluginBaseId} not found.");
-                    continue;
-                }
-
-                var pluginBaseType = _executionManager.AvailablePlugins[nodeModel.PluginBaseId].Item1;
-                var pluginBaseAttribute = _executionManager.AvailablePlugins[nodeModel.PluginBaseId].Item2;
-
-                var node = await nodePage.CreateNode(pluginBaseType, pluginBaseAttribute, nodeModel.NodeId, true).ConfigureAwait(false);
-                node.UIConfig.CopyFrom(nodeModel.NodeConfig);
-                
-                // Set the plugin settings
-                node.PluginSettings = nodeModel.PluginSettings;
-                
-                // I we have a config type, deserialize the config
-                if (pluginBaseAttribute.PluginConfigType != null)
-                {
-                    var config = JsonSerializer.Deserialize(nodeModel.PluginConfig, pluginBaseAttribute.PluginConfigType);
-                    config = Convert.ChangeType(config, pluginBaseAttribute.PluginConfigType);
-                    node.PluginBase.PluginConfig = config;
-
-                }
-                else
-                {
-                    //Otherwise, just set the config as a string
-                    node.PluginBase.PluginConfig = (string)nodeModel.PluginConfig;
-                }
-
-                if (nodeModel.InputPortId != null)
-                {   // Create the input port, replace auto created ones
-                    node.CreateInputPort(nodeModel.InputPortId);
-                }
-
-                // Create the output ports, replace auto created ones
-                node.OutputPorts.Clear();
-                foreach (var outputNodeId in nodeModel.OutputPortsIds)
-                {
-                    node.AddOutputPort(outputNodeId);
-                }
-            }
-
-            _logger.LogInformation("Project loaded successfully.");
-        }
-
-        /// <summary>
-        /// Loads the links between nodes asynchronously.
-        /// </summary>
-        /// <param name="pages">The list of pages containing the nodes and their connections.</param>
-        /// <returns>A task representing the asynchronous load operation.</returns>
-        public async Task LoadLinks(List<PageSaveModel> pages)
-        {
-            foreach (var page in pages)
-            {
-                foreach (var nodeModel in page.Nodes)
-                {
-                    if (nodeModel.ConnectedPorts == null) continue;
-
-                    foreach (var connection in nodeModel.ConnectedPorts)
-                    {
-                        var node = _executionManager.NodePages[page.PageId].AvailableNodes[nodeModel.NodeId];
-                        await _executionManager.NodePages[page.PageId].NewConnection(connection.NodeId, connection.PortId, node.Id, node.InputPort.Id, true).ConfigureAwait(false);
-                    }
-                }
             }
         }
     }

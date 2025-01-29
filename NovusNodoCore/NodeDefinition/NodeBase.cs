@@ -120,6 +120,7 @@ namespace NovusNodoCore.NodeDefinition
             ILogger<INodeBase> logger,
             string id,
             IPluginBase basedPlugin,
+            NodeUIConfig UIConfig,
             ExecutionManager executionManager,
             NovusPluginAttribute pluginIdAttribute,
             NodePageManager nodePageManager,
@@ -128,11 +129,10 @@ namespace NovusNodoCore.NodeDefinition
             CancellationToken token)
         {
             _logger = logger;
-
+            this.UIConfig = UIConfig;
             // Generate a new ID if none is provided, it is provided by load project
             Id = id ?? Guid.NewGuid().ToString();
 
-            UIConfig = new NodeUIConfig();
             UIConfig.PropertyChanged += (sender, e) => OnPropertyChanged(e.PropertyName);
 
             this.nodePageManager = nodePageManager;
@@ -151,7 +151,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Initializes the node with the provided plugin base.
         /// </summary>
-        public void Init()
+        public void Init(bool createPorts = true)
         {
             // Set the start icon paths
             if (PluginSettings.StartIconPath != null)
@@ -168,7 +168,8 @@ namespace NovusNodoCore.NodeDefinition
             PluginBase.Logger = _logger;
             PluginBase.ExecuteJavaScriptCodeCallback = ExecuteJavaScriptCode;
 
-            CreatePorts();
+            if (createPorts)
+                CreatePorts();
 
             if (PluginSettings.NodeType == NodeType.Starter)
             {

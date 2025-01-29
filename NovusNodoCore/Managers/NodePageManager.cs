@@ -57,6 +57,9 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public event Func<NodeBase, Task> AvailableNodesUpdated;
 
+
+        public event Func<(string SourceId, string SourcePortId, string TargetId, string TargetPortId), Task> LinkAdded;
+
         /// <summary>
         /// Gets or sets the available nodes.
         /// </summary>
@@ -85,7 +88,7 @@ namespace NovusNodoCore.Managers
         /// <param name="attribute">The plugin attribute.</param>
         /// <param name="isStartup">Indicates whether the node is a startup node.</param>
         /// <returns>A task representing the asynchronous operation, with the created node as the result.</returns>
-        public async Task<NodeBase> CreateNode(Type pluginBase, NovusPluginAttribute attribute, string id = null, bool isStartup = false)
+        public async Task<NodeBase> CreateNode(Type pluginBase, NovusPluginAttribute attribute, NodeUIConfig uiConfig = null, string id = null, bool isStartup = false)
         {
             var instance = Activator.CreateInstance(pluginBase);
 
@@ -99,9 +102,15 @@ namespace NovusNodoCore.Managers
             if (plugin != null)
             {
                 Logger<INodeBase> logger = (Logger<INodeBase>)loggerFactory.CreateLogger<INodeBase>();
-                NodeBase node = new(logger, id, plugin, executionManager, attribute, this, NodeJSEnvironmentManager, DebugLogChanged, Token);
+
+                if (uiConfig == null) uiConfig = new NodeUIConfig();
+
+                NodeBase node = new(logger, id, plugin, uiConfig, executionManager, attribute, this, NodeJSEnvironmentManager, DebugLogChanged, Token);
+
                 AvailableNodes.Add(node.Id, node);
-                await OnAvailableNodesUpdated(node).ConfigureAwait(false);
+                
+                if(!isStartup)
+                    await OnAvailableNodesUpdated(node).ConfigureAwait(false);
 
                 if (!isStartup && OnPageDataChanged != null)
                 {
@@ -135,7 +144,7 @@ namespace NovusNodoCore.Managers
         /// <param name="sourcePortId">The ID of the source port.</param>
         /// <param name="targetId">The ID of the target node.</param>
         /// <param name="targetPortId">The ID of the target port.</param>
-        public async Task NewConnection(string sourceId, string sourcePortId, string targetId, string targetPortId, bool isStartup = false)
+        public async Task NewConnection(string sourceId, string sourcePortId, string targetId, string targetPortId, bool isStartup = false, bool force = false)
         {
             if (AvailableNodes.TryGetValue(sourceId, out var sourceNode) && AvailableNodes.TryGetValue(targetId, out var targetNode))
             {
@@ -146,6 +155,9 @@ namespace NovusNodoCore.Managers
                     await OnPageDataChanged.Invoke().ConfigureAwait(false);
                 }
             }
+
+            if (force && LinkAdded != null)
+                await LinkAdded.Invoke((sourceId, sourcePortId, targetId, targetPortId)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -189,7 +201,8 @@ namespace NovusNodoCore.Managers
                 }
 
                 // Remove connections from input port
-                node.InputPort.RemoveAllConnections();
+                if (node.InputPort != null)
+                    node.InputPort.RemoveAllConnections();
 
                 if (OnPageDataChanged != null)
                 {
@@ -203,13 +216,8 @@ namespace NovusNodoCore.Managers
         /// </summary>
         /// <param name="nodeBase">The node that was updated.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        private async Task OnAvailableNodesUpdated(NodeBase nodeBase)
+        public async Task OnAvailableNodesUpdated(NodeBase nodeBase)
         {
-            if (AvailableNodesUpdated == null)
-            {
-                await Task.CompletedTask;
-            }
-
             if(AvailableNodesUpdated != null)
                 await AvailableNodesUpdated.Invoke(nodeBase).ConfigureAwait(false);
         }

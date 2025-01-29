@@ -22,9 +22,9 @@ namespace NovusNodo
 
             builder.Logging.AddNovusDebugWindowLogger();
 
-            builder.Services.AddSingleton<NovusUIManagement>();
-
+            // Add novus services to the container.
             builder.Services.AddNovusCoreComponents();
+            builder.Services.AddNovusNodeComponents();
 
             // Add MudBlazor services
             builder.Services.AddMudServices();

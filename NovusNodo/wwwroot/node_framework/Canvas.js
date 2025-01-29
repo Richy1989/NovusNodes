@@ -75,6 +75,10 @@ export class Canvas {
         this.svg.style("background-color", this.getBackgroundColor());
     }
 
+    getSelectedNodeIds() {
+        return this.dragMultipleSelection.map(node => node.id);
+    }
+
     createSvg() {
         let localSVG = d3.select('[id=\"' + this.id + '\"]')
             .attr("width", this.width)
@@ -423,7 +427,9 @@ export class Canvas {
      * @param {Port} targetPort - The target port.
      */
     addLink(sourcePort, targetPort) {
-        const link = new Link(crypto.randomUUID(), sourcePort, targetPort);
+        let linkId = crypto.randomUUID();
+        const link = new Link(linkId, sourcePort, targetPort);
+        
         console.log("Adding link:", link.id, sourcePort, targetPort);
         sourcePort.connectedLinks.push(link);
         targetPort.connectedLinks.push(link);

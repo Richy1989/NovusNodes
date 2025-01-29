@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Xml.Linq;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using NovusNodo.Management;
 using NovusNodoCore.Managers;
@@ -59,13 +60,26 @@ namespace NovusNodo.Components.Pages
             NovusUIManagement.OnResetZoom += NovusUIManagement_OnResetZoom;
             NovusUIManagement.OnNodeEnabledChanged += NovusUIManagement_OnNodeEnabledChanged;
             NovusUIManagement.OnCanvasRasterSizeChanged += NovusUIManagement_OnCanvasRasterSizeChanged;
+            NodePageManager.LinkAdded += NodePageManager_LinkAdded;
         }
 
+        private async Task NodePageManager_LinkAdded((string SourceId, string SourcePortId, string TargetId, string TargetPortId) tuple)
+        {
+            await CanvasReference.InvokeVoidAsync("addLink", [tuple.SourceId, tuple.SourcePortId, tuple.TargetId, tuple.TargetPortId]);
+        }
+
+        /// <summary>
+        /// Handles the event when the canvas raster size is changed.
+        /// </summary>
         private async Task NovusUIManagement_OnCanvasRasterSizeChanged()
         {
             await CanvasReference.InvokeVoidAsync("setCanvasRasterSize", [NovusUIManagement.RasterSize]);
         }
 
+        /// <summary>
+        /// Handles the event when a node's enabled state is changed.
+        /// </summary>
+        /// <param name="isEnabled">Indicates whether the node is enabled.</param>
         private async Task NovusUIManagement_OnNodeEnabledChanged(bool isEnabled)
         {
             await CanvasReference.InvokeVoidAsync("enableDisableNode", [NovusUIManagement.CurrentlySelectedNode.Id, isEnabled]);
@@ -210,13 +224,38 @@ namespace NovusNodo.Components.Pages
         {
             await NovusUIManagement.NodeDoubleClicked(pageId, nodeId);
         }
-        
-        
+
+        /// <summary>
+        /// Invokable method to handle the change in plugin settings.
+        /// </summary>
+        /// <param name="nodeId">The ID of the node.</param>
+        /// <param name="pluginSettings">The new plugin settings.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         [JSInvokable("NovusNode.PluginSettingsChanged")]
         public async Task PluginSettingsChanged(string nodeId, PluginSettings pluginSettings)
         {
             ExecutionManager.NodePages[TabID].AvailableNodes[nodeId].PluginSettings = pluginSettings;
             await ExecutionManager.NodePage_OnPageDataChanged();
+        }
+
+        /// <summary>
+        /// Invokable method to handle the copying of nodes to the clipboard.
+        /// </summary>
+        /// <param name="selectedNodes">The list of selected node IDs.</param>
+        /// <returns>A task that represents the asynchronous operation, containing the serialized copy of the nodes.</returns>
+        [JSInvokable("NovusNode.ClipboardCopyNodes")]
+        public async Task<string> ClipboardCopyNodes(List<string> selectedNodes)
+        {
+            Logger.LogDebug($"Copying nodes ..");
+            List<NodeBase> nodes = ExecutionManager.NodePages[TabID].AvailableNodes.Values.Where(x => selectedNodes.Contains(x.Id)).ToList();
+            string serializedCopy = await CopyPasteCutManager.HandleCopy(nodes).ConfigureAwait(false);
+            return serializedCopy;
+        }
+
+        [JSInvokable("NovusNode.ClipboardPasteNodes")]
+        public async Task<List<string>> ClipboardPasteNodes(double mouseX, double mouseY, string json)
+        {
+            return await CopyPasteCutManager.HandlePaste(json, TabID, mouseX, mouseY, true).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -273,7 +312,7 @@ namespace NovusNodo.Components.Pages
                         string connectedPortId = nextNode.Key;
                         INodeBase connectedNode = nextNode.Value;
 
-                        await CanvasReference.InvokeVoidAsync("addLink", new object[] { node.Id, port.Id, connectedNode.Id, connectedPortId });
+                        await CanvasReference.InvokeVoidAsync("addLink", [node.Id, port.Id, connectedNode.Id, connectedPortId]);
                     }
                 }
             }
@@ -286,14 +325,17 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task AddPorts(NodeBase node)
         {
+            Logger.LogDebug($"Adding ports to node {node.Id}");
             if (node.PluginSettings.NodeType == NodeType.Worker || node.PluginSettings.NodeType == NodeType.Finisher)
             {
+                Logger.LogDebug($"Adding input port {node.InputPort.Id}");
                 await CanvasReference.InvokeVoidAsync("addInputPorts", new object[] { node.Id, node.InputPort.Id });
             }
             if (node.PluginSettings.NodeType == NodeType.Worker || node.PluginSettings.NodeType == NodeType.Starter)
             {
                 foreach (var port in node.OutputPorts.Values)
                 {
+                    Logger.LogDebug($"Adding output port {port.Id}");
                     await CanvasReference.InvokeVoidAsync("addOutputPorts", new object[] { node.Id, port.Id });
                 }
             }
@@ -326,6 +368,7 @@ namespace NovusNodo.Components.Pages
                     NovusUIManagement.OnResetZoom -= NovusUIManagement_OnResetZoom;
                     NovusUIManagement.OnNodeEnabledChanged -= NovusUIManagement_OnNodeEnabledChanged;
                     NovusUIManagement.OnCanvasRasterSizeChanged -= NovusUIManagement_OnCanvasRasterSizeChanged;
+                    NodePageManager.LinkAdded -= NodePageManager_LinkAdded;
                     canvasNetComponentRef?.Dispose();
                 }
 

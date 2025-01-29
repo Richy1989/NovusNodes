@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using NovusNodoCore.Managers;
+using NovusNodoCore.Tools;
 
 namespace NovusNodoCore
 {
@@ -20,6 +21,7 @@ namespace NovusNodoCore
             services.AddSingleton<NodeJSEnvironmentManager>();
             services.AddSingleton<LoadSaveManager>();
             services.AddTransient<NodePageManager>();
+            services.AddTransient<NovusModelCreator>();
 
             return services;
         }

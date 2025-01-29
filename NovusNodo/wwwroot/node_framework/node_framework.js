@@ -11,6 +11,56 @@ let selectedPaperTabId = null;
 // Boolean indicating whether dark mode is enabled
 let isDarkMode = true;
 
+let mouseX = 0;
+let mouseY = 0;
+
+// Update mouse position on movement
+document.addEventListener("mousemove", (event) => {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+});
+
+// Add event listeners for keydown events for copy and paste
+document.addEventListener('keydown', (event) => {
+    if (event.ctrlKey && event.key === 'c') {
+        if (selectedPaperTabId == null) {
+            console.log("No Canvas Tab Selected");
+            return;
+        }
+        
+        const canvas = canvasTabs[selectedPaperTabId];
+        console.log("Starting Copy: ", canvas);
+        let idList = canvas.getSelectedNodeIds();
+        
+        console.log("Selected Node Ids: ", idList);
+
+        canvas.netCanvasReference.invokeMethodAsync("NovusNode.ClipboardCopyNodes", idList)
+        .then(returnValue => {
+            return navigator.clipboard.writeText(returnValue);
+        })
+        .then(() => {
+            console.log("Copied to clipboard");
+        })
+        .catch(err => {
+            console.error("Failed to copy:", err);
+        });
+
+    } else if (event.ctrlKey && event.key === 'v') {
+        const canvas = canvasTabs[selectedPaperTabId];
+        navigator.clipboard.readText()
+        .then(clipboard => {
+            canvas.netCanvasReference.invokeMethodAsync("NovusNode.ClipboardPasteNodes", parseFloat(mouseX), parseFloat(mouseY), clipboard)
+            .then(addedNodes => 
+                {
+                    canvas.dragMultipleSelection = canvas.nodeList.filter(node => addedNodes.includes(node.id));
+                    // Mark all selected nodes
+                    canvas.dragMultipleSelection.forEach((d) => d.markAsSelected());
+                })
+        });
+    }
+});
+
+
 /**
  * Sets the selected canvas tab ID.
  * @param {string} id - The ID of the canvas tab to select.
@@ -188,9 +238,16 @@ export function addLink(sourceNodeId, sourcePortId, targetNodeId, targetPortId) 
         return;
     }
 
+    console.log("Adding Link from " + sourceNodeId + " to " + targetNodeId);
+    console.log("Source Port: " + sourcePortId + " Target Port: " + targetPortId);
+
     const canvas = canvasTabs[selectedPaperTabId];
     const sourceNode = canvas.getNode(sourceNodeId);
     const targetNode = canvas.getNode(targetNodeId);
+
+    console.log("Node: ", sourceNode);
+    console.log("Target: ", targetNode);
+
     const sourcePort = sourceNode.getPort(sourcePortId);
     const targetPort = targetNode.getPort(targetPortId);
     const link = new Link(canvas, sourcePort, targetPort);
