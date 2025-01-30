@@ -57,9 +57,6 @@ namespace NovusNodoCore.Managers
         /// </summary>
         public event Func<NodeBase, Task> AvailableNodesUpdated;
 
-
-        public event Func<(string SourceId, string SourcePortId, string TargetId, string TargetPortId), Task> LinkAdded;
-
         /// <summary>
         /// Gets or sets the available nodes.
         /// </summary>
@@ -144,7 +141,7 @@ namespace NovusNodoCore.Managers
         /// <param name="sourcePortId">The ID of the source port.</param>
         /// <param name="targetId">The ID of the target node.</param>
         /// <param name="targetPortId">The ID of the target port.</param>
-        public async Task NewConnection(string sourceId, string sourcePortId, string targetId, string targetPortId, bool isStartup = false, bool force = false)
+        public async Task NewConnection(string sourceId, string sourcePortId, string targetId, string targetPortId, bool isStartup = false)
         {
             if (AvailableNodes.TryGetValue(sourceId, out var sourceNode) && AvailableNodes.TryGetValue(targetId, out var targetNode))
             {
@@ -155,9 +152,6 @@ namespace NovusNodoCore.Managers
                     await OnPageDataChanged.Invoke().ConfigureAwait(false);
                 }
             }
-
-            if (force && LinkAdded != null)
-                await LinkAdded.Invoke((sourceId, sourcePortId, targetId, targetPortId)).ConfigureAwait(false);
         }
 
         /// <summary>

@@ -105,7 +105,7 @@ namespace NovusNodo.Management
             await _novusModelCreator.LoadNodes(modelList, page).ConfigureAwait(false);
 
             _logger.LogDebug($"Creating links for pasted nodes.");
-            await _novusModelCreator.LoadLinks(modelList, pageId, true, false, true).ConfigureAwait(false);
+            await _novusModelCreator.LoadLinks(modelList, pageId, true, true).ConfigureAwait(false);
 
             return modelList.Select(x => x.NodeId).ToList();
         }

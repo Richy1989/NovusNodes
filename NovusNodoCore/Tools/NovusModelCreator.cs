@@ -82,7 +82,7 @@ namespace NovusNodoCore.Tools
             await LoadNodes(pageModel.Nodes, nodePage).ConfigureAwait(false);
 
             // Load the links
-            await LoadLinks(pageModel.Nodes, pageModel.PageId, false, true, false).ConfigureAwait(false);
+            await LoadLinks(pageModel.Nodes, pageModel.PageId, false, true).ConfigureAwait(false);
             
             _logger.LogInformation("Project loaded successfully.");
         }
@@ -150,7 +150,7 @@ namespace NovusNodoCore.Tools
         /// </summary>
         /// <param name="pages">The list of pages containing the nodes and their connections.</param>
         /// <returns>A task representing the asynchronous load operation.</returns>
-        public async Task LoadLinks(List<NodeSaveModel> nodeSaveModelList, string pageId, bool createSubset, bool isStartup, bool forceRedraw)
+        public async Task LoadLinks(List<NodeSaveModel> nodeSaveModelList, string pageId, bool createSubset, bool isStartup)
         {
             if (!_executionManager.NodePages.TryGetValue(pageId, out NodePageManager nodePageManager))
             {
@@ -178,7 +178,7 @@ namespace NovusNodoCore.Tools
                     }
 
                     _logger.LogDebug($"Creating connection from Node: {node.Id} Port {node.InputPort.Id} to Node: {connection.NodeId} Port {connection.PortId}");
-                    await nodePageManager.NewConnection(connection.NodeId, connection.PortId, node.Id, node.InputPort.Id, isStartup, forceRedraw).ConfigureAwait(false);
+                    await nodePageManager.NewConnection(connection.NodeId, connection.PortId, node.Id, node.InputPort.Id, isStartup).ConfigureAwait(false);
                 }
             }
         }

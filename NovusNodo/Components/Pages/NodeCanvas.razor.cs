@@ -60,12 +60,6 @@ namespace NovusNodo.Components.Pages
             NovusUIManagement.OnResetZoom += NovusUIManagement_OnResetZoom;
             NovusUIManagement.OnNodeEnabledChanged += NovusUIManagement_OnNodeEnabledChanged;
             NovusUIManagement.OnCanvasRasterSizeChanged += NovusUIManagement_OnCanvasRasterSizeChanged;
-            NodePageManager.LinkAdded += NodePageManager_LinkAdded;
-        }
-
-        private async Task NodePageManager_LinkAdded((string SourceId, string SourcePortId, string TargetId, string TargetPortId) tuple)
-        {
-            await CanvasReference.InvokeVoidAsync("addLink", [tuple.SourceId, tuple.SourcePortId, tuple.TargetId, tuple.TargetPortId]);
         }
 
         /// <summary>
@@ -255,7 +249,14 @@ namespace NovusNodo.Components.Pages
         [JSInvokable("NovusNode.ClipboardPasteNodes")]
         public async Task<List<string>> ClipboardPasteNodes(double mouseX, double mouseY, string json)
         {
-            return await CopyPasteCutManager.HandlePaste(json, TabID, mouseX, mouseY, true).ConfigureAwait(false);
+            var addedNodes =  await CopyPasteCutManager.HandlePaste(json, TabID, mouseX, mouseY, true).ConfigureAwait(false);
+
+            await DrawLinks();
+
+            //Fire event to save changes
+            await ExecutionManager.NodePage_OnPageDataChanged();
+
+            return addedNodes;
         }
 
         /// <summary>
@@ -368,7 +369,7 @@ namespace NovusNodo.Components.Pages
                     NovusUIManagement.OnResetZoom -= NovusUIManagement_OnResetZoom;
                     NovusUIManagement.OnNodeEnabledChanged -= NovusUIManagement_OnNodeEnabledChanged;
                     NovusUIManagement.OnCanvasRasterSizeChanged -= NovusUIManagement_OnCanvasRasterSizeChanged;
-                    NodePageManager.LinkAdded -= NodePageManager_LinkAdded;
+                    //NodePageManager.LinkAdded -= NodePageManager_LinkAdded;
                     canvasNetComponentRef?.Dispose();
                 }
 
