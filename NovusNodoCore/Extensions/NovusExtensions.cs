@@ -48,5 +48,21 @@ namespace NovusNodoCore.Extensions
 
             return (T)info.GetValue(null, null);
         }
+
+        public static async Task RaiseAsync(this Func<Task> eventHandler)
+        {
+            if (eventHandler == null)
+                return;
+
+            // Get all subscribed handlers
+            var handlers = eventHandler.GetInvocationList()
+                                       .Cast<Func<Task>>();
+
+            // Execute and await each handler sequentially
+            foreach (var handler in handlers)
+            {
+                await handler().ConfigureAwait(false);
+            }
+        }
     }
 }

@@ -229,7 +229,7 @@ namespace NovusNodo.Components.Pages
         public async Task PluginSettingsChanged(string nodeId, PluginSettings pluginSettings)
         {
             ExecutionManager.NodePages[TabID].AvailableNodes[nodeId].PluginSettings = pluginSettings;
-            await ExecutionManager.NodePage_OnPageDataChanged();
+            await ExecutionManager.RaiseProjectChangedAsync();
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace NovusNodo.Components.Pages
             await DrawLinks();
 
             //Fire event to save changes
-            await ExecutionManager.NodePage_OnPageDataChanged();
+            await ExecutionManager.RaiseProjectChangedAsync();
 
             return addedNodes;
         }

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using NovusNodoCore.DebugNotification;
 using NovusNodoCore.Enumerations;
+using NovusNodoCore.Extensions;
 using NovusNodoCore.NovusLogger;
 using NovusNodoPluginLibrary;
 
@@ -48,16 +49,6 @@ namespace NovusNodoCore.Managers
         public event Func<Task> OnProjectSaved;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the project data is synced.
-        /// </summary>
-        public bool ProjectDataSynced { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether auto-save is enabled.
-        /// </summary>
-        public bool IsAutoSaveEnabled { get; set; } = true;
-
-        /// <summary>
         /// Event fired when the curve style is changed.
         /// </summary>
         public event Func<bool, Task> OnCurveStyleChanged;
@@ -66,6 +57,16 @@ namespace NovusNodoCore.Managers
         /// Event fired when the page is changed.
         /// </summary>
         public event Func<PageAction, string, Task> OnPagesModified;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the project data is synced.
+        /// </summary>
+        public bool ProjectDataSynced { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether auto-save is enabled.
+        /// </summary>
+        public bool IsAutoSaveEnabled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether execution is allowed.
@@ -85,7 +86,9 @@ namespace NovusNodoCore.Managers
             set
             {
                 this.useBezierCurve = value;
-                OnCurveStyleChanged(value);
+                //OnCurveStyleChanged(value);
+                //Fire and firget this event
+                _ = RaiseCurveStyleAsync(value).ConfigureAwait(false);
             }
         }
 
@@ -136,8 +139,7 @@ namespace NovusNodoCore.Managers
         public async Task AllProjectDataSynced()
         {
             ProjectDataSynced = true;
-            if (OnProjectSaved != null)
-                await OnProjectSaved.Invoke().ConfigureAwait(false);
+            await OnProjectSaved.RaiseAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -146,8 +148,7 @@ namespace NovusNodoCore.Managers
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task ManualSaveTrigger()
         {
-            if (OnManualSaveTrigger != null)
-                await OnManualSaveTrigger.Invoke().ConfigureAwait(false);
+            await OnManualSaveTrigger.RaiseAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -161,29 +162,34 @@ namespace NovusNodoCore.Managers
             var nodePage = (NodePageManager)serviceProvider.GetService(typeof(NodePageManager));
 
             //Add event handler to get notified when the page data is changed, in order to save it. 
-            nodePage.OnPageDataChanged += NodePage_OnPageDataChanged;
+            nodePage.OnPageDataChanged += async () => await OnProjectChanged.RaiseAsync().ConfigureAwait(false);
 
             nodePage.DebugLogChanged = OnDebugLogUpdated;
+
             nodePage.PageID = id ?? Guid.NewGuid().ToString();
             nodePage.PageName = "Nodes";
             NodePages.Add(nodePage.PageID, nodePage);
-            OnPagesModified?.Invoke(PageAction.Added, nodePage.PageID);
+            
+            
+            //OnPagesModified?.Invoke(PageAction.Added, nodePage.PageID);
+            await RaisePagesModifiedAsync(PageAction.Added, nodePage.PageID).ConfigureAwait(false);
 
-            if (OnProjectChanged != null && !isStartup)
-                await OnProjectChanged.Invoke().ConfigureAwait(false);
+
+            if (!isStartup)
+                await OnProjectChanged.RaiseAsync().ConfigureAwait(false);
 
             return nodePage;
         }
 
-        /// <summary>
-        /// Handles the event when the page data is changed.
-        /// </summary>
-        /// <param name="pageId">The ID of the page that was changed.</param>
-        public async Task NodePage_OnPageDataChanged()
-        {
-            if (OnProjectChanged != null)
-                await OnProjectChanged.Invoke().ConfigureAwait(false);
-        }
+        ///// <summary>
+        ///// Handles the event when the page data is changed.
+        ///// </summary>
+        ///// <param name="pageId">The ID of the page that was changed.</param>
+        //private async Task NodePage_OnPageDataChanged()
+        //{
+        //    if (OnProjectChanged != null)
+        //        await OnProjectChanged.Invoke().ConfigureAwait(false);
+        //}
 
         /// <summary>
         /// Removes the tab with the specified page ID.
@@ -195,7 +201,8 @@ namespace NovusNodoCore.Managers
             nodePage.CancellationTokenSource.Cancel();
             NodePages.Remove(pageID);
 
-            OnPagesModified?.Invoke(PageAction.Removed, nodePage.PageID);
+            //OnPagesModified?.Invoke(PageAction.Removed, nodePage.PageID);
+            await RaisePagesModifiedAsync(PageAction.Removed, nodePage.PageID).ConfigureAwait(false);
 
             foreach (var node in nodePage.AvailableNodes)
             {
@@ -204,8 +211,7 @@ namespace NovusNodoCore.Managers
                 node.Value.InputPort = null;
             }
 
-            if (OnProjectChanged != null)
-                await OnProjectChanged.Invoke().ConfigureAwait(false);
+            await OnProjectChanged.RaiseAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -215,7 +221,7 @@ namespace NovusNodoCore.Managers
         /// <returns>A task representing the asynchronous operation.</returns>
         private async Task ExecutionManager_NewDebugLog(DebugMessage arg)
         {
-            await OnDebugLogUpdated(arg).ConfigureAwait(false);
+            await RaiseDebugLogUpdatedAsync(arg).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -292,21 +298,45 @@ namespace NovusNodoCore.Managers
                 Sender = senderId
             };
 
-            //DebugLog.Add(debugMessage.Id, debugMessage);
-            if (DebugLogChanged != null)
-                await DebugLogChanged.Invoke(debugMessage.Id, debugMessage).ConfigureAwait(false);
+            await RaiseDebugLogUpdatedAsync(debugMessage).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Invokes the DebugLogChanged event.
-        /// </summary>
-        /// <param name="message">The debug log message.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task OnDebugLogUpdated(DebugMessage message)
+        public async Task RaiseDebugLogUpdatedAsync(DebugMessage message)
         {
-            //DebugLog.Add(message.Id, message);
-            if (DebugLogChanged != null)
-                await DebugLogChanged.Invoke(message.Id, message).ConfigureAwait(false);
+            var handlers = DebugLogChanged?.GetInvocationList(); // Get all subscribers
+            if (handlers == null) return;
+
+            foreach (var handler in handlers.Cast<Func<string, DebugMessage, Task>>())
+            {
+                await handler(message.Id, message).ConfigureAwait(false);
+            }
+        }
+
+        public async Task RaiseCurveStyleAsync(bool isBezierCurve)
+        {
+            var handlers = OnCurveStyleChanged?.GetInvocationList(); // Get all subscribers
+            if (handlers == null) return;
+
+            foreach (var handler in handlers.Cast<Func<bool, Task>>())
+            {
+                await handler(isBezierCurve).ConfigureAwait(false);
+            }
+        }
+        
+        public async Task RaisePagesModifiedAsync(PageAction pageAction, string pageId)
+        {
+            var handlers = OnPagesModified?.GetInvocationList(); // Get all subscribers
+            if (handlers == null) return;
+
+            foreach (var handler in handlers.Cast<Func<PageAction, string, Task>>())
+            {
+                await handler(pageAction, pageId).ConfigureAwait(false);
+            }
+        }
+
+        public async Task RaiseProjectChangedAsync()
+        {
+            await OnProjectChanged.RaiseAsync().ConfigureAwait(false);
         }
     }
 }
