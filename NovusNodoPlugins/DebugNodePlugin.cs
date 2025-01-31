@@ -76,5 +76,9 @@ namespace NovusNodoPlugins
             }
             return message;
         }
+        public override async Task StopPluginAsync()
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
     }
 }

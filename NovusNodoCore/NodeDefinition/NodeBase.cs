@@ -18,7 +18,8 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private readonly CancellationToken token;
+        protected readonly CancellationToken BaseToken;
+        private readonly CancellationTokenSource cancellationTokenSource;
         private readonly ExecutionManager executionManager;
         private readonly NodeJSEnvironmentManager nodeJSEnvironmentManager;
         private NodePageManager nodePageManager;
@@ -85,7 +86,6 @@ namespace NovusNodoCore.NodeDefinition
             set
             {
                 PluginBase.PluginConfig = value;
-                OnPropertyChanged();
             }
         }
 
@@ -115,7 +115,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="nodePageManager">The node page manager instance.</param>
         /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager instance.</param>
         /// <param name="updateDebugFunction">The function to update the debug log.</param>
-        /// <param name="token">The cancellation token.</param>
+        /// <param name="token">The cancellation BaseToken.</param>
         public NodeBase(
             ILogger<INodeBase> logger,
             string id,
@@ -125,8 +125,7 @@ namespace NovusNodoCore.NodeDefinition
             NovusPluginAttribute pluginIdAttribute,
             NodePageManager nodePageManager,
             NodeJSEnvironmentManager nodeJSEnvironmentManager,
-            Func<string, JsonObject, Task> updateDebugFunction,
-            CancellationToken token)
+            Func<string, JsonObject, Task> updateDebugFunction)
         {
             _logger = logger;
             this.UIConfig = UIConfig;
@@ -142,7 +141,8 @@ namespace NovusNodoCore.NodeDefinition
             PluginBase = basedPlugin as PluginBase;
             PluginBase.UpdateDebugLog = updateDebugFunction;
 
-            this.token = token;
+            cancellationTokenSource = new CancellationTokenSource();
+            BaseToken = cancellationTokenSource.Token;
             this.nodeJSEnvironmentManager = nodeJSEnvironmentManager;
 
             Init();
@@ -264,7 +264,7 @@ namespace NovusNodoCore.NodeDefinition
                 {
                     var result = await task(jsonData).ConfigureAwait(false);
 
-                    if (token.IsCancellationRequested)
+                    if (BaseToken.IsCancellationRequested)
                         break;
 
                     //Finisher nodes do not have an output port
@@ -288,7 +288,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task TriggerNextNodes(OutputPort outputPort, JsonObject jsonData)
         {
-            if (token.IsCancellationRequested) await Task.CompletedTask;
+            if (BaseToken.IsCancellationRequested) await Task.CompletedTask;
 
             foreach (var nextNode in outputPort.NextNodes)
             {
@@ -296,7 +296,7 @@ namespace NovusNodoCore.NodeDefinition
                 var clone = JsonNode.Parse(jsonData.ToJsonString()).AsObject();
 
                 nextNode.Value.ParentNode = this;
-                if (!token.IsCancellationRequested)
+                if (!BaseToken.IsCancellationRequested)
                     _ = nextNode.Value.ExecuteNode(clone);
             }
         }
@@ -331,10 +331,16 @@ namespace NovusNodoCore.NodeDefinition
             return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Raises the <see cref="PropertyChanged"/> event.
-        /// </summary>
-        /// <param name="propertyName">The name of the property that changed.</param>
+        public virtual async Task CloseNodeAsync()
+        {
+            await PluginBase.StopPluginAsync().ConfigureAwait(false);
+            await cancellationTokenSource.CancelAsync().ConfigureAwait(false);
+        }
+
+        // <summary>
+        // Raises the <see cref="PropertyChanged"/> event.
+        // </summary>
+        // <param name="propertyName">The name of the property that changed.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

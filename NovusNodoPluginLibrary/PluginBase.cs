@@ -126,5 +126,7 @@ namespace NovusNodoPluginLibrary
             }
             return string.Empty;
         }
+
+        public abstract Task StopPluginAsync();
     }
 }

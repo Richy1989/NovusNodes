@@ -10,7 +10,6 @@ namespace NovusNodoCore.NovusLogger
     [ProviderAlias("DebugWindowLogger")]
     public sealed class DebugWindowLoggerProvider : ILoggerProvider
     {
-        private DebugWindowLoggerConfiguration _currentConfig;
         private readonly ConcurrentDictionary<string, DebugWindowLogger> _loggers = new(StringComparer.OrdinalIgnoreCase);
         private ExecutionManager executionManager = null;
         public DebugWindowLoggerProvider(IServiceProvider serviceProvider)

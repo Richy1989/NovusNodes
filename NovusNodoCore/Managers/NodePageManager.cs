@@ -48,11 +48,6 @@ namespace NovusNodoCore.Managers
         public CancellationTokenSource CancellationTokenSource { get; }
 
         /// <summary>
-        /// The cancellation Token used to observe cancellation requests.
-        /// </summary>
-        public CancellationToken Token { get; }
-
-        /// <summary>
         /// Event fired when AvailableNodes is updated.
         /// </summary>
         public event Func<NodeBase, Task> AvailableNodesUpdated;
@@ -72,9 +67,7 @@ namespace NovusNodoCore.Managers
         {
             this.loggerFactory = loggerFactory;
             this.executionManager = executionManager;
-            CancellationTokenSource = new CancellationTokenSource();
-            Token = CancellationTokenSource.Token;
-
+            
             NodeJSEnvironmentManager = nodeJSEnvironmentManager;
         }
 
@@ -102,7 +95,7 @@ namespace NovusNodoCore.Managers
 
                 if (uiConfig == null) uiConfig = new NodeUIConfig();
 
-                NodeBase node = new(logger, id, plugin, uiConfig, executionManager, attribute, this, NodeJSEnvironmentManager, DebugLogChanged, Token);
+                NodeBase node = new(logger, id, plugin, uiConfig, executionManager, attribute, this, NodeJSEnvironmentManager, DebugLogChanged);
 
                 AvailableNodes.Add(node.Id, node);
                 
@@ -130,6 +123,7 @@ namespace NovusNodoCore.Managers
         {
             if (OnPageDataChanged != null)
             {
+                //Runs the save of a node when NodeUI Data changes / this happens a lot, so we do not wait for it. Just create a task an fire away. 
                 Task.Run(async () => await OnPageDataChanged.Invoke().ConfigureAwait(false));
             }
         }
@@ -183,6 +177,9 @@ namespace NovusNodoCore.Managers
         {
             if (AvailableNodes.TryGetValue(id, out var node))
             {
+                //Stop node operations
+                await node.CloseNodeAsync().ConfigureAwait(false);
+                
                 //Remove event handler
                 node.PropertyChanged -= Node_PropertyChanged;
 
@@ -195,8 +192,7 @@ namespace NovusNodoCore.Managers
                 }
 
                 // Remove connections from input port
-                if (node.InputPort != null)
-                    node.InputPort.RemoveAllConnections();
+                node.InputPort?.RemoveAllConnections();
 
                 if (OnPageDataChanged != null)
                 {

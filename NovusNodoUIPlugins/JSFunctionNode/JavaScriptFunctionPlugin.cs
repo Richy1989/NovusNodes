@@ -41,5 +41,10 @@ namespace NovusNodoUIPlugins.JSFunctionNode
             //The config is the JavaScript code to be executed
             return await ExecuteJavaScriptCodeCallback((string)PluginConfig, jsonData).ConfigureAwait(false);
         }
+
+        public override async Task StopPluginAsync()
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
     }
 }

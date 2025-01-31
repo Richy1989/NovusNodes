@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using NovusNodoPluginLibrary;
 using NovusNodoPluginLibrary.Enums;
@@ -129,21 +130,30 @@ namespace NovusNodoUIPlugins.InjectorNode
         /// <summary>
         /// Stops the plugin and cancels the running task.
         /// </summary>
-        public void Stop()
+        public async Task Stop()
         {
             try
             {
                 if (_cancellationTokenSource != null && _task != null)
                 {
-                    _cancellationTokenSource.Cancel();
-                    _task.Wait(TimeSpan.FromMilliseconds(500)); // Wait for the task to complete
-                    _cancellationTokenSource.Dispose();
+                    Logger.LogDebug("Stopping injector task!");
+                    await _cancellationTokenSource.CancelAsync().ConfigureAwait(false);
+                    Logger.LogDebug("Injector task cancellation requested!");
+                    await Task.WhenAny(_task, Task.Delay(TimeSpan.FromMicroseconds(500))).ConfigureAwait(false);
+                    Logger.LogDebug("Injector task stopped!");
+
                 }
+            }
+            catch (TaskCanceledException)
+            {
+                //This exception is thrown when we cancel the current task, 
             }
             catch (Exception ex)
             {
                 Logger.LogDebug(ex, "Error stopping the plugin");
             }
+
+            _cancellationTokenSource?.Dispose();
         }
 
         /// <summary>
@@ -152,8 +162,24 @@ namespace NovusNodoUIPlugins.InjectorNode
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Restart()
         {
-            Stop();
+            await Stop().ConfigureAwait(false);
             await Start().ConfigureAwait(false);
+        }
+
+        public override async Task StopPluginAsync()
+        {
+            await Stop().ConfigureAwait(false);
+            if (_cancellationTokenSource != null && _task != null)
+                await this._cancellationTokenSource.CancelAsync().ConfigureAwait(false);
+        }
+
+        private async Task<bool> WaitForCancellation(CancellationToken token, TimeSpan timeout)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            using var registration = token.Register(() => tcs.TrySetResult(true));
+
+            var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(timeout));
+            return completedTask == tcs.Task; // True if canceled, False if timeout
         }
     }
 }

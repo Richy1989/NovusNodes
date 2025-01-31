@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace NovusNodoCore.Extensions
 {
-    internal static class NovusExtensions
+    public static class NovusExtensions
     {
         /// <summary>
         /// Serializes an object to a JSON string asynchronously.

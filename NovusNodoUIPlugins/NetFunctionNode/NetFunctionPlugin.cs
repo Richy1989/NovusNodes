@@ -181,5 +181,10 @@ namespace NovusNodoUIPlugins.NetFunctionNode
                 }
             }
         }
+
+        public override async Task StopPluginAsync()
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
     }
 }

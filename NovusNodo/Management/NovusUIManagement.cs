@@ -1,6 +1,7 @@
 ﻿using Microsoft.JSInterop;
 using MudBlazor;
 using NovusNodo.Components.Pages;
+using NovusNodoCore.Extensions;
 using NovusNodoCore.Managers;
 using NovusNodoCore.NodeDefinition;
 
@@ -46,7 +47,8 @@ namespace NovusNodo.Management
         /// </summary>
         public string CurrentlyOpenedPage { get; set; }
 
-        private readonly ILogger<NovusUIManagement> Logger;
+
+        //private readonly ILogger<NovusUIManagement> Logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NovusUIManagement"/> class with the specified execution manager.
@@ -55,7 +57,7 @@ namespace NovusNodo.Management
         /// <param name="executionManager">The execution manager.</param>
         public NovusUIManagement(ILogger<NovusUIManagement> logger, ExecutionManager executionManager)
         {
-            this.Logger = logger;
+            //this.Logger = logger;
             this.ExecutionManager = executionManager;
         }
 
@@ -226,11 +228,7 @@ namespace NovusNodo.Management
         public async Task NodeEnabledChanged(bool isEnabled)
         {
             CurrentlySelectedNode.UIConfig.IsEnabled = isEnabled;
-
-            if (OnNodeEnabledChanged != null)
-            {
-                await OnNodeEnabledChanged.Invoke(isEnabled).ConfigureAwait(false);
-            }
+            await RaiseNodeEnabledChanged(isEnabled);
         }
 
         /// <summary>
@@ -240,7 +238,7 @@ namespace NovusNodo.Management
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ChangeNodeLabelName(string newName)
         {
-            await OnNodeNameChanged?.Invoke(CurrentlyOpenedPage, CurrentlySelectedNode.Id, newName);
+            await RaiseNodeNameChanged(CurrentlyOpenedPage, CurrentlySelectedNode.Id, newName);
             CurrentlySelectedNode.Name = newName;
         }
 
@@ -252,10 +250,7 @@ namespace NovusNodo.Management
         public async Task ChangeCanvasRasterSize(int newSize)
         {
             RasterSize = newSize;
-            if (OnCanvasRasterSizeChanged != null)
-            {
-                await OnCanvasRasterSizeChanged.Invoke().ConfigureAwait(false);
-            }
+            await OnCanvasRasterSizeChanged.RaiseAsync();
         }
 
         /// <summary>
@@ -264,10 +259,7 @@ namespace NovusNodo.Management
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ResetZoom()
         {
-            if (OnResetZoom != null)
-            {
-                await OnResetZoom.Invoke().ConfigureAwait(false);
-            }
+            await OnResetZoom.RaiseAsync();
         }
 
         /// <summary>
@@ -292,6 +284,28 @@ namespace NovusNodo.Management
                 }
 
                 _disposedValue = true;
+            }
+        }
+
+        private async Task RaiseNodeNameChanged(string pageId, string nodeId, string newName)
+        {
+            var handlers = OnNodeNameChanged?.GetInvocationList(); // Get all subscribers
+            if (handlers == null) return;
+
+            foreach (var handler in handlers.Cast<Func<string, string, string, Task>>())
+            {
+                await handler(pageId, nodeId, newName).ConfigureAwait(false);
+            }
+        }
+        
+        private async Task RaiseNodeEnabledChanged(bool isEnabled)
+        {
+            var handlers = OnNodeEnabledChanged?.GetInvocationList(); // Get all subscribers
+            if (handlers == null) return;
+
+            foreach (var handler in handlers.Cast<Func<bool, Task>>())
+            {
+                await handler(isEnabled).ConfigureAwait(false);
             }
         }
     }
