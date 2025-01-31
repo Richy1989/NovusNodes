@@ -177,9 +177,13 @@ namespace NovusNodoCore.Managers
         {
             if (AvailableNodes.TryGetValue(id, out var node))
             {
-                //Stop node operations
-                await node.CloseNodeAsync().ConfigureAwait(false);
-                
+                try
+                {
+                    //Stop node operations
+                    await node.CloseNodeAsync().ConfigureAwait(false);
+                }
+                catch { }
+
                 //Remove event handler
                 node.PropertyChanged -= Node_PropertyChanged;
 
