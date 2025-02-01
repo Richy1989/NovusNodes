@@ -18,11 +18,6 @@ namespace NovusNodoUIPlugins.InjectorNode
         private Task _task;
 
         /// <summary>
-        /// Gets or sets the plugin settings.
-        /// </summary>
-        public override PluginSettings PluginSettings { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="InjectorNodePlugin"/> class.
         /// </summary>
         public InjectorNodePlugin()

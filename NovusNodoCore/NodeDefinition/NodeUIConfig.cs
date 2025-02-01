@@ -15,7 +15,7 @@ namespace NovusNodoCore.NodeDefinition
 
         /// <summary>
         /// Gets or sets the X coordinate of the node.
-        /// Default value is -1.
+        /// Default value is 100.
         /// </summary>
         private double x = 100;
         public double X
@@ -25,14 +25,15 @@ namespace NovusNodoCore.NodeDefinition
             {
                 if (x != value)
                 {
-                    x = value; OnPropertyChanged();
+                    x = value;
+                    OnPropertyChanged();
                 }
             }
         }
 
         /// <summary>
         /// Gets or sets the Y coordinate of the node.
-        /// Default value is -1.
+        /// Default value is 100.
         /// </summary>
         private double y = 100;
         public double Y
@@ -42,7 +43,8 @@ namespace NovusNodoCore.NodeDefinition
             {
                 if (y != value)
                 {
-                    y = value; OnPropertyChanged();
+                    y = value;
+                    OnPropertyChanged();
                 }
             }
         }
@@ -58,16 +60,29 @@ namespace NovusNodoCore.NodeDefinition
             {
                 if (name != value)
                 {
-                    name = value; OnPropertyChanged();
+                    name = value;
+                    OnPropertyChanged();
                 }
             }
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether the node is enabled.
+        /// Default value is true.
         /// </summary>
         private bool isEnabled = true;
-        public bool IsEnabled { get => isEnabled; set { isEnabled = value; OnPropertyChanged(); } }
+        public bool IsEnabled
+        {
+            get => isEnabled;
+            set
+            {
+                if (isEnabled != value)
+                {
+                    isEnabled = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Creates a new instance of <see cref="NodeUIConfig"/> that is a copy of the current instance.
@@ -84,6 +99,10 @@ namespace NovusNodoCore.NodeDefinition
             };
         }
 
+        /// <summary>
+        /// Copies the property values from another <see cref="NodeUIConfig"/> instance.
+        /// </summary>
+        /// <param name="other">The other <see cref="NodeUIConfig"/> instance to copy from.</param>
         public void CopyFrom(NodeUIConfig other)
         {
             x = other.X;

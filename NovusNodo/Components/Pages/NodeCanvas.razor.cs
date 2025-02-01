@@ -98,7 +98,7 @@ namespace NovusNodo.Components.Pages
             {
                 try
                 {
-                    await CanvasReference.InvokeVoidAsync("setNodeName", new object[] { nodeId, name });
+                    await CanvasReference.InvokeVoidAsync("setNodeName", [nodeId, name]);
                 }
                 catch (Exception ex)
                 {
@@ -245,15 +245,22 @@ namespace NovusNodo.Components.Pages
             return serializedCopy;
         }
 
+        /// <summary>
+        /// Invokable method to handle the pasting of nodes from the clipboard.
+        /// </summary>
+        /// <param name="mouseX">The x-coordinate of the mouse position where the nodes will be pasted.</param>
+        /// <param name="mouseY">The y-coordinate of the mouse position where the nodes will be pasted.</param>
+        /// <param name="json">The JSON string containing the serialized nodes to be pasted.</param>
+        /// <returns>A task that represents the asynchronous operation, containing the list of added node IDs.</returns>
         [JSInvokable("NovusNode.ClipboardPasteNodes")]
         public async Task<List<string>> ClipboardPasteNodes(double mouseX, double mouseY, string json)
         {
-            var addedNodes =  await CopyPasteCutManager.HandlePaste(json, TabID, mouseX, mouseY, true).ConfigureAwait(false);
+            var addedNodes = await CopyPasteCutManager.HandlePaste(json, TabID, mouseX, mouseY, true).ConfigureAwait(false);
 
             await DrawLinks();
 
-            //Fire event to save changes
-            await ExecutionManager.RaiseProjectChangedAsync();
+            // Fire event to save changes and forget immediately. Do not await it.
+            _ = ExecutionManager.RaiseProjectChangedAsync();
 
             return addedNodes;
         }

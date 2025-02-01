@@ -18,7 +18,7 @@ namespace NovusNodoPluginLibrary
         /// <summary>
         /// Gets or sets the settings for the plugin.
         /// </summary>
-        public abstract PluginSettings PluginSettings { get; set; }
+        public PluginSettings PluginSettings { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PluginBase"/> class.

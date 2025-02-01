@@ -11,11 +11,6 @@ namespace NovusNodoPlugins
     public class DebugNodePlugin : PluginBase
     {
         /// <summary>
-        /// Gets or sets the plugin settings.
-        /// </summary>
-        public override PluginSettings PluginSettings { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="DebugNodePlugin"/> class.
         /// </summary>
         public DebugNodePlugin()
@@ -28,7 +23,7 @@ namespace NovusNodoPlugins
                 IsSwitchable = true,
             };
 
-            //Adding the task to the list of tasks
+            // Adding the task to the list of tasks
             base.AddWorkTask(Workload);
         }
 
@@ -62,7 +57,7 @@ namespace NovusNodoPlugins
             }
 
             string message = "";
-            //recursive function to create a string representation of the JSON object
+            // Recursive function to create a string representation of the JSON object
             foreach (var kvp in jsonObject)
             {
                 if (kvp.Value is JsonObject)
@@ -76,6 +71,11 @@ namespace NovusNodoPlugins
             }
             return message;
         }
+
+        /// <summary>
+        /// Stops the plugin asynchronously.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public override async Task StopPluginAsync()
         {
             await Task.CompletedTask.ConfigureAwait(false);

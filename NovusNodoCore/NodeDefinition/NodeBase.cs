@@ -333,7 +333,11 @@ namespace NovusNodoCore.NodeDefinition
             return await Task.FromResult(new JsonObject()).ConfigureAwait(false);
         }
 
-        public virtual async Task CloseNodeAsync()
+        /// <summary>
+        /// Closes the node asynchronously, stopping the plugin and canceling any ongoing operations.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        public async Task CloseNodeAsync()
         {
             await PluginBase.StopPluginAsync().ConfigureAwait(false);
             await cancellationTokenSource.CancelAsync().ConfigureAwait(false);

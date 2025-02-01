@@ -47,8 +47,10 @@ namespace NovusNodo.Management
         /// </summary>
         public string CurrentlyOpenedPage { get; set; }
 
-
-        //private readonly ILogger<NovusUIManagement> Logger;
+        /// <summary>
+        /// The logger instance.
+        /// </summary>
+        private readonly ILogger<NovusUIManagement> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NovusUIManagement"/> class with the specified execution manager.
@@ -57,7 +59,7 @@ namespace NovusNodo.Management
         /// <param name="executionManager">The execution manager.</param>
         public NovusUIManagement(ILogger<NovusUIManagement> logger, ExecutionManager executionManager)
         {
-            //this.Logger = logger;
+            this._logger = logger;
             this.ExecutionManager = executionManager;
         }
 
@@ -109,10 +111,7 @@ namespace NovusNodo.Management
             set
             {
                 isDarkMode = value;
-                if (OnDarkThemeChanged != null)
-                {
-                    OnDarkThemeChanged.Invoke(value).ConfigureAwait(false);
-                }
+                _ = RaiseDarkThemeChanged(value); // Fire and forget
             }
         }
 
@@ -199,7 +198,7 @@ namespace NovusNodo.Management
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task ReloadPage()
         {
-            await JS.InvokeVoidAsync("GJSReloadPage").ConfigureAwait(false);
+            await JS.InvokeVoidAsync("GJSReloadPage");
         }
 
         /// <summary>
@@ -217,7 +216,7 @@ namespace NovusNodo.Management
                 SideBarUI = CurrentlySelectedNode.UIType;
             }
 
-            await OnNodeDoubleClicked(CurrentlySelectedNode);
+            await RaiseNodeDoubleClicked(CurrentlySelectedNode);
         }
 
         /// <summary>
@@ -287,6 +286,13 @@ namespace NovusNodo.Management
             }
         }
 
+        /// <summary>
+        /// Raises the OnNodeNameChanged event.
+        /// </summary>
+        /// <param name="pageId">The ID of the page.</param>
+        /// <param name="nodeId">The ID of the node.</param>
+        /// <param name="newName">The new name of the node.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task RaiseNodeNameChanged(string pageId, string nodeId, string newName)
         {
             var handlers = OnNodeNameChanged?.GetInvocationList(); // Get all subscribers
@@ -294,10 +300,15 @@ namespace NovusNodo.Management
 
             foreach (var handler in handlers.Cast<Func<string, string, string, Task>>())
             {
-                await handler(pageId, nodeId, newName).ConfigureAwait(false);
+                await handler(pageId, nodeId, newName);
             }
         }
-        
+
+        /// <summary>
+        /// Raises the OnNodeEnabledChanged event.
+        /// </summary>
+        /// <param name="isEnabled">Indicates whether the node is enabled.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task RaiseNodeEnabledChanged(bool isEnabled)
         {
             var handlers = OnNodeEnabledChanged?.GetInvocationList(); // Get all subscribers
@@ -305,7 +316,39 @@ namespace NovusNodo.Management
 
             foreach (var handler in handlers.Cast<Func<bool, Task>>())
             {
-                await handler(isEnabled).ConfigureAwait(false);
+                await handler(isEnabled);
+            }
+        }
+
+        /// <summary>
+        /// Raises the OnNodeDoubleClicked event.
+        /// </summary>
+        /// <param name="node">The node that was double-clicked.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        private async Task RaiseNodeDoubleClicked(INodeBase node)
+        {
+            var handlers = OnNodeDoubleClicked?.GetInvocationList(); // Get all subscribers
+            if (handlers == null) return;
+
+            foreach (var handler in handlers.Cast<Func<INodeBase, Task>>())
+            {
+                await handler(node);
+            }
+        }
+
+        /// <summary>
+        /// Raises the OnDarkThemeChanged event.
+        /// </summary>
+        /// <param name="isDarkTheme">Indicates whether the dark theme is enabled.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        private async Task RaiseDarkThemeChanged(bool isDarkTheme)
+        {
+            var handlers = OnDarkThemeChanged?.GetInvocationList(); // Get all subscribers
+            if (handlers == null) return;
+
+            foreach (var handler in handlers.Cast<Func<bool, Task>>())
+            {
+                await handler(isDarkTheme);
             }
         }
     }

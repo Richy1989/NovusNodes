@@ -1,7 +1,6 @@
 using MudBlazor.Services;
 using NLog.Extensions.Logging;
 using NovusNodo.Components;
-using NovusNodo.Management;
 using NovusNodo.PluginManagement;
 using NovusNodoCore;
 using NovusNodoCore.Managers;

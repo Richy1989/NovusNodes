@@ -10,11 +10,6 @@ namespace NovusNodoUIPlugins.JSFunctionNode
     public class JavaScriptFunctionPlugin : PluginBase
     {
         /// <summary>
-        /// Gets or sets the plugin configuration.
-        /// </summary>
-        public override PluginSettings PluginSettings { get; set; }
-        
-        /// <summary>
         /// Initializes a new instance of the <see cref="JavaScriptFunctionPlugin"/> class.
         /// </summary>
         public JavaScriptFunctionPlugin()
@@ -34,14 +29,18 @@ namespace NovusNodoUIPlugins.JSFunctionNode
         /// Defines the workload to be executed by the node.
         /// </summary>
         /// <param name="jsonData">The JSON data to be processed by the workload.</param>
-        /// <returns>A task that represents the asynchronous operation and returns a string result.</returns>
+        /// <returns>A task that represents the asynchronous operation and returns a <see cref="JsonObject"/> result.</returns>
         public async Task<JsonObject> Workload(JsonObject jsonData)
         {
             // Execute the JavaScript code and return the result
-            //The config is the JavaScript code to be executed
+            // The config is the JavaScript code to be executed
             return await ExecuteJavaScriptCodeCallback((string)PluginConfig, jsonData).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Stops the plugin asynchronously.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public override async Task StopPluginAsync()
         {
             await Task.CompletedTask.ConfigureAwait(false);

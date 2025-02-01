@@ -18,9 +18,6 @@ namespace NovusNodoUIPlugins.NetFunctionNode
         private Type type;
         private string oldSourceCode;
 
-
-        public override PluginSettings PluginSettings { get; set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="NetFunctionPlugin"/> class.
         /// </summary>
