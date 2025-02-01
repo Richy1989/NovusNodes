@@ -54,6 +54,7 @@ document.addEventListener('keydown', (event) => {
                 {
                     canvas.dragMultipleSelection = canvas.nodeList.filter(node => addedNodes.includes(node.id));
                     // Mark all selected nodes
+                    canvas.resetAllColors();
                     canvas.dragMultipleSelection.forEach((d) => d.markAsSelected());
                 })
         });

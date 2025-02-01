@@ -67,7 +67,9 @@ export class Node{
             .on("click", () => {
                 this.canvas.resetAllColors();
                 this.markAsSelected();
-                this.canvas.selectedNode = this;
+                //this.canvas.selectedNode = this;
+                this.canvas.dragMultipleSelection = [];
+                this.canvas.dragMultipleSelection.push(this);
             })
             .on("dblclick", () => {
                 this.onNodeBodyDoubleClick();

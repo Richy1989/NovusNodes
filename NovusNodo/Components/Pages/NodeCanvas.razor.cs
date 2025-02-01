@@ -13,21 +13,6 @@ namespace NovusNodo.Components.Pages
     public partial class NodeCanvas : ComponentBase, IDisposable
     {
         /// <summary>
-        /// Indicates whether the component has been initialized.
-        /// </summary>
-        private bool isInitialized = false;
-
-        /// <summary>
-        /// Indicates whether the object has been disposed.
-        /// </summary>
-        private bool _disposedValue;
-
-        /// <summary>
-        /// A reference to the current instance of the JointJS Paper component for JavaScript interop.
-        /// </summary>
-        private DotNetObjectReference<NodeCanvas> canvasNetComponentRef;
-
-        /// <summary>
         /// Gets or sets the Tab ID associated with this JointJS Paper component.
         /// </summary>
         [Parameter]
@@ -40,9 +25,24 @@ namespace NovusNodo.Components.Pages
         public IJSObjectReference CanvasReference { get; set; }
 
         /// <summary>
-        /// Gets or sets the NodePageManager instance for managing nodes on this page.
+        /// Gets or sets the _nodePageManager instance for managing nodes on this page.
         /// </summary>
-        public NodePageManager NodePageManager { get; set; }
+        private NodePageManager _nodePageManager;
+
+        /// <summary>
+        /// Indicates whether the component has been initialized.
+        /// </summary>
+        private bool _isInitialized = false;
+
+        /// <summary>
+        /// Indicates whether the object has been disposed.
+        /// </summary>
+        private bool _disposedValue;
+
+        /// <summary>
+        /// A reference to the current instance of the JointJS Paper component for JavaScript interop.
+        /// </summary>
+        private DotNetObjectReference<NodeCanvas> _canvasNetComponentRef;
 
         /// <summary>
         /// Method called when the component is initialized.
@@ -51,9 +51,10 @@ namespace NovusNodo.Components.Pages
         {
             base.OnInitialized();
 
+            _nodePageManager = ExecutionManager.NodePages[TabID];
+
             ExecutionManager.OnCurveStyleChanged += ExecutionManager_OnCurveStyleChanged;
-            NodePageManager = ExecutionManager.NodePages[TabID];
-            NodePageManager.AvailableNodesUpdated += NodesAdded;
+            _nodePageManager.AvailableNodesUpdated += NodesAdded;
             NovusUIManagement.OnDarkThemeChanged += NovusUIManagement_OnDarkThemeChanged;
             NovusUIManagement.OnNodeNameChanged += NovusUIManagement_OnNodeNameChanged;
             NovusUIManagement.OnResetZoom += NovusUIManagement_OnResetZoom;
@@ -147,8 +148,8 @@ namespace NovusNodo.Components.Pages
         {
             await InvokeAsync(() =>
             {
-                NodePageManager.AvailableNodes[id].UIConfig.X = x;
-                NodePageManager.AvailableNodes[id].UIConfig.Y = y;
+                _nodePageManager.AvailableNodes[id].UIConfig.X = x;
+                _nodePageManager.AvailableNodes[id].UIConfig.Y = y;
             });
         }
 
@@ -161,7 +162,7 @@ namespace NovusNodo.Components.Pages
         public async Task InjectorElementClicked(string id)
         {
             Logger.LogDebug($"Injector Element Clicked {id} in Tab: {TabID}");
-            await NodePageManager.AvailableNodes[id].TriggerManualExecute();
+            await _nodePageManager.AvailableNodes[id].TriggerManualExecute();
         }
 
         /// <summary>
@@ -176,7 +177,7 @@ namespace NovusNodo.Components.Pages
         public async Task LinkAdded(string sourceID, string sourcePortId, string targetId, string targetPortId)
         {
             Logger.LogDebug($"Link Added {sourceID} {sourcePortId} {targetId} {targetPortId} to {TabID}");
-            await NodePageManager.NewConnection(sourceID, sourcePortId, targetId, targetPortId);
+            await _nodePageManager.NewConnection(sourceID, sourcePortId, targetId, targetPortId);
         }
 
         /// <summary>
@@ -191,7 +192,7 @@ namespace NovusNodo.Components.Pages
         public async Task LinkRemoved(string sourceId, string sourcePortId, string targetId, string targetPortId)
         {
             Logger.LogDebug($"Link Removed {sourceId} {sourcePortId} {targetId} {targetPortId} from {TabID}");
-            await NodePageManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
+            await _nodePageManager.RemoveConnection(sourceId, sourcePortId, targetId, targetPortId);
         }
 
         /// <summary>
@@ -203,7 +204,7 @@ namespace NovusNodo.Components.Pages
         public async Task ElementRemoved(string elementId)
         {
             Logger.LogDebug($"Element Removed {elementId} from {TabID}");
-            await NodePageManager.ElementRemoved(elementId);
+            await _nodePageManager.ElementRemoved(elementId);
         }
 
         /// <summary>
@@ -287,15 +288,15 @@ namespace NovusNodo.Components.Pages
             base.OnAfterRender(firstRender);
             if (firstRender)
             {
-                canvasNetComponentRef = DotNetObjectReference.Create(this);
+                _canvasNetComponentRef = DotNetObjectReference.Create(this);
                 Logger.LogDebug("Creating canvas for tab {TabID}", TabID);
-                await CanvasReference.InvokeVoidAsync("createCanvas", new object[] { TabID, canvasNetComponentRef });
+                await CanvasReference.InvokeVoidAsync("createCanvas", new object[] { TabID, _canvasNetComponentRef });
                 await SetColorTheme(NovusUIManagement.IsDarkMode);
 
-                if (!isInitialized)
+                if (!_isInitialized)
                 {
-                    isInitialized = true;
-                    foreach (var node in NodePageManager.AvailableNodes.Values)
+                    _isInitialized = true;
+                    foreach (var node in _nodePageManager.AvailableNodes.Values)
                     {
                         await NodesAdded(node);
                     }
@@ -310,7 +311,7 @@ namespace NovusNodo.Components.Pages
         /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task DrawLinks()
         {
-            foreach (var node in NodePageManager.AvailableNodes.Values)
+            foreach (var node in _nodePageManager.AvailableNodes.Values)
             {
                 foreach (var port in node.OutputPorts.Values)
                 {
@@ -369,14 +370,13 @@ namespace NovusNodo.Components.Pages
                 {
                     Logger.LogDebug($"Disposing Canvas with ID: {TabID}");
                     ExecutionManager.OnCurveStyleChanged -= ExecutionManager_OnCurveStyleChanged;
-                    NodePageManager.AvailableNodesUpdated -= NodesAdded;
+                    _nodePageManager.AvailableNodesUpdated -= NodesAdded;
                     NovusUIManagement.OnDarkThemeChanged -= NovusUIManagement_OnDarkThemeChanged;
                     NovusUIManagement.OnNodeNameChanged -= NovusUIManagement_OnNodeNameChanged;
                     NovusUIManagement.OnResetZoom -= NovusUIManagement_OnResetZoom;
                     NovusUIManagement.OnNodeEnabledChanged -= NovusUIManagement_OnNodeEnabledChanged;
                     NovusUIManagement.OnCanvasRasterSizeChanged -= NovusUIManagement_OnCanvasRasterSizeChanged;
-                    //NodePageManager.LinkAdded -= NodePageManager_LinkAdded;
-                    canvasNetComponentRef?.Dispose();
+                    _canvasNetComponentRef?.Dispose();
                 }
 
                 _disposedValue = true;

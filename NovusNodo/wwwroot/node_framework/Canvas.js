@@ -10,7 +10,7 @@ export class Canvas {
     linkList = [];
     tempLine = null
     selectedLink = null;
-    selectedNode = null;
+    //selectedNode = null;
     isSelecting = false;
     isLinking = false;
     tempSelectRect = null;
@@ -515,11 +515,11 @@ export class Canvas {
             this.selectedLink = null;
         }
 
-        // Delete selected node
+        /* // Delete selected node
         if (this.selectedNode) {
             this.deleteNode(this.selectedNode);
             this.selectedNode = null;
-        }
+        } */
 
         // Delete multiple selected nodes
         if (this.dragMultipleSelection.length > 0) {

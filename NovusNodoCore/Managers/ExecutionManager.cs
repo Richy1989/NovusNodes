@@ -162,7 +162,7 @@ namespace NovusNodoCore.Managers
             var nodePage = (NodePageManager)serviceProvider.GetService(typeof(NodePageManager));
 
             //Add event handler to get notified when the page data is changed, in order to save it. 
-            nodePage.OnPageDataChanged += OnProjectChanged.RaiseAsync;
+            nodePage.OnPageDataChanged += RaiseProjectChangedAsync;
 
             nodePage.DebugLogChanged = OnDebugLogUpdated;
 
