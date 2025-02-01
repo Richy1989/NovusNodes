@@ -36,15 +36,12 @@ namespace NovusNodoUIPlugins.InjectorNode
                 IsManualInjectable = true,
             };
 
-            Task.Run(async () =>
-            {
-                await Start().ConfigureAwait(false);
-            });
+            // Fire and forget, ensuring execution
+            // Start the injector plugin task
+            _ = Start();
 
-            ConfigUpdated = async () =>
-            {
-                await Restart().ConfigureAwait(false);
-            };
+            // Set the callback function to be executed when the config updates. 
+            ConfigUpdated = Restart;
         }
 
         /// <summary>
@@ -146,14 +143,12 @@ namespace NovusNodoUIPlugins.InjectorNode
             }
             catch (TaskCanceledException)
             {
-                //This exception is thrown when we cancel the current task, 
+                // This exception is thrown when we cancel the current task
             }
             catch (Exception ex)
             {
                 Logger.LogDebug(ex, "Error stopping the plugin");
             }
-
-            _cancellationTokenSource?.Dispose();
         }
 
         /// <summary>
@@ -166,20 +161,13 @@ namespace NovusNodoUIPlugins.InjectorNode
             await Start().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Stops the plugin asynchronously.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public override async Task StopPluginAsync()
         {
             await Stop().ConfigureAwait(false);
-            if (_cancellationTokenSource != null && _task != null)
-                await this._cancellationTokenSource.CancelAsync().ConfigureAwait(false);
-        }
-
-        private async Task<bool> WaitForCancellation(CancellationToken token, TimeSpan timeout)
-        {
-            var tcs = new TaskCompletionSource<bool>();
-            using var registration = token.Register(() => tcs.TrySetResult(true));
-
-            var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(timeout));
-            return completedTask == tcs.Task; // True if canceled, False if timeout
         }
     }
 }

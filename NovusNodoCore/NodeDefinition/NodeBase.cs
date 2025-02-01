@@ -23,6 +23,7 @@ namespace NovusNodoCore.NodeDefinition
         private readonly ExecutionManager executionManager;
         private readonly NodeJSEnvironmentManager nodeJSEnvironmentManager;
         private NodePageManager nodePageManager;
+        private readonly ILoggerFactory _loggerFactory;  
 
         /// <summary>
         /// Gets or sets the callback for executing JavaScript code.
@@ -117,7 +118,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <param name="updateDebugFunction">The function to update the debug log.</param>
         /// <param name="token">The cancellation BaseToken.</param>
         public NodeBase(
-            ILogger<INodeBase> logger,
+            ILoggerFactory loggerFactory,
             string id,
             IPluginBase basedPlugin,
             NodeUIConfig UIConfig,
@@ -127,7 +128,8 @@ namespace NovusNodoCore.NodeDefinition
             NodeJSEnvironmentManager nodeJSEnvironmentManager,
             Func<string, JsonObject, Task> updateDebugFunction)
         {
-            _logger = logger;
+            _logger = loggerFactory.CreateLogger<INodeBase>();
+            _loggerFactory = loggerFactory;
             this.UIConfig = UIConfig;
             // Generate a new ID if none is provided, it is provided by load project
             Id = id ?? Guid.NewGuid().ToString();
@@ -165,7 +167,7 @@ namespace NovusNodoCore.NodeDefinition
                 PluginSettings.EndIconPath = Path.Combine("pluginicons", this.PluginIdAttribute.AssemblyName, PluginSettings.EndIconPath);
             }
 
-            PluginBase.Logger = _logger;
+            PluginBase.Logger = _loggerFactory.CreateLogger(PluginBase.GetType());
             PluginBase.ExecuteJavaScriptCodeCallback = ExecuteJavaScriptCode;
 
             if (createPorts)
