@@ -156,7 +156,7 @@ namespace NovusNodoCore.NodeDefinition
         /// Initializes the node with the provided plugin base.
         /// </summary>
         /// <param name="createPorts">Indicates whether to create ports for the node.</param>
-        public void Init(bool createPorts = true)
+        private void Init()
         {
             // Set the start icon paths
             if (PluginSettings.StartIconPath != null)
@@ -173,8 +173,7 @@ namespace NovusNodoCore.NodeDefinition
             PluginBase.Logger = _loggerFactory.CreateLogger(PluginBase.GetType());
             PluginBase.ExecuteJavaScriptCodeCallback = ExecuteJavaScriptCode;
 
-            if (createPorts)
-                CreatePorts();
+            CreatePorts();
 
             if (PluginSettings.NodeType == NodeType.Starter)
             {
