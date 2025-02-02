@@ -87,7 +87,7 @@ namespace NovusNodoCore.Managers
             {
                 this.useBezierCurve = value;
                 //OnCurveStyleChanged(value);
-                //Fire and firget this event
+                //Fire and forget this event
                 _ = RaiseCurveStyleAsync(value).ConfigureAwait(false);
             }
         }
@@ -169,9 +169,7 @@ namespace NovusNodoCore.Managers
             nodePage.PageID = id ?? Guid.NewGuid().ToString();
             nodePage.PageName = "Nodes";
             NodePages.Add(nodePage.PageID, nodePage);
-            
-            
-            //OnPagesModified?.Invoke(PageAction.Added, nodePage.PageID);
+
             await RaisePagesModifiedAsync(PageAction.Added, nodePage.PageID).ConfigureAwait(false);
 
 
@@ -242,7 +240,6 @@ namespace NovusNodoCore.Managers
 
                 foreach (var type in derivedTypes)
                 {
-
                     NovusPluginAttribute baseAttribute = (NovusPluginAttribute)Attribute.GetCustomAttribute(type, typeof(NovusPluginAttribute));
 
                     if (baseAttribute == null)
@@ -301,6 +298,11 @@ namespace NovusNodoCore.Managers
             await RaiseDebugLogUpdatedAsync(debugMessage).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Raises the DebugLogUpdated event asynchronously.
+        /// </summary>
+        /// <param name="message">The debug message to raise the event with.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RaiseDebugLogUpdatedAsync(DebugMessage message)
         {
             var handlers = DebugLogChanged?.GetInvocationList(); // Get all subscribers
@@ -312,6 +314,11 @@ namespace NovusNodoCore.Managers
             }
         }
 
+        /// <summary>
+        /// Raises the CurveStyleChanged event asynchronously.
+        /// </summary>
+        /// <param name="isBezierCurve">Indicates whether the curve style is Bezier.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RaiseCurveStyleAsync(bool isBezierCurve)
         {
             var handlers = OnCurveStyleChanged?.GetInvocationList(); // Get all subscribers
@@ -322,7 +329,13 @@ namespace NovusNodoCore.Managers
                 await handler(isBezierCurve).ConfigureAwait(false);
             }
         }
-        
+
+        /// <summary>
+        /// Raises the PagesModified event asynchronously.
+        /// </summary>
+        /// <param name="pageAction">The action performed on the page.</param>
+        /// <param name="pageId">The ID of the page.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RaisePagesModifiedAsync(PageAction pageAction, string pageId)
         {
             var handlers = OnPagesModified?.GetInvocationList(); // Get all subscribers
@@ -334,6 +347,10 @@ namespace NovusNodoCore.Managers
             }
         }
 
+        /// <summary>
+        /// Raises the ProjectChanged event asynchronously.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RaiseProjectChangedAsync()
         {
             await OnProjectChanged.RaiseAsync().ConfigureAwait(false);

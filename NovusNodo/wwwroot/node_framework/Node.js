@@ -64,11 +64,15 @@ export class Node{
             .attr("fill", this.color)
             .attr("width", this.width)
             .attr("height", this.height)
-            .on("click", () => {
-                this.canvas.resetAllColors();
+            .on("click", (event) => {
+                // If the control key is not pressed, we add the node to the multiple selection list
+                // Otherwise, we reset the multiple selection list and add the node to it
+                if (!event.ctrlKey) {               
+                    this.canvas.dragMultipleSelection = [];
+                    this.canvas.resetAllColors();
+                }
+                
                 this.markAsSelected();
-                //this.canvas.selectedNode = this;
-                this.canvas.dragMultipleSelection = [];
                 this.canvas.dragMultipleSelection.push(this);
             })
             .on("dblclick", () => {
