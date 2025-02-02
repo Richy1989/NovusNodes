@@ -14,7 +14,7 @@
   <ItemGroup>
 		<PackageReference Include="GaelJ.BlazorCodeMirror6" Version="0.9.1" />
 		<PackageReference Include="Microsoft.CodeAnalysis" Version="4.12.0" />
-		<PackageReference Include="MudBlazor" Version="8.1.0" />
+		<PackageReference Include="MudBlazor" Version="8.2.0" />
   </ItemGroup>
 
   <ItemGroup>

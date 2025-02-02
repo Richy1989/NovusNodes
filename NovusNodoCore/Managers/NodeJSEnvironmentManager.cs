@@ -72,8 +72,6 @@ namespace NovusNodoCore.Managers
                 }
             });
 
-            //var userCodeRunner = (IUserJSCodeRunner)nodejs.Import<IUserJSCodeRunner>(globalNovusJavaScriptPath, "");
-
             return content;
         }
 

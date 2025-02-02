@@ -17,8 +17,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="9.0.1" />
-    <PackageReference Include="Microsoft.JavaScript.NodeApi" Version="0.8.20" />
-    <PackageReference Include="Microsoft.JavaScript.NodeApi.Generator" Version="0.8.20" />
+    <PackageReference Include="Microsoft.JavaScript.NodeApi" Version="0.9.1" />
+    <PackageReference Include="Microsoft.JavaScript.NodeApi.Generator" Version="0.9.1" />
   </ItemGroup>
 
 </Project>
