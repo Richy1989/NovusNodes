@@ -14,11 +14,11 @@ namespace NovusNodo
         {
             var builder = WebApplication.CreateBuilder(args);
 
-
+            // Add loggers
             builder.Logging.ClearProviders();
-            //builder.Logging.AddColorConsoleLogger();
             builder.Logging.AddNLog();
 
+            // Add novus loggers (This one will forward log messaged to the GUI)
             builder.Logging.AddNovusDebugWindowLogger();
 
             // Add novus services to the container.

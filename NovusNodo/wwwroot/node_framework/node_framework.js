@@ -23,15 +23,22 @@ document.addEventListener("mousemove", (event) => {
 // Add event listeners for keydown events for copy and paste
 document.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.key === 'c') {
+
+        const canvas = canvasTabs[selectedPaperTabId];
+        let idList = canvas.getSelectedNodeIds();
+
+        //Return if nothing is selected
+        if(idList.length <= 0) {
+            console.log("No Nodes Selected");
+            return;
+        }
+
         if (selectedPaperTabId == null) {
             console.log("No Canvas Tab Selected");
             return;
         }
         
-        const canvas = canvasTabs[selectedPaperTabId];
         console.log("Starting Copy: ", canvas);
-        let idList = canvas.getSelectedNodeIds();
-        
         console.log("Selected Node Ids: ", idList);
 
         canvas.netCanvasReference.invokeMethodAsync("NovusNode.ClipboardCopyNodes", idList)
@@ -44,8 +51,9 @@ document.addEventListener('keydown', (event) => {
         .catch(err => {
             console.error("Failed to copy:", err);
         });
-
-    } else if (event.ctrlKey && event.key === 'v') {
+    }
+    
+    if (event.ctrlKey && event.key === 'v') {
         const canvas = canvasTabs[selectedPaperTabId];
         navigator.clipboard.readText()
         .then(clipboard => {

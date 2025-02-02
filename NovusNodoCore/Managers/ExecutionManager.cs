@@ -86,7 +86,7 @@ namespace NovusNodoCore.Managers
             set
             {
                 this.useBezierCurve = value;
-                //OnCurveStyleChanged(value);
+
                 //Fire and forget this event
                 _ = RaiseCurveStyleAsync(value).ConfigureAwait(false);
             }
@@ -178,16 +178,6 @@ namespace NovusNodoCore.Managers
 
             return nodePage;
         }
-
-        ///// <summary>
-        ///// Handles the event when the page data is changed.
-        ///// </summary>
-        ///// <param name="pageId">The ID of the page that was changed.</param>
-        //private async Task NodePage_OnPageDataChanged()
-        //{
-        //    if (OnProjectChanged != null)
-        //        await OnProjectChanged.Invoke().ConfigureAwait(false);
-        //}
 
         /// <summary>
         /// Removes the tab with the specified page ID.

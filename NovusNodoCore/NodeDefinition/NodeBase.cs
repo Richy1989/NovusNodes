@@ -23,7 +23,7 @@ namespace NovusNodoCore.NodeDefinition
         private readonly ExecutionManager executionManager;
         private readonly NodeJSEnvironmentManager nodeJSEnvironmentManager;
         private NodePageManager nodePageManager;
-        private readonly ILoggerFactory _loggerFactory;  
+        private readonly ILoggerFactory _loggerFactory;
 
         /// <summary>
         /// Gets or sets the callback for executing JavaScript code.
@@ -108,15 +108,15 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Initializes a new instance of the <see cref="NodeBase"/> class.
         /// </summary>
-        /// <param name="logger">The logger instance.</param>
+        /// <param name="loggerFactory">The logger factory instance.</param>
         /// <param name="id">The unique identifier for the node.</param>
-        /// <param name="basedPlugin">The plugin base instance.</param>
+        /// <param name="basedPlugin">The base plugin instance.</param>
+        /// <param name="UIConfig">The UI configuration for the node.</param>
         /// <param name="executionManager">The execution manager instance.</param>
         /// <param name="pluginIdAttribute">The plugin ID attribute.</param>
         /// <param name="nodePageManager">The node page manager instance.</param>
-        /// <param name="nodeJSEnvironmentManager">The NodeJS environment manager instance.</param>
+        /// <param name="_nodeJSEnvironmentManager">The NodeJS environment manager instance.</param>
         /// <param name="updateDebugFunction">The function to update the debug log.</param>
-        /// <param name="token">The cancellation BaseToken.</param>
         public NodeBase(
             ILoggerFactory loggerFactory,
             string id,
@@ -125,7 +125,7 @@ namespace NovusNodoCore.NodeDefinition
             ExecutionManager executionManager,
             NovusPluginAttribute pluginIdAttribute,
             NodePageManager nodePageManager,
-            NodeJSEnvironmentManager nodeJSEnvironmentManager,
+            NodeJSEnvironmentManager _nodeJSEnvironmentManager,
             Func<string, JsonObject, Task> updateDebugFunction)
         {
             _logger = loggerFactory.CreateLogger<INodeBase>();
@@ -143,9 +143,11 @@ namespace NovusNodoCore.NodeDefinition
             PluginBase = basedPlugin as PluginBase;
             PluginBase.UpdateDebugLog = updateDebugFunction;
 
+            this.nodeJSEnvironmentManager = _nodeJSEnvironmentManager;
+
+            // Create a new cancellation token source
             cancellationTokenSource = new CancellationTokenSource();
             BaseToken = cancellationTokenSource.Token;
-            this.nodeJSEnvironmentManager = nodeJSEnvironmentManager;
 
             Init();
         }
@@ -153,6 +155,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Initializes the node with the provided plugin base.
         /// </summary>
+        /// <param name="createPorts">Indicates whether to create ports for the node.</param>
         public void Init(bool createPorts = true)
         {
             // Set the start icon paths
@@ -178,7 +181,7 @@ namespace NovusNodoCore.NodeDefinition
                 PluginBase.StarterNodeTriggered = async () =>
                 {
                     if (UIConfig.IsEnabled && executionManager.IsExecutionAllowed)
-                        await ExecuteNode([]).ConfigureAwait(false);
+                        await ExecuteNode(new JsonObject()).ConfigureAwait(false);
                 };
             }
         }
@@ -188,7 +191,7 @@ namespace NovusNodoCore.NodeDefinition
         /// </summary>
         public void CreatePorts()
         {
-            if(PluginSettings.NodeType != NodeType.Starter)
+            if (PluginSettings.NodeType != NodeType.Starter)
                 CreateInputPort();
 
             OutputPorts = new Dictionary<string, OutputPort>();
@@ -237,6 +240,7 @@ namespace NovusNodoCore.NodeDefinition
         /// <summary>
         /// Gets or sets the function to save settings.
         /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task SaveSettings()
         {
             //Trigger the plugin to save its settings
@@ -270,7 +274,7 @@ namespace NovusNodoCore.NodeDefinition
                         break;
 
                     //Finisher nodes do not have an output port
-                    if(OutputPorts.Values.Count > i)
+                    if (OutputPorts.Values.Count > i)
                         await TriggerNextNodes(OutputPorts.Values.ElementAt(i), result).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -343,10 +347,10 @@ namespace NovusNodoCore.NodeDefinition
             await cancellationTokenSource.CancelAsync().ConfigureAwait(false);
         }
 
-        // <summary>
-        // Raises the <see cref="PropertyChanged"/> event.
-        // </summary>
-        // <param name="propertyName">The name of the property that changed.</param>
+        /// <summary>
+        /// Raises the <see cref="PropertyChanged"/> event.
+        /// </summary>
+        /// <param name="propertyName">The name of the property that changed.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

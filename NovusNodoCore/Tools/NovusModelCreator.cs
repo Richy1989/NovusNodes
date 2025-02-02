@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
 using NovusNodoCore.Managers;
 using NovusNodoCore.NodeDefinition;
@@ -7,12 +6,21 @@ using NovusNodoCore.SaveData;
 
 namespace NovusNodoCore.Tools
 {
+    /// <summary>
+    /// Provides methods to create and load node models.
+    /// </summary>
     public class NovusModelCreator
     {
         private readonly ExecutionManager _executionManager;
-        private ILogger<NovusModelCreator> _logger;
+        private readonly ILogger<NovusModelCreator> _logger;
 
-        public NovusModelCreator(ILogger<NovusModelCreator> logger, ExecutionManager executionManager) {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NovusModelCreator"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance.</param>
+        /// <param name="executionManager">The execution manager instance.</param>
+        public NovusModelCreator(ILogger<NovusModelCreator> logger, ExecutionManager executionManager)
+        {
             this._executionManager = executionManager;
             this._logger = logger;
         }
@@ -24,7 +32,6 @@ namespace NovusNodoCore.Tools
         /// <returns>A task representing the asynchronous operation, with the created NodeSaveModel as the result.</returns>
         public async Task<NodeSaveModel> CreateNodeSaveModel(NodeBase node)
         {
-            // Create a new nodeModel save model
             var nodeSave = new NodeSaveModel
             {
                 NodeId = node.Id,
@@ -35,7 +42,6 @@ namespace NovusNodoCore.Tools
                 PluginSettings = node.PluginSettings.Clone(),
             };
 
-            // If we have a config type, serialize and add the config
             if (node.PluginIdAttribute.PluginConfigType != null)
             {
                 using var memoryStream = new MemoryStream();
@@ -46,11 +52,9 @@ namespace NovusNodoCore.Tools
             }
             else
             {
-                //Otherwise, just set the config as a string
                 nodeSave.PluginConfig = node.PluginConfig != null ? (string)node.PluginConfig : null;
             }
 
-            // Add the output ports
             foreach (var outputport in node.OutputPorts)
             {
                 nodeSave.OutputPortsIds.Add(outputport.Value.Id);
@@ -58,7 +62,6 @@ namespace NovusNodoCore.Tools
 
             if (node.InputPort != null)
             {
-                // Add the connected ports
                 foreach (var outputPort in node.InputPort.ConnectedOutputPort.Values)
                 {
                     nodeSave.ConnectedPorts.Add(new ConnectionModel { NodeId = outputPort.Node.Id, PortId = outputPort.Id });
@@ -78,21 +81,18 @@ namespace NovusNodoCore.Tools
             var nodePage = await _executionManager.AddNewTab(pageModel.PageId, true).ConfigureAwait(false);
 
             nodePage.PageName = pageModel.PageName;
-            // Load the nodes
             await LoadNodes(pageModel.Nodes, nodePage).ConfigureAwait(false);
-
-            // Load the links
             await LoadLinks(pageModel.Nodes, pageModel.PageId, false, true).ConfigureAwait(false);
-            
+
             _logger.LogInformation("Project loaded successfully.");
         }
 
         /// <summary>
         /// Loads the nodes from a list of NodeSaveModel instances asynchronously.
         /// </summary>
-        /// <param name="nodeSaveModelList"></param>
-        /// <param name="nodePageManager"></param>
-        /// <returns></returns>
+        /// <param name="nodeSaveModelList">The list of NodeSaveModel instances to load.</param>
+        /// <param name="nodePageManager">The NodePageManager instance to manage the nodes.</param>
+        /// <returns>A task representing the asynchronous load operation.</returns>
         public async Task LoadNodes(List<NodeSaveModel> nodeSaveModelList, NodePageManager nodePageManager)
         {
             foreach (var nodeModel in nodeSaveModelList)
@@ -108,39 +108,33 @@ namespace NovusNodoCore.Tools
 
                 NodeUIConfig uiConfig = new();
                 uiConfig.CopyFrom(nodeModel.NodeConfig);
-                
+
                 var node = await nodePageManager.CreateNode(pluginBaseType, pluginBaseAttribute, uiConfig, nodeModel.NodeId, true).ConfigureAwait(false);
-                
-                // Set the plugin settings
+
                 node.PluginSettings = nodeModel.PluginSettings;
 
-                // I we have a config type, deserialize the config
                 if (pluginBaseAttribute.PluginConfigType != null)
                 {
                     var config = JsonSerializer.Deserialize(nodeModel.PluginConfig, pluginBaseAttribute.PluginConfigType);
                     config = Convert.ChangeType(config, pluginBaseAttribute.PluginConfigType);
                     node.PluginBase.PluginConfig = config;
-
                 }
                 else
                 {
-                    //Otherwise, just set the config as a string
                     node.PluginBase.PluginConfig = (string)nodeModel.PluginConfig;
                 }
 
                 if (nodeModel.InputPortId != null)
-                {   // Create the input port, replace auto created ones
+                {
                     node.CreateInputPort(nodeModel.InputPortId);
                 }
 
-                // Create the output ports, replace auto created ones
-                node.OutputPorts = new Dictionary<string, OutputPort>();
+                node.OutputPorts = [];
                 foreach (var outputNodeId in nodeModel.OutputPortsIds)
                 {
                     node.AddOutputPort(outputNodeId);
                 }
 
-                // When the node is created, or copied, we need to define it fully first, then announce it to the page
                 await nodePageManager.OnAvailableNodesUpdated(node).ConfigureAwait(false);
             }
         }
@@ -148,7 +142,10 @@ namespace NovusNodoCore.Tools
         /// <summary>
         /// Loads the links between nodes asynchronously.
         /// </summary>
-        /// <param name="pages">The list of pages containing the nodes and their connections.</param>
+        /// <param name="nodeSaveModelList">The list of NodeSaveModel instances containing the nodes and their connections.</param>
+        /// <param name="pageId">The ID of the page to load the links for.</param>
+        /// <param name="createSubset">Indicates whether to create a subset of the nodes.</param>
+        /// <param name="isStartup">Indicates whether the operation is during startup.</param>
         /// <returns>A task representing the asynchronous load operation.</returns>
         public async Task LoadLinks(List<NodeSaveModel> nodeSaveModelList, string pageId, bool createSubset, bool isStartup)
         {
@@ -164,13 +161,10 @@ namespace NovusNodoCore.Tools
 
                 foreach (var connection in nodeModel.ConnectedPorts)
                 {
-
                     var node = nodePageManager.AvailableNodes[nodeModel.NodeId];
 
-                    //Check if we should only load a subset of the nodes
                     if (createSubset)
                     {
-                        //Check if nodeId is in the nodeSaveModelList
                         if (nodeSaveModelList.Find(x => x.NodeId == connection.NodeId) == null)
                         {
                             continue;
@@ -190,14 +184,13 @@ namespace NovusNodoCore.Tools
         /// <param name="nodeSaveModels">The list of NodeSaveModel instances to translate.</param>
         public void CreateIdTranslatedModel(List<NodeSaveModel> nodeSaveModels)
         {
-            // Create a dictionary to store the translated models
             var idTranslation = new Dictionary<string, string>();
 
             foreach (var nodeSaveModel in nodeSaveModels)
             {
                 nodeSaveModel.NodeId = GetTranslatedId(nodeSaveModel.NodeId, idTranslation);
 
-                if(nodeSaveModel.InputPortId != null)
+                if (nodeSaveModel.InputPortId != null)
                     nodeSaveModel.InputPortId = GetTranslatedId(nodeSaveModel.InputPortId, idTranslation);
 
                 List<string> newOutputPorts = new();
@@ -212,7 +205,6 @@ namespace NovusNodoCore.Tools
                     connectedPort.NodeId = GetTranslatedId(connectedPort.NodeId, idTranslation);
                     connectedPort.PortId = GetTranslatedId(connectedPort.PortId, idTranslation);
                 }
-
             }
         }
 
@@ -224,9 +216,9 @@ namespace NovusNodoCore.Tools
         /// <returns>The translated ID.</returns>
         private static string GetTranslatedId(string id, Dictionary<string, string> idTranslation)
         {
-            if (idTranslation.ContainsKey(id))
+            if (idTranslation.TryGetValue(id, out string value))
             {
-                return idTranslation[id];
+                return value;
             }
             var newId = Guid.NewGuid().ToString();
             idTranslation.Add(id, newId);
