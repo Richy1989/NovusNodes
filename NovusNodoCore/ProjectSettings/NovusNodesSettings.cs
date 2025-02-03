@@ -9,5 +9,7 @@ namespace NovusNodoCore.ProjectSettings
     public class NovusNodesSettings
     {
         public string IconBasePath { get; set; } = "";
+
+
     }
 }

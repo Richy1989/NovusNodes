@@ -22,7 +22,7 @@ namespace NovusNodoUIPlugins.JSFunctionNode
             };
 
             PluginConfig = "return msg;";
-            AddWorkTask(Workload);
+            AddWorkTask("0BF913F5-4EF7-4027-B281-AD53A3EE8D63", Workload);
         }
 
         /// <summary>

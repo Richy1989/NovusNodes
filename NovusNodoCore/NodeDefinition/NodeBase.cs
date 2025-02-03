@@ -180,7 +180,7 @@ namespace NovusNodoCore.NodeDefinition
                 PluginBase.StarterNodeTriggered = async () =>
                 {
                     if (UIConfig.IsEnabled && executionManager.IsExecutionAllowed)
-                        await ExecuteNode(new JsonObject()).ConfigureAwait(false);
+                        await ExecuteNode([]).ConfigureAwait(false);
                 };
             }
         }
@@ -193,7 +193,7 @@ namespace NovusNodoCore.NodeDefinition
             if (PluginSettings.NodeType != NodeType.Starter)
                 CreateInputPort();
 
-            OutputPorts = new Dictionary<string, OutputPort>();
+            OutputPorts = [];
             if (PluginSettings.NodeType != NodeType.Finisher)
             {
                 for (int i = 0; i < PluginBase.WorkTasks.Count; i++)

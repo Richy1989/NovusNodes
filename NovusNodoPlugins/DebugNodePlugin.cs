@@ -24,7 +24,7 @@ namespace NovusNodoPlugins
             };
 
             // Adding the task to the list of tasks
-            base.AddWorkTask(Workload);
+            AddWorkTask("56421658-A6D8-495E-BC08-6B4E368AE03A", Workload);
         }
 
         /// <summary>

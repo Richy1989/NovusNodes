@@ -97,15 +97,14 @@ namespace NovusNodoPluginLibrary
         /// Adds a work task to the dictionary.
         /// </summary>
         /// <param name="task">The work task to add.</param>
-        public void AddWorkTask(Func<JsonObject, Task<JsonObject>> task)
+        public void AddWorkTask(string workerId, Func<JsonObject, Task<JsonObject>> task)
         {
-            WorkTasks.Add(Guid.NewGuid().ToString(), task);
+            WorkTasks.Add(workerId, task);
         }
 
         /// <summary>
         /// Prepares the workload asynchronously.
         /// </summary>
-        /// <returns></returns>
         public virtual Task PrepareWorkloadAsync()
         {
             return Task.CompletedTask;
@@ -127,6 +126,9 @@ namespace NovusNodoPluginLibrary
             return string.Empty;
         }
 
+        /// <summary>
+        /// Starts the plugin asynchronously.
+        /// </summary>
         public abstract Task StopPluginAsync();
     }
 }

@@ -31,7 +31,7 @@ namespace NovusNodoUIPlugins.NetFunctionNode
                 NodeType = NodeType.Worker,
             };
 
-            AddWorkTask(Workload);
+            AddWorkTask("1B550DD1-2E3B-41CA-BD96-4FC2671ADA7F", Workload);
         }
 
         public override Task PrepareWorkloadAsync()

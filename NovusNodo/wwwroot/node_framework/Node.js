@@ -4,6 +4,10 @@ import { Port } from "./Port.js";
  * Represents a draggable node in an SVG.
  */
 export class Node{    
+    
+    inputPort = null;
+    outputPorts = [];
+    
     /**
      * Creates an instance of Node.
      * @param {string} id - The unique identifier for the node.
@@ -256,13 +260,13 @@ export class Node{
         if(this.switchButton != null)
             this.switchButton.attr("x", this.width+1);
 
-        if(this.outputPort != null) {
-            this.outputPort.updatePortPosition();
-        }
+        this.outputPorts.forEach(outputPort => {
+            outputPort.updatePortPosition();
+        });
 
-        if (this.outputPort) {
-            this.outputPort.dragLinks();
-        }
+        this.outputPorts.forEach(outputPort => {
+            outputPort.dragLinks();
+        });
     }
 
     /**
@@ -409,9 +413,9 @@ export class Node{
         if (this.inputPort) {
             this.inputPort.dragLinks();
         }
-        if (this.outputPort) {
-            this.outputPort.dragLinks();
-        }
+        this.outputPorts.forEach(outputPort => {
+            outputPort.dragLinks();
+        });
     }
 
     addInputPort(id) {
@@ -419,7 +423,8 @@ export class Node{
     }
 
     addOutputPorts(id) {
-        this.outputPort = new Port(this, this.canvas, 'output', id);
+        let outputPort = new Port(this, this.canvas, 'output', id);
+        this.outputPorts.push(outputPort);
     }
 
     getPort(id) {
@@ -427,9 +432,12 @@ export class Node{
         {
             return this.inputPort;
         }
-        else if (this.outputPort != null && this.outputPort.id == id)
+
+        return this.outputPorts.find(port => port.id == id);
+
+        /* else if (this.outputPort != null && this.outputPort.id == id)
         {
             return this.outputPort;
-        }
+        } */
     }
 }

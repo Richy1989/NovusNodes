@@ -23,7 +23,7 @@ namespace NovusNodoUIPlugins.InjectorNode
         public InjectorNodePlugin()
         {
             UIType = typeof(InjectorNodeUI);
-            AddWorkTask(Workload);
+            AddWorkTask("8C790755-AB76-4C59-BAB2-692622ECFDE0", Workload);
 
             PluginSettings = new PluginSettings
             {
