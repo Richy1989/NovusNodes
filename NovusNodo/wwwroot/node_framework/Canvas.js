@@ -312,60 +312,63 @@ export class Canvas {
 
     attachPortListeners(node) {
         const canvas = this;
+        
         // Add pointerdown event listener to the output port
-        node.outputPort.port.on("pointerdown", function (event) {
-            const transform = d3.select(event.target.parentNode).attr("transform");
-            const translateParent = transform.match(/translate\(([^,]+),([^\)]+)\)/);
+        
+        node.outputPorts.forEach(outputPort => {
+            outputPort.port.on("pointerdown", function (event) {
+                const transform = d3.select(event.target.parentNode).attr("transform");
+                const translateParent = transform.match(/translate\(([^,]+),([^\)]+)\)/);
 
-            const portCenterX = parseFloat(translateParent[1]) + parseFloat(d3.select(event.target).attr("x")) + node.outputPort.width / 2;
-            const portCenterY = parseFloat(translateParent[2]) + parseFloat(d3.select(event.target).attr("y")) + node.outputPort.height / 2;
+                const portCenterX = parseFloat(translateParent[1]) + parseFloat(d3.select(event.target).attr("x")) + outputPort.width / 2;
+                const portCenterY = parseFloat(translateParent[2]) + parseFloat(d3.select(event.target).attr("y")) + outputPort.height / 2;
 
-            console.log("Mouse down", portCenterX, portCenterY);
-            canvas.isLinking = true;
-            canvas.sourcePort = node.outputPort;//d3.select(event.target);
+                console.log("Mouse down", portCenterX, portCenterY);
+                canvas.isLinking = true;
+                canvas.sourcePort = outputPort;//d3.select(event.target);
 
-            if (canvas.useCubicBezier) {
-                canvas.tempLine = canvas.linkGroup.append("path")
-                    .attr("d", canvas.calculateCubicBezierPath(node.outputPort, node.outputPort))
-                    .attr("stroke", canvas.getLinkColor())
-                    .attr("stroke-width", 3)
-                    .attr("fill", "none");
-            }
-            else {
-                canvas.tempLine = canvas.svg.append("line")
-                    .attr("x1", portCenterX)
-                    .attr("y1", portCenterY)
-                    .attr("x2", portCenterX)
-                    .attr("y2", portCenterY)
-                    .attr("stroke", canvas.getLinkColor())
-                    .attr("stroke-width", 3);
-            }
-
-            canvas.svg.on("pointermove", function (event) {
-                if (canvas.isLinking && canvas.tempLine) {
-                    
-                    const transform = canvas.CanvasZoom.currentTransformation; // Current zoom transform
-                    const [eventX, eventY] = d3.pointer(event);
-
-                    // Convert to real zoomed coordinates
-                    const x = (eventX - transform.x) / transform.k;
-                    const y = (eventY - transform.y) / transform.k;
-
-                    if (canvas.useCubicBezier) {
-                        const pathData = `M${portCenterX},${portCenterY} 
-                            C${portCenterX + canvas.cubicBezierMultiplier},${portCenterY}
-                            ${x - canvas.cubicBezierMultiplier},${y} ${x},${y}`;
-
-                        canvas.tempLine.attr("d", pathData);
-                    }
-                    else {
-                        canvas.tempLine.attr("x2", x).attr("y2", y);
-                    }
+                if (canvas.useCubicBezier) {
+                    canvas.tempLine = canvas.linkGroup.append("path")
+                        .attr("d", canvas.calculateCubicBezierPath(outputPort, outputPort))
+                        .attr("stroke", canvas.getLinkColor())
+                        .attr("stroke-width", 3)
+                        .attr("fill", "none");
                 }
+                else {
+                    canvas.tempLine = canvas.svg.append("line")
+                        .attr("x1", portCenterX)
+                        .attr("y1", portCenterY)
+                        .attr("x2", portCenterX)
+                        .attr("y2", portCenterY)
+                        .attr("stroke", canvas.getLinkColor())
+                        .attr("stroke-width", 3);
+                }
+
+                canvas.svg.on("pointermove", function (event) {
+                    if (canvas.isLinking && canvas.tempLine) {
+                        
+                        const transform = canvas.CanvasZoom.currentTransformation; // Current zoom transform
+                        const [eventX, eventY] = d3.pointer(event);
+
+                        // Convert to real zoomed coordinates
+                        const x = (eventX - transform.x) / transform.k;
+                        const y = (eventY - transform.y) / transform.k;
+
+                        if (canvas.useCubicBezier) {
+                            const pathData = `M${portCenterX},${portCenterY} 
+                                C${portCenterX + canvas.cubicBezierMultiplier},${portCenterY}
+                                ${x - canvas.cubicBezierMultiplier},${y} ${x},${y}`;
+
+                            canvas.tempLine.attr("d", pathData);
+                        }
+                        else {
+                            canvas.tempLine.attr("x2", x).attr("y2", y);
+                        }
+                    }
+                });
             });
         });
     }
-
     addNode(node) {
         const canvas = this;
         // Add pointerdown event listener to move all selected nodes
@@ -515,12 +518,6 @@ export class Canvas {
             this.selectedLink = null;
         }
 
-        /* // Delete selected node
-        if (this.selectedNode) {
-            this.deleteNode(this.selectedNode);
-            this.selectedNode = null;
-        } */
-
         // Delete multiple selected nodes
         if (this.dragMultipleSelection.length > 0) {
             this.dragMultipleSelection.forEach(node => {
@@ -544,11 +541,14 @@ export class Canvas {
             connectedLinksInput = selectedNode.inputPort.connectedLinks;
         }
 
+        // Remove all links connected to the node
         let connectedLinksOutput = [];
-        if (selectedNode.outputPort != null && selectedNode.outputPort.connectedLinks != null) {
-            connectedLinksOutput = selectedNode.outputPort.connectedLinks;
-        }
-
+        selectedNode.outputPorts.forEach(outputPort => {
+            if (outputPort.connectedLinks != null) {
+                connectedLinksOutput = connectedLinksOutput.concat(outputPort.connectedLinks);
+            }
+        });
+        
         this.linkList = this.linkList.filter(link => !connectedLinksInput.includes(link) && !connectedLinksOutput.includes(link));
         this.drawLinks();
 

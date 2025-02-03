@@ -12,16 +12,16 @@ namespace NovusNodoUIPlugins.NetFunctionNode
     /// Represents a plugin that executes .NET functions dynamically.
     /// </summary>
     [NovusPlugin("B72CBE0A-F8D6-494D-B18E-FAE5A2369B60", ".NET Function", "#9966CC")]
-    public class NetFunctionPlugin : PluginBase
+    public class SplitConditionPlugin : PluginBase
     {
         private object instance;
         private Type type;
         private string oldSourceCode;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NetFunctionPlugin"/> class.
+        /// Initializes a new instance of the <see cref="SplitConditionPlugin"/> class.
         /// </summary>
-        public NetFunctionPlugin()
+        public SplitConditionPlugin()
         {
             UIType = typeof(NetFunctionPluginUI);
 
