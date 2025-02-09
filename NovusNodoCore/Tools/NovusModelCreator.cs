@@ -57,7 +57,13 @@ namespace NovusNodoCore.Tools
 
             foreach (var outputport in node.OutputPorts)
             {
-                nodeSave.OutputPortsIds.Add(outputport.Value.Id);
+                PortSaveModel portSave = new()
+                {
+                    PortId = outputport.Value.Id,
+                    RelatedWorkerTaskId = outputport.Value.RelatedWorkerTaskId
+                };
+
+                nodeSave.OutputPorts.Add(portSave);
             }
 
             if (node.InputPort != null)
@@ -130,9 +136,9 @@ namespace NovusNodoCore.Tools
                 }
 
                 node.OutputPorts = [];
-                foreach (var outputNodeId in nodeModel.OutputPortsIds)
+                foreach (var outputPortModel in nodeModel.OutputPorts)
                 {
-                    node.AddOutputPort(outputNodeId);
+                    node.AddOutputPort(outputPortModel.PortId, outputPortModel.RelatedWorkerTaskId);
                 }
 
                 await nodePageManager.OnAvailableNodesUpdated(node).ConfigureAwait(false);
@@ -193,12 +199,19 @@ namespace NovusNodoCore.Tools
                 if (nodeSaveModel.InputPortId != null)
                     nodeSaveModel.InputPortId = GetTranslatedId(nodeSaveModel.InputPortId, idTranslation);
 
-                List<string> newOutputPorts = new();
-                foreach (var outputPortId in nodeSaveModel.OutputPortsIds)
+                List<PortSaveModel> newOutputPorts = [];
+                foreach (var outputPortModel in nodeSaveModel.OutputPorts)
                 {
-                    newOutputPorts.Add(GetTranslatedId(outputPortId, idTranslation));
+                    PortSaveModel translatedPortSaveModel = new()
+                    {
+                        PortId = GetTranslatedId(outputPortModel.PortId, idTranslation),
+                        RelatedWorkerTaskId = outputPortModel.RelatedWorkerTaskId
+                    };
+
+                    //Do not translate the WorkerTaskId / These are constant.
+                    newOutputPorts.Add(translatedPortSaveModel);
                 }
-                nodeSaveModel.OutputPortsIds = newOutputPorts;
+                nodeSaveModel.OutputPorts = newOutputPorts;
 
                 foreach (var connectedPort in nodeSaveModel.ConnectedPorts)
                 {

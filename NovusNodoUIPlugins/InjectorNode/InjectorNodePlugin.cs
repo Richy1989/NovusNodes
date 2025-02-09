@@ -23,7 +23,7 @@ namespace NovusNodoUIPlugins.InjectorNode
         public InjectorNodePlugin()
         {
             UIType = typeof(InjectorNodeUI);
-            AddWorkTask("8C790755-AB76-4C59-BAB2-692622ECFDE0", Workload);
+            WorkTasks.Add("8C790755-AB76-4C59-BAB2-692622ECFDE0", Workload);
 
             PluginSettings = new PluginSettings
             {
@@ -36,7 +36,7 @@ namespace NovusNodoUIPlugins.InjectorNode
             _ = Start();
 
             // Set the callback function to be executed when the config updates. 
-            ConfigUpdated = Restart;
+            ConfigUpdated += Restart;
         }
 
         /// <summary>
@@ -163,6 +163,12 @@ namespace NovusNodoUIPlugins.InjectorNode
         public override async Task StopPluginAsync()
         {
             await Stop().ConfigureAwait(false);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            ConfigUpdated -= Restart;
+            base.Dispose(disposing);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 
@@ -8,8 +9,10 @@ namespace NovusNodoPluginLibrary
     /// Represents the base class for all plugins.
     /// </summary>
     [NovusPlugin("BASE", "none", "#000000")]
-    public abstract class PluginBase : IPluginBase
+    public abstract class PluginBase : IPluginBase, IDisposable
     {
+        private bool _disposedValue = false;
+
         /// <summary>
         /// Gets or sets the unique identifier for the plugin.
         /// </summary>
@@ -48,6 +51,11 @@ namespace NovusNodoPluginLibrary
         public Func<string, JsonObject, Task> UpdateDebugLog { get; set; }
 
         /// <summary>
+        /// Event triggered when the worker tasks are changed.
+        /// </summary>
+        public event Func<Task> OnWorkerTasksChanged;
+
+        /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
         public IPluginBase ParentNode { get; set; }
@@ -72,18 +80,14 @@ namespace NovusNodoPluginLibrary
             set
             {
                 pluginConfig = value;
-                Task.Run(async () =>
-                {
-                    if (ConfigUpdated != null)
-                        await ConfigUpdated().ConfigureAwait(false);
-                });
+                _ = RaiseConfigUpdatedAsync();
             }
         }
 
         /// <summary>
         /// Event triggered when the configuration is updated.
         /// </summary>
-        protected Func<Task> ConfigUpdated;
+        protected event Func<Task> ConfigUpdated;
 
         /// <inheritdoc/>
         public IDictionary<string, Func<JsonObject, Task<JsonObject>>> WorkTasks { get; } = new Dictionary<string, Func<JsonObject, Task<JsonObject>>>();
@@ -92,15 +96,6 @@ namespace NovusNodoPluginLibrary
         /// Function triggered when the starter node is triggered.
         /// </summary>
         public Func<Task> StarterNodeTriggered = () => { throw new Exception("Only starter nodes are allowed to trigger this"); };
-
-        /// <summary>
-        /// Adds a work task to the dictionary.
-        /// </summary>
-        /// <param name="task">The work task to add.</param>
-        public void AddWorkTask(string workerId, Func<JsonObject, Task<JsonObject>> task)
-        {
-            WorkTasks.Add(workerId, task);
-        }
 
         /// <summary>
         /// Prepares the workload asynchronously.
@@ -130,5 +125,59 @@ namespace NovusNodoPluginLibrary
         /// Starts the plugin asynchronously.
         /// </summary>
         public abstract Task StopPluginAsync();
+
+        /// <summary>
+        /// Raises the configuration updated event asynchronously.
+        /// </summary>
+        public async Task RaiseConfigUpdatedAsync()
+        {
+            var handlers = ConfigUpdated?.GetInvocationList(); // Get all subscribers
+            if (handlers == null) return;
+
+            foreach (var handler in handlers.Cast<Func<Task>>())
+            {
+                await handler().ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Raises the worker tasks changed event asynchronously.
+        /// </summary>
+        public async Task RaiseWorkerTasksChangedAsync()
+        {
+            var handlers = OnWorkerTasksChanged?.GetInvocationList(); // Get all subscribers
+            if (handlers == null) return;
+
+            foreach (var handler in handlers.Cast<Func<Task>>())
+            {
+                await handler().ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Public implementation of Dispose pattern callable by consumers.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Protected implementation of Dispose pattern.
+        /// </summary>
+        /// <param name="disposing">Indicates whether the method is called from Dispose.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    Logger.LogDebug($"Disposing PluginBase with");
+                }
+
+                _disposedValue = true;
+            }
+        }
     }
 }

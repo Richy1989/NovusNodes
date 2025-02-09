@@ -157,8 +157,7 @@ export class Node{
     }
 
     //Append the start and end icons
-    createIconGroup(group, iconPath, isStartIcon)
-    {
+    createIconGroup(group, iconPath, isStartIcon) {
         let xcoord = 0;
         if(isStartIcon)
             xcoord = 1;
@@ -226,6 +225,8 @@ export class Node{
             multiplier++;
 
         this.width = Math.max(120, textWidth + (this.iconWidth + 20) * multiplier + 20);
+
+        this.height = Math.max(40, 20 + this.outputPorts.length * 10);
     }
 
     /**
@@ -399,8 +400,7 @@ export class Node{
     }
 
     updatePosition(x, y) {
-        
-        if(this.canvas.rasterSize > 0){
+        if(this.canvas.rasterSize > 0) {
             // Snap the position to the raster grid
             x = Math.round(x / this.canvas.rasterSize) * this.canvas.rasterSize;
             y = Math.round(y / this.canvas.rasterSize) * this.canvas.rasterSize;
@@ -410,34 +410,41 @@ export class Node{
         this.y = y;
 
         this.group.attr("transform", `translate(${this.x},${this.y})`);
+
         if (this.inputPort) {
             this.inputPort.dragLinks();
         }
+
         this.outputPorts.forEach(outputPort => {
             outputPort.dragLinks();
         });
     }
 
     addInputPort(id) {
-        this.inputPort = new Port(this, this.canvas, 'input', id);
+        this.inputPort = new Port(this, this.canvas, 'input');
+        this.updateNodeDimensions();
+        this.inputPort.createPort();
     }
 
     addOutputPorts(id) {
-        let outputPort = new Port(this, this.canvas, 'output', id);
+        let outputPort = new Port(this, this.canvas, 'output');
         this.outputPorts.push(outputPort);
+        this.updateNodeDimensions();
+
+        let index = 0;
+        this.outputPorts.forEach(outputPort => {
+            outputPort.index = index;
+            index++; 
+        });
+
+        outputPort.createPort();
     }
 
     getPort(id) {
-        if (this.inputPort != null && this.inputPort.id == id)
-        {
+        if (this.inputPort != null && this.inputPort.id == id) {
             return this.inputPort;
         }
 
         return this.outputPorts.find(port => port.id == id);
-
-        /* else if (this.outputPort != null && this.outputPort.id == id)
-        {
-            return this.outputPort;
-        } */
     }
 }

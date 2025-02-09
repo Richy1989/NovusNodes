@@ -213,6 +213,14 @@ export function addInputPorts(nodeId, portId) {
     console.log("Adding Input Port to Node " + nodeId);
     const canvas = canvasTabs[selectedPaperTabId];
     const node = canvas.getNode(nodeId);
+
+    //Check if port already exists
+    if(node.getPort(portId) != null) {
+        console.log("Input Port already exists");
+        return;
+    }
+
+ 
     node.addInputPort(portId);
 }
 
@@ -221,17 +229,28 @@ export function addInputPorts(nodeId, portId) {
  * @param {string} nodeId - The ID of the node.
  * @param {string} portId - The ID of the port to add.
  */
-export function addOutputPorts(nodeId, portId) {
+export function addOutputPorts(nodeId, portIds) {
     if (selectedPaperTabId == null) {
         console.log("No Canvas Tab Selected");
         return;
     }
 
     console.log("Adding Output Port to Node " + nodeId);
-    const canvas = canvasTabs[selectedPaperTabId];
-    const node = canvas.getNode(nodeId);
-    node.addOutputPorts(portId);
-    canvas.attachPortListeners(node);
+
+    for (let portId of portIds) {
+
+        const canvas = canvasTabs[selectedPaperTabId];
+        const node = canvas.getNode(nodeId);
+
+        //Check if port already exists
+        if(node.getPort(portId) != null) {
+            console.log("Ouput Port already exists");
+            return;
+        }
+        
+        node.addOutputPorts(portId);
+        canvas.attachPortListeners(node);
+    }
 }
 
 /**

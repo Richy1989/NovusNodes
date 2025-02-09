@@ -12,16 +12,16 @@ namespace NovusNodoUIPlugins.NetFunctionNode
     /// Represents a plugin that executes .NET functions dynamically.
     /// </summary>
     [NovusPlugin("B72CBE0A-F8D6-494D-B18E-FAE5A2369B60", ".NET Function", "#9966CC")]
-    public class SplitConditionPlugin : PluginBase
+    public class NetFunctionPlugin : PluginBase
     {
         private object instance;
         private Type type;
         private string oldSourceCode;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SplitConditionPlugin"/> class.
+        /// Initializes a new instance of the <see cref="NetFunctionPlugin"/> class.
         /// </summary>
-        public SplitConditionPlugin()
+        public NetFunctionPlugin()
         {
             UIType = typeof(NetFunctionPluginUI);
 
@@ -31,7 +31,7 @@ namespace NovusNodoUIPlugins.NetFunctionNode
                 NodeType = NodeType.Worker,
             };
 
-            AddWorkTask("1B550DD1-2E3B-41CA-BD96-4FC2671ADA7F", Workload);
+            WorkTasks.Add("1B550DD1-2E3B-41CA-BD96-4FC2671ADA7F", Workload);
         }
 
         public override Task PrepareWorkloadAsync()

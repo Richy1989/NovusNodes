@@ -36,7 +36,7 @@ namespace NovusNodoCore.SaveData
         /// <summary>
         /// Gets or sets the list of output ports ids.
         /// </summary>
-        public List<string> OutputPortsIds { get; set; } = [];
+        public List<PortSaveModel> OutputPorts { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the InputPortId of the node.

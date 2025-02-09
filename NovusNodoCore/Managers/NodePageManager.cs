@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
-using NovusNodoCore.Enumerations;
+using NovusNodoCore.DebugNotification;
 using NovusNodoCore.Extensions;
 using NovusNodoCore.NodeDefinition;
 using NovusNodoPluginLibrary;
@@ -30,6 +30,13 @@ namespace NovusNodoCore.Managers
         public event Func<Task> OnPageDataChanged;
 
         /// <summary>
+        /// Event fired when AvailableNodes is updated.
+        /// </summary>
+        public event Func<NodeBase, Task> AvailableNodesUpdated;
+
+        public event Func<string, Task> OnPortsChanged;
+
+        /// <summary>
         /// The NodeJS environment manager.
         /// </summary>
         private readonly NodeJSEnvironmentManager NodeJSEnvironmentManager;
@@ -50,11 +57,6 @@ namespace NovusNodoCore.Managers
         /// The cancellation Token source used to cancel operations.
         /// </summary>
         public CancellationTokenSource CancellationTokenSource { get; }
-
-        /// <summary>
-        /// Event fired when AvailableNodes is updated.
-        /// </summary>
-        public event Func<NodeBase, Task> AvailableNodesUpdated;
 
         /// <summary>
         /// Gets or sets the available nodes.
@@ -208,6 +210,11 @@ namespace NovusNodoCore.Managers
             }
         }
 
+        public async Task PortsChanged(string id)
+        {
+            await RaisePortsChanged(id).ConfigureAwait(false);
+        }
+
         /// <summary>
         /// Invokes the AvailableNodesUpdated event.
         /// </summary>
@@ -217,6 +224,17 @@ namespace NovusNodoCore.Managers
         {
             if(AvailableNodesUpdated != null)
                 await AvailableNodesUpdated.Invoke(nodeBase).ConfigureAwait(false);
+        }
+
+        public async Task RaisePortsChanged(string nodeId)
+        {
+            var handlers = OnPortsChanged?.GetInvocationList(); // Get all subscribers
+            if (handlers == null) return;
+
+            foreach (var handler in handlers.Cast<Func<string, Task>>())
+            {
+                await handler(nodeId).ConfigureAwait(false);
+            }
         }
     }
 }

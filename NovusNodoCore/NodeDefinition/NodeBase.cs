@@ -149,7 +149,14 @@ namespace NovusNodoCore.NodeDefinition
             cancellationTokenSource = new CancellationTokenSource();
             BaseToken = cancellationTokenSource.Token;
 
+            PluginBase.OnWorkerTasksChanged += PluginBase_OnWorkerTasksChanged;
+
             Init();
+        }
+
+        private async Task PluginBase_OnWorkerTasksChanged()
+        {
+            await nodePageManager.PortsChanged(this.Id).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -193,14 +200,7 @@ namespace NovusNodoCore.NodeDefinition
             if (PluginSettings.NodeType != NodeType.Starter)
                 CreateInputPort();
 
-            OutputPorts = [];
-            if (PluginSettings.NodeType != NodeType.Finisher)
-            {
-                for (int i = 0; i < PluginBase.WorkTasks.Count; i++)
-                {
-                    AddOutputPort();
-                }
-            }
+            AddOutputPorts();
         }
 
         /// <summary>
@@ -215,13 +215,32 @@ namespace NovusNodoCore.NodeDefinition
         }
 
         /// <summary>
+        /// Adds the output ports to the node. 
+        /// </summary>
+        public void AddOutputPorts()
+        {
+            OutputPorts = [];
+            if (PluginSettings.NodeType != NodeType.Finisher)
+            {
+                foreach (var worker in PluginBase.WorkTasks)
+                {
+                    AddOutputPort(null, worker.Key);
+                }
+            }
+        }
+
+        /// <summary>
         /// Adds an output port to the node.
         /// </summary>
-        /// <param name="id">The unique identifier for the output port.</param>
-        public void AddOutputPort(string id = null)
+        public void AddOutputPort(string id, string relatedWorkerTask)
         {
-            var outputPort = new OutputPort(this);
-            if (id != null)
+            var outputPort = new OutputPort(this)
+            {
+                RelatedWorkerTaskId = relatedWorkerTask
+            };
+
+            //If null we use the auto created one from the Port
+            if(id != null)
                 outputPort.Id = id;
 
             OutputPorts.Add(outputPort.Id, outputPort);
@@ -262,32 +281,32 @@ namespace NovusNodoCore.NodeDefinition
 
             // Execute all work tasks from the plugin
             // Then trigger all the connected nodes from the according output port
-            int i = 0;
-            foreach (var task in PluginBase.WorkTasks.Values)
+            foreach (var task in PluginBase.WorkTasks)
             {
                 try
                 {
-                    var result = await task(jsonData).ConfigureAwait(false);
+                    var result = await task.Value(jsonData).ConfigureAwait(false);
 
                     if (BaseToken.IsCancellationRequested)
                         break;
 
-                    //Finisher nodes do not have an output port
-                    if (OutputPorts.Values.Count > i)
-                        await TriggerNextNodes(OutputPorts.Values.ElementAt(i), result).ConfigureAwait(false);
+                    string workerTaskId = task.Key;
+                    var relatedOutputPort = OutputPorts.Values.FirstOrDefault(x => x.RelatedWorkerTaskId == workerTaskId);
+
+                    if (relatedOutputPort != null)
+                    {
+                        await TriggerNextNodes(relatedOutputPort, result).ConfigureAwait(false);
+                    }
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error executing work task.");
                 }
-                i++;
             }
             autoResetEvent.Set();
         }
 
-        /// <summary>
-        /// Triggers the execution of the next nodes in the sequence.
-        /// </summary>
+        /// <summary>Triggers the execution of the next nodes in the sequence.</summary>
         /// <param name="outputPort">The output port to trigger the next nodes from.</param>
         /// <param name="jsonData">The JSON data to be passed to the next nodes.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>

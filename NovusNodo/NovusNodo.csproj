@@ -62,6 +62,12 @@
   </ItemGroup>
 
 
+  <ItemGroup>
+    <None Include="..\NovusNodoUIPlugins\SplitCondition\Component.razor" Link="Component.razor" />
+    <None Include="..\NovusNodoUIPlugins\_Imports.razor" Link="_Imports.razor" />
+  </ItemGroup>
+
+
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 	<Exec Command="if exist &quot;$(ProjectDir)wwwroot\_content&quot; rmdir /S /Q &quot;$(ProjectDir)wwwroot\_content&quot;" />
 	<Exec Command="if exist &quot;$(ProjectDir)wwwroot\pluginicons&quot; rmdir /S /Q &quot;$(ProjectDir)wwwroot\pluginicons&quot;" />

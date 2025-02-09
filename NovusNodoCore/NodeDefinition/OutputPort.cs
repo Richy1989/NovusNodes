@@ -6,6 +6,11 @@
     public class OutputPort(INodeBase current) : NodePort(current)
     {
         /// <summary>
+        /// Gets or sets the related worker task ID.
+        /// </summary>
+        public string RelatedWorkerTaskId { get; set; }
+
+        /// <summary>
         /// Gets or sets the dictionary of next nodes connected to this output port.
         /// </summary>
         public Dictionary<string, INodeBase> NextNodes { get; set; } = [];

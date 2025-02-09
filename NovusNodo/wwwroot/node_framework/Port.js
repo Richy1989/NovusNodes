@@ -18,35 +18,41 @@ export class Port {
     constructor(node, canvas, portType, id) {
         this.node = node;
         this.id = id;
+        this.index = 0;
         this.canvas = canvas;
         this.svg = node.svg;
         this.portType = portType;
-        this.port = this.createPort();
+        this.port = null;
     }
 
     createPort() {
-        let background = "orange";
-
-        if(this.portType == 'input') {
-            this.x = - this.width / 2;
-            background ="steelblue";
+        if(this.port != null) {
+            this.updatePortPosition();
         }
-        else if(this.portType == 'output') {
-            this.x = this.node.width - this.width / 2;
+        else {
+            let background = "orange";
+
+            if(this.portType == 'input') {
+                this.x = - this.width / 2;
+                background ="steelblue";
+            }
+            else if(this.portType == 'output') {
+                this.x = this.node.width - this.width / 2;
+            }
+            
+            this.y = this.node.height / 2 - this.height / 2;
+
+            this.port = this.node.group.append("rect")
+                .attr("class", "port")
+                .attr("port-type", this.portType)
+                .attr("rx", 3)
+                .style("fill", background)
+                .style("stroke", this.canvas.getNodeStrokeColor())
+                .attr("width", this.width)
+                .attr("height", this.height)
+                .attr("x", this.x)
+                .attr("y", this.y);
         }
-
-        this.y = this.node.height / 2 - this.height / 2;
-
-        return this.node.group.append("rect")
-            .attr("class", "port")
-            .attr("port-type", this.portType)
-            .attr("rx", 3)
-            .style("fill", background)
-            .style("stroke", this.canvas.getNodeStrokeColor())
-            .attr("width", this.width)
-            .attr("height", this.height)
-            .attr("x", this.x)
-            .attr("y", this.y);
     }
 
     updatePortPosition() {
@@ -57,6 +63,11 @@ export class Port {
             this.x = this.node.width - this.width / 2;
         }
 
+        if(this.portType == 'output') {
+            this.y = this.node.height / this.node.outputPorts.length * (this.index + 1) - this.height / 2;
+        }
+
+        this.port.attr("y", this.y);
         this.port.attr("x", this.x);
     }
 

@@ -55,11 +55,18 @@ namespace NovusNodo.Components.Pages
 
             ExecutionManager.OnCurveStyleChanged += ExecutionManager_OnCurveStyleChanged;
             _nodePageManager.AvailableNodesUpdated += NodesAdded;
+            _nodePageManager.OnPortsChanged += _nodePageManager_OnPortsChanged;
             NovusUIManagement.OnDarkThemeChanged += NovusUIManagement_OnDarkThemeChanged;
             NovusUIManagement.OnNodeNameChanged += NovusUIManagement_OnNodeNameChanged;
             NovusUIManagement.OnResetZoom += NovusUIManagement_OnResetZoom;
             NovusUIManagement.OnNodeEnabledChanged += NovusUIManagement_OnNodeEnabledChanged;
             NovusUIManagement.OnCanvasRasterSizeChanged += NovusUIManagement_OnCanvasRasterSizeChanged;
+
+        }
+
+        private async Task _nodePageManager_OnPortsChanged(string nodeId)
+        {
+            await AddPorts(_nodePageManager.AvailableNodes[nodeId]);
         }
 
         /// <summary>
@@ -337,15 +344,13 @@ namespace NovusNodo.Components.Pages
             if (node.PluginSettings.NodeType == NodeType.Worker || node.PluginSettings.NodeType == NodeType.Finisher)
             {
                 Logger.LogDebug($"Adding input port {node.InputPort.Id}");
-                await CanvasReference.InvokeVoidAsync("addInputPorts", new object[] { node.Id, node.InputPort.Id });
+                await CanvasReference.InvokeVoidAsync("addInputPorts", [node.Id, node.InputPort.Id]);
             }
             if (node.PluginSettings.NodeType == NodeType.Worker || node.PluginSettings.NodeType == NodeType.Starter)
             {
-                foreach (var port in node.OutputPorts.Values)
-                {
-                    Logger.LogDebug($"Adding output port {port.Id}");
-                    await CanvasReference.InvokeVoidAsync("addOutputPorts", new object[] { node.Id, port.Id });
-                }
+                var portIds = node.OutputPorts.Keys;
+                Logger.LogDebug($"Adding output port to node {node.Id}.");
+                await CanvasReference.InvokeVoidAsync("addOutputPorts", [node.Id, portIds]);
             }
         }
 
@@ -371,6 +376,7 @@ namespace NovusNodo.Components.Pages
                     Logger.LogDebug($"Disposing Canvas with ID: {TabID}");
                     ExecutionManager.OnCurveStyleChanged -= ExecutionManager_OnCurveStyleChanged;
                     _nodePageManager.AvailableNodesUpdated -= NodesAdded;
+                    _nodePageManager.OnPortsChanged -= _nodePageManager_OnPortsChanged;
                     NovusUIManagement.OnDarkThemeChanged -= NovusUIManagement_OnDarkThemeChanged;
                     NovusUIManagement.OnNodeNameChanged -= NovusUIManagement_OnNodeNameChanged;
                     NovusUIManagement.OnResetZoom -= NovusUIManagement_OnResetZoom;

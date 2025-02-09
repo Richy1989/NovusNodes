@@ -23,8 +23,8 @@ namespace NovusNodoPlugins
                 IsSwitchable = true,
             };
 
-            // Adding the task to the list of tasks
-            AddWorkTask("56421658-A6D8-495E-BC08-6B4E368AE03A", Workload);
+            this.WorkTasks.Add("56421658-A6D8-495E-BC08-6B4E368AE03A", Workload);
+            _= this.RaiseWorkerTasksChangedAsync();
         }
 
         /// <summary>
